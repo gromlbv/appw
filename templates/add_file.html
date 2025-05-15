@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Загрузить файл
+{% endblock title %}
+
+{% block content %}
+<form method="POST" action="" enctype="multipart/form-data">
+    <label for="download_file">Файл</label>
+    <input type="file" id="download_file" name="download_file" required>
+
+    <label for="title">Название</label>
+    <textarea id="title" name="title" required></textarea>
+
+    <label for="preview">Превью</label>
+    <input type="file" id="image_file" name="image_file" accept="image/*" required>
+
+    <label for="link">Ссылка</label>
+    <div class="flex">
+        <a>https://lbvo.ru/file/
+            <input type="text" id="link" name="link" maxlength="32" required></a>
+    </div>
+
+    <label for="expires">Expires in days (premium only):</label>
+    <input type="number" id="expires" name="expires" value="30" disabled>
+
+    <label for="auto_download">Auto Download:</label>
+    <input type="checkbox" id="auto_download" name="auto_download" value="Включить автозагрузку?" disabled>
+
+    <input type="submit" value="Отправить">
+</form>
+
+{% if error %}
+    <div class="error">{{ error[0] }}</div>
+{% endif %}
+
+{% endblock content %}

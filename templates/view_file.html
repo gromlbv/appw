@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Просмотр файла: {{ shared_file.title }}
+{% endblock title %}
+
+{% block content %}
+{% if shared_file.preview %}
+<img src="{{ request.url_root }}{{ shared_file.preview }}" alt="No preview"
+    style="max-width: 100%; border-radius: 10px; width: 100%;">
+{% endif %}
+
+<div class="flex flex-between flex-center"
+    style="background-color: #001f3d; padding: 20px; border-radius: 12px; color: white;">
+    <div class="flex-cl">
+            <h1 style="margin: 0;">{{ shared_file.title }}</h1>
+            
+            {% if shared_file.uploaded_by %}
+            <div class="flex gap-8">
+                <p style="opacity: 0.5;">отправлен</p>
+                <a href="/guest/{{ shared_file.uploaded_by }}">{{ shared_file.uploaded_by }}
+                </a>
+            </div>
+            {% endif %}
+
+
+    </div>
+
+    <a class="rounded-download" href="/{{ shared_file.file_link }}" download>
+        <svg xmlns="http://www.w3.org/2000/svg" width="800px" height="800px" viewBox="0 0 24 24" fill="none">
+            <path opacity="0.5"
+                d="M3 15C3 17.8284 3 19.2426 3.87868 20.1213C4.75736 21 6.17157 21 9 21H15C17.8284 21 19.2426 21 20.1213 20.1213C21 19.2426 21 17.8284 21 15"
+                stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M12 3V16M12 16L16 11.625M12 16L8 11.625" stroke-width="1.5" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </svg>
+
+    </a>
+
+
+</div>
+
+<div style="padding: 20px; opacity: 0.35;">
+    {% if shared_file.is_active %}
+    <p>Файл удалится через {{ shared_file.expires }} дней.</p>
+    {% else %}
+    <p>Файл неактивен.</p>
+    {% endif %}
+</div>
+{% endblock content %}

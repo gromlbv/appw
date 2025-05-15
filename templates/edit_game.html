@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ game.title }} - Просмотр игры
+{% endblock title %}
+
+{% block content %}
+<form method="POST" enctype="multipart/form-data">
+    <label for="title">Title:</label>
+    <textarea id="title" name="title">{{ game.title }}</textarea>
+
+    {% if game.preview %}
+    <img src="{{ request.url_root }}{{ game.preview }}" alt="Preview" style="max-width: 100%; border-radius: 10px; width: 100%;">
+    {% endif %}
+    <label for="preview">Новое превью</label>
+    <input type="file" id="image_file" name="image_file" accept="image/*">
+
+    <label>Файлы</label>
+    <div id="downloads-container">
+        <div class="download-item flex-cl">
+              {% for download in game.game_downloads %}
+            <div class="download-wr flex">
+              <input name="download_titles[]" placeholder="Название загрузки" value="{{ download.title}}">
+              <input type="file" name="download_files[]">
+              <a href="{{ download.file_link }}" download>Скачать</a>
+              <a href="#" onclick="removeDownload()">✕</a>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+    <button type="button" onclick="addDownload(this)">Добавить ещё</button>
+
+    <script>
+      function addDownload() {
+          const container = document.getElementById('downloads-container');
+          const item = document.createElement('div');
+          item.className = 'download-item';
+          item.innerHTML = `
+              <input name="download_titles[]" placeholder="Название загрузки">
+              <input type="file" name="download_files[]">
+          `;
+          container.appendChild(item);
+      }
+      function removeDownload(el) {
+          const item = el.closest('.download-wr');
+          if (item) item.remove();
+      }
+    </script>
+
+    <label for="link">Ссылка на игру</label>
+    <input type="text" id="link" name="link" maxlength="32" value="{{ game.link }}">
+
+    <label for="comments_allowed">Comments Allowed:</label>
+    <input type="checkbox" id="comments_allowed" name="comments_allowed" {% if game.comments_allowed %}checked{% endif %}>
+
+    <label for="description">Description:</label>
+    <textarea id="description" name="description">{{ game.game_info.description }}</textarea>
+
+    <label for="price">Price:</label>
+    <input type="number" id="price" name="price" value="{{ game.game_info.price }}">
+
+    <label for="release_date">Release Date:</label>
+    <input type="date" id="release_date" name="release_date" value="{{ game.game_info.release_date }}">
+
+    <label for="language">Language:</label>
+    <input type="text" id="language" name="language" value="{{ game.game_info.language }}">
+
+    <input type="submit" value="Сохранить">
+</form>
+
+{% endblock content %}

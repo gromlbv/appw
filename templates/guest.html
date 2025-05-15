@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Создать аккаунт
+{% endblock title %}
+
+
+
+{% block content %}
+<div class="flex flex-center">
+    <a href="/">Назад</a>
+    <h1>{{account["username"]}}</h1>
+</div>
+
+
+<div class="flex-cl">
+    <h3>Игры юзера</h3>
+    {% for game in games %}
+    <a href="/game/{{ game['link'] }}">{{game["title"]}}</a>
+    {% endfor %}
+</div>
+
+
+{% endblock content %}

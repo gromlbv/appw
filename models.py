@@ -1,0 +1,141 @@
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
+from sqlalchemy.orm import Mapped, relationship
+
+
+db = SQLAlchemy()
+
+def migrate(app, db):
+    Migrate(app, db)
+
+def create_app(app):
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+    app.config ["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    db.init_app(app)
+    migrate(app, db)
+    return app
+
+def create_tables():
+    db.create_all()
+
+
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+
+    username = db.Column(db.String(24))
+    password = db.Column(db.String(32))
+
+    is_premium = db.Column(db.Boolean, default=False)
+    is_approved = db.Column(db.Boolean, default=False)
+
+    def anonim(self):
+        return {
+            "username": self.username,
+            "is_premium": self.is_premium,
+            "is_approved": self.is_approved
+        }
+
+# class Messages(db.Model):
+#     id = db.Column(db.Integer, primary_key=True)
+
+
+# Игры
+
+class GameInfo(db.Model):
+    __tablename__ = 'games_info'
+    id = db.Column(db.Integer, primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('games.id'))
+    game = relationship("Game", uselist=False, back_populates="game_info")  # ← правильно
+
+    description = db.Column(db.Text)
+    price = db.Column(db.Integer)
+    release_date = db.Column(db.Date)
+    language = db.Column(db.Text)
+
+    published_by = db.Column(db.String(20), db.ForeignKey('users.id'))
+
+
+class GameDownload(db.Model):
+    __tablename__ = 'game_downloads'
+    id = db.Column(db.Integer, primary_key=True)
+    
+    game_id = db.Column(db.Integer, db.ForeignKey('games.id'))
+    game = relationship("Game", back_populates="game_downloads")
+
+    title = db.Column(db.String(100))
+    file_link = db.Column(db.String(255))
+    order = db.Column(db.Integer, default=0)
+
+
+class Game(db.Model):
+    __tablename__ = 'games'
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.Text)
+    preview = db.Column(db.Text)
+
+    link = db.Column(db.String(32))
+
+    comments_allowed = db.Column(db.Boolean, default=False)
+    is_archived = db.Column(db.Boolean, default=False)
+    
+    game_info = relationship("GameInfo", uselist=False, back_populates="game")
+    game_downloads = relationship("GameDownload", back_populates="game", order_by="GameDownload.order")
+
+
+
+# class GameComment(db.Model):
+#     __tablename__ = 'game_comments'
+#     id = db.Column(db.Integer, primary_key=True)
+
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+#     game_id = db.Column(db.Integer, db.ForeignKey('games.id'), nullable=False)
+#     user = relationship("User", back_populates="game_comments")
+#     game = relationship("Game", back_populates="game_comments")
+#     reply = relationship("GameComment", back_populates="comment")
+
+#     text = db.Column(db.Text)
+#     is_positive = db.Column(db.Boolean)
+#     date = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+
+# class CommentReply(db.Model):
+#     __tablename__ = 'comment_replies'
+#     id = db.Column(db.Integer, primary_key=True)
+    
+#     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+#     comment_id = db.Column(db.Integer, db.ForeignKey('game_comments.id'), nullable=False)
+
+#     user = relationship("User", back_populates="comment_replies")
+#     comment = relationship("GameComment", back_populates="replies")
+
+#     text = db.Column(db.Text)
+#     date = db.Column(db.DateTime, default=db.func.current_timestamp())
+
+
+
+class SharedFile(db.Model):
+    __tablename__ = 'shared_files'
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.Text)
+    preview = db.Column(db.Text)
+    file_link = db.Column(db.Text)
+    uploaded_by = db.Column(db.String(20), db.ForeignKey('users.id'))
+
+    is_active = db.Column(db.Boolean, default=True)
+
+    # Премиум фичи
+    expires = db.Column(db.Integer)
+    auto_download = db.Column(db.Integer)
+    link = db.Column(db.String(32))
+
+
+# users = User.query.all()
+# users = User.query.with_entities(User.username, User.password).all()
+# users = [user.to_dict() for user in User.query.all()]
+# users = User.query.filter(User.username == 'admin').all()

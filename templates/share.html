@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Создать аккаунт
+{% endblock title %}
+
+
+
+{% block content %}
+
+
+<form method="post">
+    <input type="text" name="title">
+    <input type="text" name="preview">
+    {% if error %}
+        {{ error[0] }}
+    {% endif %}
+    <input type="submit">
+    
+</form>
+
+
+{% endblock content %}

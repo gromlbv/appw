@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} {% endblock title %} - lbv.apps</title>
+    <link rel="stylesheet" href="{{ url_for ('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="base flex">
+        <a href="/">Главная</a>
+
+        <a href="/game/create">Добавить игру</a>
+        <a href="/file/create">Загрузить файл</a>
+
+        {% if not session.get('token') %}
+        <a href="/account/register">Создать аккаунт</a>
+        <a href="/account/login">Войти в аккаунт</a>
+        {% else %}
+        <a href="/account/logout">Выйти из аккаунта</a>
+        {% endif %}
+    </header>
+    <div class="content-wrapper">
+        {% block content %}{% endblock content %}
+    </div>
+    {% set messages = get_flashed_messages() %}
+    {% for message in messages %}
+        <div style="color: red;">{{message}}</div>
+    {% endfor %}
+</body>
+    
+</html>
