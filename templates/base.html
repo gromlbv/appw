@@ -7,26 +7,59 @@
     <link rel="stylesheet" href="{{ url_for ('static', filename='style.css') }}">
 </head>
 <body>
-    <header class="base flex">
-        <a href="/">Главная</a>
+    <div class="wrapper">
+        <header class="base flex">
+            <a class="fit logo" href="/">
+                <svg xmlns="http://www.w3.org/2000/svg" width="54" height="29" viewBox="0 0 54 29" fill="none">
+                    <path d="M1 20.5L35.5 5L43 13.5L23 27L7 3L53 24" stroke="white" stroke-width="2"/>
+                </svg>
+            </a>
 
-        <a href="/game/create">Добавить игру</a>
-        <a href="/file/create">Загрузить файл</a>
+            <div class="right-side">
+                <div class="close-buttons flex">
+                    <a class="fill fit search">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path opacity="0.5" d="M19 19L15 15M17 9C17 13.4183 13.4183 17 9 17C4.58172 17 1 13.4183 1 9C1 4.58172 4.58172 1 9 1C13.4183 1 17 4.58172 17 9Z" stroke="white" stroke-linecap="round"/>
+                        </svg>
+                        Поиск
+                    </a>
+                    <a class="fill" href="/game/create">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
+                            <path opacity="0.5" d="M0.75 9H9M17.25 9H9M9 9V0.75M9 9V17.25" stroke="white" stroke-linecap="round"/>
+                        </svg>
+                    </a>
+                </div>
 
-        {% if not session.get('token') %}
-        <a href="/account/register">Создать аккаунт</a>
-        <a href="/account/login">Войти в аккаунт</a>
-        {% else %}
-        <a href="/account/logout">Выйти из аккаунта</a>
-        {% endif %}
-    </header>
-    <div class="content-wrapper">
-        {% block content %}{% endblock content %}
+                
+                <a href="/file/create">FL</a>
+
+                {% if not session.get('token') %}
+                <a href="/account/register">NW</a>
+                <a href="/account/login">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="14" viewBox="0 0 18 14" fill="none">
+                    <path d="M0.75 6.99976H9H17.25M0.75 0.749756H9H17.25M0.75 13.2502L9 13.2498L17.25 13.2502" stroke="#909090" stroke-linecap="round"/>
+                    </svg>
+                </a>
+                {% else %}
+                <a href="/account/logout">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="14" viewBox="0 0 18 14" fill="none">
+                    <path d="M0.75 6.99976H9H17.25M0.75 0.749756H9H17.25M0.75 13.2502L9 13.2498L17.25 13.2502" stroke="#909090" stroke-linecap="round"/>
+                    </svg>
+                </a>
+                {% endif %}
+
+            </div>
+
+        </header>
+        <div class="content-wrapper">
+            {% block content %}{% endblock content %}
+        </div>
+        {% set messages = get_flashed_messages() %}
+        {% for message in messages %}
+            <div>{{message}}</div>
+        {% endfor %}
     </div>
-    {% set messages = get_flashed_messages() %}
-    {% for message in messages %}
-        <div style="color: red;">{{message}}</div>
-    {% endfor %}
+
 </body>
     
 </html>

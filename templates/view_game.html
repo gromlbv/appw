@@ -5,7 +5,8 @@
 {% endblock title %}
 
 {% block content %}
-<img src="{{ request.url_root }}{{ game.preview }}" alt="Preview" style="max-width: 100%; border-radius: 10px; width: 100%;">
+<img src="{{ request.url_root }}{{ game.preview }}" alt="Preview"
+    style="max-width: 100%; border-radius: 10px; width: 100%;">
 <div class="flex flex-center">
     <div class="flex-cl flex-grow">
 
@@ -18,14 +19,21 @@
             <h3>Загрузки</h3>
             {% for download in game_download %}
             <div class="download-item flex flex-center">
-                <p>{{ loop.index }}. {{ download.title }}</p>
-                <a href="{{ game_download.file_link }}" download>Скачать</a>
+                <p>{{ loop.index }}.
+                    {% if download.title %}
+                        {{ download.title }}
+                    {% else %}
+                        Без названия
+                    {% endif %}
+                </p>
+                <a href="{{ download.file_link }}" download>Скачать</a>
             </div>
             {% endfor %}
         </div>
-    <a href="{{ url_for('edit_game', game_link=game.link) }}">Редактировать</a>
-    <a href="{{ url_for('delete_game', game_link=game.link) }}" method="post">Удалить</a>
 
+        <a href="{{ url_for('edit_game', game_link=game.link) }}">Редактировать</a>
+        <a href="{{ url_for('delete_game', game_link=game.link) }}" method="post">Удалить</a>
+    
     </div>
 
     <div class="game-info-wrapper">
@@ -43,10 +51,10 @@
             <h3>Автор</h3>
             <a href="/guest/{{ game.game_info.published_by }}">{{ game.game_info.published_by }}</a>
         </div>
-        
+
         <div>
             <h3>Цена</h3>
-            <p>{{ game.game_info.price }} {{ '₽'  if game.game_info.price else 'Цена не указана' }}</p>
+            <p>{{ game.game_info.price }} {{ '₽' if game.game_info.price else 'Цена не указана' }}</p>
         </div>
     </div>
 </div>

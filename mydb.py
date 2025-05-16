@@ -72,14 +72,14 @@ def get_app_by_user(username):
     games = get_apps_all()
     return [game for game in games if game.game_info and game.game_info.published_by == username]
 
-def post_comment(userid, gameid, text):
-    game_comment = GameComment(
-        gameid = gameid,
-        userid = userid,
+# def post_comment(userid, gameid, text):
+#     game_comment = GameComment(
+#         gameid = gameid,
+#         userid = userid,
         
-        text = text,
-    )
-    save_to_db(game_comment)
+#         text = text,
+#     )
+#     save_to_db(game_comment)
 
 def post_game(
         title, link, comments_allowed, preview,

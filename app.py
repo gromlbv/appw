@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, session, request, flash, redirect
+from flask import render_template, session, request, flash, redirect, jsonify
 from flask import url_for as furl_for
 from routes import *
 
@@ -9,7 +9,6 @@ from upload import upload_image, upload_file
 
 import mydb as db
 from datetime import datetime
-
 
 app = Flask(__name__)
 create_app(app)
@@ -91,6 +90,9 @@ def post_game():
     game_file = request.files.get('game_file')
     game_file = upload_file(game_file)
 
+    # if errors:
+    #     return jsonify(success=False, errors={"link": "Ссылка уже используется"})
+
     game = db.post_game(
         title, link, comments_allowed, preview,
         # GameInfo
@@ -106,9 +108,14 @@ def post_game():
         file = files[i]
         link = upload_file(file)
         db.add_game_download(game.id, titles[i], link, order=i)
-
+    
+    
     flash("Игра успешно создана")
-    return redirect(furl_for("index"))
+    return jsonify(
+        success=True,    
+        message="Игра успешно создана",
+        game_url=f"/game/{game.link}"
+        )
 
 @app.get("/game/<link>")
 def view_game(link):
@@ -116,7 +123,7 @@ def view_game(link):
     game_download = game.game_downloads
 
     if game:
-        print(game.game_info.description)
+        game_download = getattr(game, "game_downloads", [])
         return render_template("view_game.html", game=game, game_download=game_download)
     else:
         return "File not found", 404

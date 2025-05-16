@@ -8,23 +8,22 @@
 
 {% block content %}
 
-
-<div class="flex-cl">
-    <h1>Юзеры</h1>
+<h1>Юзеры</h1>
+<div class="object-wr">
     {% for user in users %}
     <a href="/guest/{{ user["username"] }}">{{user["username"]}}</a>
     {% endfor %}
 </div>
 
-<div class="flex-cl">
-    <h1>Игры</h1>
+<h1>Игры</h1>
+<div class="object-wr">
     {% for game in games %}
     <a href="/game/{{ game['link'] }}">{{game["title"]}}</a>
     {% endfor %}
 </div>
 
-<div class="flex-cl">
-    <h1>Файлы</h1>
+<h1>Файлы</h1>
+<div class="object-wr">
     {% for file in files %}
     <a href="/file/{{ file['link'] }}">{{file["title"]}}</a>
     {% endfor %}

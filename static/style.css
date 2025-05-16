@@ -1,5 +1,8 @@
 :root{
     --border-color: rgba(255, 255, 255, 0.06);
+    --primary-color: #FFFFFF;
+    --secondary-color: #909090;
+    --third-color: rgba(255, 255, 255, 0.2);
 }
 .flex {
     display: flex;
@@ -29,33 +32,12 @@
     gap: 8px;
 }
 
-h3,
-p {
+h3, p {
     margin: 4px 0;
 }
-
-p {
-    opacity: 0.5;
+p{
+    color: var(--secondary-color);
 }
-
-header.base {
-    height: fit-content;
-    padding-bottom: 12px;
-}
-
-body {
-    margin: 0;
-    padding: 24px;
-
-    background-color: #0d1b2a;
-    color: white;
-    font-family: Arial, sans-serif;
-}
-
-* {
-    box-sizing: border-box !important;
-}
-
 a {
     display: flex;
 
@@ -64,12 +46,108 @@ a {
     height: fit-content;
 
     color: white;
-    background-color: #1b263b;
+    background-color: var(--border-color);
     border-radius: 4px;
     text-decoration: none;
 
     transition: opacity 0.2s;
 }
+
+.wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+header.base {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 32px;
+    width: 100%;
+    max-width: 620px;
+    height: 64px;
+
+    border-radius: 32px;
+    border: 1px solid;
+    border-color: var(--border-color);
+
+    color: var(--secondary-color);
+
+    .right-side{
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        height: 100%;
+
+        .close-buttons{
+            display: flex;
+            gap: 4px;
+        }
+    }
+
+    a{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 7px;
+
+        height: 100%;
+        width: 48px; 
+
+        background-color: transparent;
+        color: var(--secondary-color);
+        border: 1px solid transparent;
+        border-right-color: var(--border-color);
+        border-left-color: var(--border-color);
+
+        border-radius: 0;
+    }
+    a.fill{
+        background-color: var(--border-color);
+        border: 1px solid transparent;
+        border-radius: 24px;
+
+        height: 48px;
+        width: 48px;
+    }
+    a.search{
+        padding: 22px;
+    }
+    a.logo{
+        padding: 12px;
+    }
+    a.fit{
+        width: fit-content;
+    }
+    a:hover{
+        background-color: var(--border-color);
+
+        transition: 0.2s
+    }
+}
+
+html, body{
+    margin: 0;
+    padding: 0;
+}
+body {
+    padding: 24px;
+    width: 100%;
+
+    background-color: #0D0D0D;
+    color: white;
+    font-family: Arial, sans-serif;
+}
+
+* {
+    box-sizing: border-box !important;
+}
+
+
 
 a:hover {
     opacity: 0.8;
@@ -89,6 +167,41 @@ input, select{
 input:focus, select:focus{
     border: none;
     outline: none;
+}
+body{
+    display: flex;
+    justify-content: center;
+}
+.wrapper{
+    max-width: 1020px;
+    width: 100%;
+}
+.object-wr{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+
+    a{
+        display: flex;
+
+        width: 24%;
+        min-width: 176px;
+        height: 176px;
+        padding: 24px;
+
+        background-color: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: 24px;
+
+        font-size: 16px;
+        color: var(--secondary-color);
+
+        transition: 0.2s;
+    }
+    a:hover{
+        color: var(--primary-color);
+        background-color: var(--border-color);
+    }
 }
 
 .overlay{
@@ -170,8 +283,6 @@ form {
 
         }
 
-
-
         .downloads-wr{
             display: flex;
             flex-direction: column;
@@ -194,10 +305,14 @@ form {
                     height: 24px;
                     border-radius: 32px;
                     border: none;
-                    background-color: #FF5F57;
+                    background-color: var(--border-color);
                     color: white;
+                    text-box: auto;
 
                     cursor: pointer;
+                }
+                .remove-btn:hover{
+                    background-color: #FF5F57;
                 }
             }
 
@@ -262,7 +377,7 @@ form {
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 0px;
             padding-left: 48px;
             padding-right: 48px;
         }
@@ -272,7 +387,7 @@ form {
             flex-direction: column;
             gap: 8px;
 
-            padding: 18px 0;
+            padding: 21px 0;
             border-bottom: solid 1px var(--border-color);
 
             label{
@@ -300,6 +415,7 @@ form {
                 border-radius: 32px;
                 background: white;
                 font-size: 16px;
+                font-weight: bold;
                 color: black;
 
                 cursor: pointer;
@@ -313,6 +429,8 @@ form {
             .input-link-wr{
                 display: flex;
                 gap: 2px;
+
+                cursor: text;
                 .prefix{
                     opacity: 0.2;
                     font-size: 24px;
@@ -337,11 +455,20 @@ form {
 
             border: none;
             border-radius: 32px;
-            background: #222;
+            background: var(--border-color);
             font-size: 16px;
             color: rgba(255, 255, 255, 0.2);
 
             cursor: pointer;
+
+            transition: color 0.3s, background 0.3s, opacity 0.2s;
+        }
+        .continue.active{
+            background: white;
+            color: black;
+        }
+        .continue:hover{
+            opacity: 0.6;
         }
 
         .two-side{
