@@ -8,3 +8,4 @@
 .venv/Lib/site-packages/sqlalchemy/cyextension/resultproxy.cp311-win_amd64.pyd
 .venv/Lib/site-packages/sqlalchemy/cyextension/util.cp311-win_amd64.pyd
 .venv/Scripts/python.exe
+/.venv
