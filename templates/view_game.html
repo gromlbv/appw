@@ -5,8 +5,9 @@
 {% endblock title %}
 
 {% block content %}
-<img src="{{ request.url_root }}{{ game.preview }}" alt="Preview"
-    style="max-width: 100%; border-radius: 10px; width: 100%;">
+{% if game. preview %}
+<img src="{{ request.url_root }}{{ game.preview }}" alt="Preview" style="max-width: 100%; border-radius: 10px; width: 100%;">
+{% endif %}
 <div class="flex flex-center">
     <div class="flex-cl flex-grow">
 
