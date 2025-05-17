@@ -127,19 +127,24 @@ def post_game():
 @app.get("/game/<link>")
 def view_game(link):
     game = db.get_app_one(link)
-    game_download = game.game_downloads
 
     if game:
+        game_download = game.game_downloads
         game_download = getattr(game, "game_downloads", [])
         return render_template("view_game.html", game=game, game_download=game_download)
     else:
-        return "File not found", 404
+        flash("Приложение не найдено")
+        return redirect(furl_for('index'))
 
 from flask import send_from_directory
 
 @app.route('/download/<filename>')
 def download_file(filename):
-    return send_from_directory('static/games', filename, as_attachment=True)
+    if filename is None:
+        return "Файл не найден", 404
+    download_name = db.get_download_info(filename)
+    resp = send_from_directory('static/uploads', filename, as_attachment=True, download_name=download_name)
+    return resp
     
 @app.route('/game/delete/<game_link>')
 def delete_game(game_link):

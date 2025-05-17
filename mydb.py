@@ -109,6 +109,15 @@ def post_game(
     print("Game created:", game)
     return game
 
+def get_download_info(filename):
+    game_download = db.session.query(GameDownload).filter_by(file_link=filename).first()
+    game = db.session.query(Game).filter_by(id=game_download.game_id).first()
+
+    game_name = game.title
+    title = game_download.title
+
+    download_name = game_name + " · " + title + " · apps.lbvo.ru"
+    return download_name
 
 def add_game_download(game_id, title, file_link, file_size, order=0):
     game_download = GameDownload(game_id=game_id, title=title, file_link=file_link, file_size=file_size, order=order)
