@@ -26,7 +26,7 @@
                         Без названия
                     {% endif %}
                 </p>
-                <a href="{{ download.file_link }}" download>Скачать</a>
+                <a href="{{ url_for('static', filename='uploads/' + download.file_link) }}" download="{{ download.file_link }}">Скачать</a>
             </div>
             {% endfor %}
         </div>
