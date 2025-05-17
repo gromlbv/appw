@@ -113,9 +113,8 @@ def post_game():
 
     for i in range(len(titles)):
         file = files[i]
-        new_file = upload_file(file)    
+        new_file = upload_file(file)
         db.add_game_download(game.id, titles[i], new_file.path, new_file.size, order=i)
-    
     
     flash("Игра успешно создана")
     return jsonify(
@@ -213,7 +212,6 @@ def post_file():
 
     my_file = request.files.get('download_file')
     download_file = upload_file(my_file)
-
 
     db.post_file(
         title, preview, download_file, link, uploaded_by

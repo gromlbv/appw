@@ -223,6 +223,34 @@ body{
     width: 100vw;
     height: 100vh;
     overflow-y: scroll;
+    overflow-x: hidden;
+}
+.wrapper {
+    overflow-y: scroll;
+    scrollbar-width: thin;
+    scrollbar-color: var(--secondary-color) #0d0d0d;
+    position: relative;
+}
+
+.wrapper::-webkit-scrollbar {
+    width: 8px;
+    background: white;
+    margin-left: -4px; /* смещаем скроллбар левее */
+}
+
+.wrapper::-webkit-scrollbar-thumb {
+    background-color: black;
+    border-radius: 4px;
+
+    cursor: pointer;
+}
+.wrapper::-webkit-scrollbar-thumb:hover{
+    background-color: blue;
+    color: blue;
+}
+
+.wrapper::-webkit-scrollbar-track {
+    background: white;
 }
 .content-wrapper{
     width: 100%;
