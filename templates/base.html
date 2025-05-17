@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %} {% endblock title %} - lbv.apps</title>
+    <title>{% block title %} {% endblock title %}apps.lbv</title>
     <link rel="stylesheet" href="{{ url_for ('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
+    <div class="absolute-menu">
+        <a href="/account/login">Войти в аккаунт</a>
+    </div>
     <div class="wrapper">
         <header class="base flex">
             <a class="fit logo" href="/">
@@ -18,35 +22,28 @@
             <div class="right-side">
                 <div class="close-buttons flex">
                     <a class="fill fit search">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <path opacity="0.5" d="M19 19L15 15M17 9C17 13.4183 13.4183 17 9 17C4.58172 17 1 13.4183 1 9C1 4.58172 4.58172 1 9 1C13.4183 1 17 4.58172 17 9Z" stroke="white" stroke-linecap="round"/>
-                        </svg>
+                        <img src="{{ url_for('static', filename='icons/search.svg') }}">
                         Поиск
                     </a>
                     <a class="fill" href="/game/create">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18" fill="none">
-                            <path opacity="0.5" d="M0.75 9H9M17.25 9H9M9 9V0.75M9 9V17.25" stroke="white" stroke-linecap="round"/>
-                        </svg>
+                        <img src="{{ url_for('static', filename='icons/plus.svg') }}" alt="+">
                     </a>
+                    {% if not session.get('token') %}
+                        <a class="fill" href="/account/register">
+                            <img src="{{ url_for('static', filename='icons/person.svg') }}" alt="Аккаунт">
+                        </a>
+                    {% else %}
+                        <a class="fill" href="/account/me">
+                            <img src="{{ url_for('static', filename='icons/person.svg') }}" alt="Аккаунт">
+                        </a>
+                    {% endif %}
                 </div>
 
-                
-                <a href="/file/create">FL</a>
+                <!-- <a href="/file/create">FL</a> -->
 
-                {% if not session.get('token') %}
-                <a href="/account/register">NW</a>
-                <a href="/account/login">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="14" viewBox="0 0 18 14" fill="none">
-                    <path d="M0.75 6.99976H9H17.25M0.75 0.749756H9H17.25M0.75 13.2502L9 13.2498L17.25 13.2502" stroke="#909090" stroke-linecap="round"/>
-                    </svg>
+                <a href="/user/{{ user_id }}">
+                    <img src="{{ url_for('static', filename='icons/menu.svg') }}" alt="≡">
                 </a>
-                {% else %}
-                <a href="/account/logout">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="14" viewBox="0 0 18 14" fill="none">
-                    <path d="M0.75 6.99976H9H17.25M0.75 0.749756H9H17.25M0.75 13.2502L9 13.2498L17.25 13.2502" stroke="#909090" stroke-linecap="round"/>
-                    </svg>
-                </a>
-                {% endif %}
 
             </div>
 

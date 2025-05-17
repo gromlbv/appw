@@ -1,35 +1,50 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Создать аккаунт
 {% endblock title %}
 
 
 
 {% block content %}
 
-<h1>Юзеры</h1>
-<div class="object-wr">
-    {% for user in users %}
-    <a href="/guest/{{ user["username"] }}">{{user["username"]}}</a>
-    {% endfor %}
-</div>
 
-<h1>Игры</h1>
+
+<h1>Приложения</h1>
 <div class="object-wr">
     {% for game in games %}
-    <a href="/game/{{ game['link'] }}">{{game["title"]}}</a>
+    <a href="/game/{{ game.link }}">
+        {{ game.title }}
+
+        {% if game.game_downloads and game.game_downloads|length > 0 %}
+            <span class="file-size">
+                {{ game.game_downloads[0].file_size|filesize }}
+            </span>
+            
+        {% else %}
+            <span class="file-size">
+                Нет файлов
+            </span>
+        {% endif %}
+
+
+    </a>
+
     {% endfor %}
 </div>
 
-<h1>Файлы</h1>
+<!-- <h1>Файлы</h1>
 <div class="object-wr">
     {% for file in files %}
-    <a href="/file/{{ file['link'] }}">{{file["title"]}}</a>
+    <a href="/file/{{ file.link }}">{{ file.title }}</a>
+    {% endfor %}
+</div> -->
+
+<h1>Юзеры</h1>
+<div class="object-wr users">
+    {% for user in users %}
+    <a href="/user/{{ user["username"] }}">{{user["username"]}}</a>
     {% endfor %}
 </div>
-
-
 
 
 {% endblock content %}

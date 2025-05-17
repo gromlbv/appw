@@ -68,6 +68,7 @@ class GameDownload(db.Model):
 
     title = db.Column(db.String(100))
     file_link = db.Column(db.String(255))
+    file_size = db.Column(db.Integer)
     order = db.Column(db.Integer, default=0)
 
 
@@ -75,10 +76,10 @@ class Game(db.Model):
     __tablename__ = 'games'
     id = db.Column(db.Integer, primary_key=True)
 
-    title = db.Column(db.Text)
+    title = db.Column(db.Text, nullable=False)
     preview = db.Column(db.Text)
 
-    link = db.Column(db.String(32))
+    link = db.Column(db.String(32), nullable=False, unique=True)
 
     comments_allowed = db.Column(db.Boolean, default=False)
     is_archived = db.Column(db.Boolean, default=False)

@@ -1,6 +1,7 @@
 import os
 from werkzeug.utils import secure_filename
 from flask import current_app
+from dataclasses import dataclass
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -22,19 +23,29 @@ def upload_image(file, folder='static/uploads'):
 
     return f"{folder}/{filename}"
 
+@dataclass
+class File():
+    name: str
+    path: str
+    size: int
+
 
 def upload_file(file, folder='static/uploads'):
     if not file:
         return None
 
-    # if not allowed_file(file.filename):
-    #     print(f"File {file.filename} is not allowed.")
-    #     return None
+    file_name = secure_filename(file.filename)
+    file_path = os.path.join(current_app.root_path, folder, file_name)
 
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(current_app.root_path, folder, filename)
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    file.save(file_path)
 
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    file.save(filepath)
+    file_size = os.path.getsize(file_path)
 
-    return f"{folder}/{filename}"
+    new_file = File(
+        name = file_name,
+        path = file_path,
+        size = file_size
+    )
+
+    return new_file

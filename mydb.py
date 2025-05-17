@@ -110,8 +110,8 @@ def post_game(
     return game
 
 
-def add_game_download(game_id, title, file_link, order=0):
-    game_download = GameDownload(game_id=game_id, title=title, file_link=file_link, order=order)
+def add_game_download(game_id, title, file_link, file_size, order=0):
+    game_download = GameDownload(game_id=game_id, title=title, file_link=file_link, file_size=file_size, order=order)
     save_to_db(game_download)
 
     return game_download

@@ -40,29 +40,36 @@ def get_user_id():
     user_id = decode(user_token)
     return user_id
 
+@app.template_filter('filesize')
+def filesize_filter(size):
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if size < 1024:
+            return f"{size:.1f} {unit}"
+        size /= 1024
+    return f"{size:.1f} PB"
+
+
 @app.get('/')
 def index():
-    return render_template("index.html", users=db.get_users_all(), games=db.get_apps_all(), files=db.get_files_all(), is_loggined=is_loggined())
+    games = db.get_apps_all()
+    for game in games:
+        if hasattr(game, "file_size"):
+            game.file_size = format_size(game.file_size)
 
 
-@app.get('/account/register')
-def register():
-    if is_loggined():
-        return redirect(furl_for('index'))
-    return render_template('new_account.html')
+    return render_template(
+        "index.html",
+        users=db.get_users_all(),
+        games=games,
+        files=db.get_files_all(),
+        is_loggined=is_loggined(),
+        user_id=get_user_id()
+    )
 
-@app.post('/account/register')
-def register_post():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    try:
-        db.post_register(username, password)
-        flash(f'Аккаунт {username} успешно создан')
-        return redirect(furl_for('login_post'))
-    except ValueError as e:
-        error = (str(e), 'error')
-        return render_template('new_account.html', error=error, username=username, password=password)
 
+@app.get('/account/me')
+def redirect_to_user():
+    return redirect(furl_for('user', username=get_user_id()))
 
 @app.get('/game/create')
 def add_game():
@@ -106,8 +113,8 @@ def post_game():
 
     for i in range(len(titles)):
         file = files[i]
-        link = upload_file(file)
-        db.add_game_download(game.id, titles[i], link, order=i)
+        new_file = upload_file(file)    
+        db.add_game_download(game.id, titles[i], new_file.path, new_file.size, order=i)
     
     
     flash("Игра успешно создана")
@@ -227,14 +234,36 @@ def file_share_get():
 def file_share_post():
     return redirect(url_for('index'))
 
-@app.get('/guest/<username>')
-def guest(username):
+@app.get('/user/<username>')
+def user(username):
     account = db.get_users_one(username)
     games = db.get_app_by_user(username)
     if account is None:
         return f"Юзер не найден"
     
-    return render_template('guest.html', account=account, games=games)
+    return render_template('user.html', account=account, games=games)
+
+
+@app.get('/account/register')
+def register():
+    if is_loggined():
+        return redirect(furl_for('index'))
+    return render_template('new_account.html')
+
+@app.post('/account/register')
+def register_post():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    try:
+        db.post_register(username, password)
+        flash(f'Аккаунт {username} успешно создан')
+        token = db.post_login(username, password)
+        session['token'] = token
+        return redirect(furl_for('index'))
+    except ValueError as e:
+        error = (str(e), 'error')
+        return render_template('new_account.html', error=error, username=username, password=password)
+
 
 @app.get('/account/login')
 def login():
@@ -250,7 +279,7 @@ def login_post():
     token = db.post_login(username, password)
     session['token'] = token
 
-    return(redirect(f'/guest/{username}'))
+    return(redirect(f'/user/{username}'))
 
 @app.route('/account/logout', methods=['POST', 'GET'])
 def logout():
@@ -258,6 +287,8 @@ def logout():
         print('успешно удалил токен')
         session.pop('token', None)
     return redirect(furl_for('login'))
+
+
 
 if __name__ == "__main__":
     with app.app_context():
