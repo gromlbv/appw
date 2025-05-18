@@ -94,7 +94,7 @@
         {% for app in apps %}
         <a href="/game/{{ app.link }}">
             {{ app.title }}
-
+            {{ app.game_downloads[0] }}
             {% if app.game_downloads and app.game_downloads|length > 0 %}
                 <span class="file-size">
                     {{ app.game_downloads[0].file_size|filesize }}

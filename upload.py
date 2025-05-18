@@ -24,6 +24,7 @@ def upload_image(file, folder='static/uploads'):
 
     return f"{folder}/{filename}"
 
+
 @dataclass
 class File():
     name: str

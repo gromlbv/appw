@@ -132,8 +132,13 @@ def get_download_info(filename):
 
     game_name = game.title
     title = game_download.title
+    file_link = game_download.file_link
+    extension = '.' + file_link.rsplit('.', 1)[-1]
 
-    download_name = game_name + " · " + title + " · apps.lbvo.ru"
+    if title:
+        download_name = game_name + " · " + title + " · apps.lbvo.ru" + extension
+    else:
+        download_name = game_name + " · apps.lbvo.ru" + extension
     return download_name
 
 def add_game_download(game_id, title, file_link, file_size, order=0):
