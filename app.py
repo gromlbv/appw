@@ -51,25 +51,36 @@ def filesize_filter(size):
 
 @app.get('/')
 def index():
-    games = db.get_apps_all()
-    for game in games:
-        if hasattr(game, "file_size"):
-            game.file_size = format_size(game.file_size)
-
-
+    shares = db.get_shares_all()
+    games = db.get_all_games()
+    apps = db.get_all_apps()
+    latest_shares = db.get_latest(4)
+    
     return render_template(
         "index.html",
         users=db.get_users_all(),
+        shares=shares,
         games=games,
+        apps=apps,
+        latest_shares=latest_shares,
         files=db.get_files_all(),
         is_loggined=is_loggined(),
         user_id=get_user_id()
     )
 
 
-@app.get('/account/me')
-def redirect_to_user():
-    return redirect(furl_for('user', username=get_user_id()))
+@app.route('/api/get-categories')
+def get_categories():
+    app_type = request.args.get('type')
+    if app_type == 'game':
+        categories = ["Шутер", "Головоломка", "RPG", "Приключения", "Кооператив", "Симулятор"]
+    elif app_type == 'app':
+        categories = ["Мессенджер", "Утилита", "Фото", "Образование"]
+    else:
+        categories = []
+
+    return jsonify({'categories': categories})
+
 
 @app.get('/game/create')
 def add_game():
@@ -80,7 +91,12 @@ def post_game():
     title = request.form.get('title')
     link = request.form.get('link')
 
-    comments_allowed = True if request.form.get('comments_allowed') == 'on' else False
+    game_file = request.files.get('game_file')
+    game_file = upload_file(game_file)
+
+    image_file = request.files.get('image_file')
+    preview = upload_image(image_file)
+
     description = request.form.get('description')
     price = request.form.get('price')
 
@@ -91,21 +107,20 @@ def post_game():
     language = request.form.get('language')
     published_by = get_user_id()
 
-    image_file = request.files.get('image_file')
-    preview = upload_image(image_file)
+    app_type = request.form.get('app_type')
+    category = request.form.get('category')
 
-    game_file = request.files.get('game_file')
-    game_file = upload_file(game_file)
+    comments_allowed = True if request.form.get('comments_allowed') == 'on' else False
 
     # if errors:
     #     return jsonify(success=False, errors={"link": "Ссылка уже используется"})
 
     game = db.post_game(
-        title, link, comments_allowed, preview,
+        title, link, comments_allowed, preview, 
         # GameInfo
-        description, price, release_date, language, published_by,
+        description, price, release_date, language, published_by, app_type, category,
         # GameDownload
-        file=game_file
+        game_file
         )
     
     titles = request.form.getlist("download_titles[]")
@@ -245,6 +260,13 @@ def user(username):
         return f"Юзер не найден"
     
     return render_template('user.html', account=account, games=games)
+
+
+# Аккаунт
+
+@app.get('/account/me')
+def redirect_to_user():
+    return redirect(furl_for('user', username=get_user_id()))
 
 
 @app.get('/account/register')

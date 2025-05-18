@@ -57,6 +57,16 @@
             <h3>Цена</h3>
             <p>{{ game.game_info.price }} {{ '₽' if game.game_info.price else 'Цена не указана' }}</p>
         </div>
+
+        <div>
+            <h3>Тип приложения</h3>
+            <p>{{ game.game_info.app_type }} </p>
+        </div>
+
+        <div>
+            <h3>Категория</h3>
+            <p>{{ game.game_info.category }} </p>
+        </div>
     </div>
 </div>
 {% endblock content %}

@@ -48,15 +48,19 @@ class User(db.Model):
 class GameInfo(db.Model):
     __tablename__ = 'games_info'
     id = db.Column(db.Integer, primary_key=True)
+
     game_id = db.Column(db.Integer, db.ForeignKey('games.id'))
-    game = relationship("Game", uselist=False, back_populates="game_info")  # ← правильно
+    game = relationship("Game", uselist=False, back_populates="game_info")
 
     description = db.Column(db.Text)
     price = db.Column(db.Integer)
     release_date = db.Column(db.Date)
     language = db.Column(db.Text)
-
     published_by = db.Column(db.String(20), db.ForeignKey('users.id'))
+    published_at = db.Column(db.Date)
+
+    app_type = db.Column(db.String(100))
+    category = db.Column(db.String(100))
 
 
 class GameDownload(db.Model):
@@ -78,9 +82,7 @@ class Game(db.Model):
 
     title = db.Column(db.Text, nullable=False)
     preview = db.Column(db.Text)
-
     link = db.Column(db.String(32), nullable=False, unique=True)
-
     comments_allowed = db.Column(db.Boolean, default=False)
     is_archived = db.Column(db.Boolean, default=False)
     
@@ -127,7 +129,6 @@ class SharedFile(db.Model):
     preview = db.Column(db.Text)
     file_link = db.Column(db.Text)
     uploaded_by = db.Column(db.String(20), db.ForeignKey('users.id'))
-
     is_active = db.Column(db.Boolean, default=True)
 
     # Премиум фичи

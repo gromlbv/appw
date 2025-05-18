@@ -34,18 +34,47 @@
                 </div>
 
                 <div class="input-wr">
-                    <label for="categories">Категории</label>
-                    <select name="categories" id="categories">
-                        <option value="" selected disabled hidden>Выбор платформы</option>
-                        <option value="1">Приложение</option>
-                        <option value="2">Игра</option>
-                        <option value="2">Другое</option>
+                    <label for="app_type">Платформа</label>
+                    <select id="app_type" name="app_type">
+                        <option value="" disabled selected hidden>Выбор платформы</option>
+                        <option value="game">Игра</option>
+                        <option value="app">Приложение</option>
                     </select>
-                    <select name="categories" id="categories">
-                        <option value="" selected disabled hidden>Тип приложения</option>
-                        <option value="1">Мессенджер</option>
-                        <option value="2">Утилита</option>
+
+                    <label for="category">Категория</label>
+                    <select id="category" name="category">
+                        <option value="" disabled selected hidden>Выбрать категорию</option>
                     </select>
+
+                    <script>
+                        const app_type = document.getElementById('app_type');
+                        const category = document.getElementById('category');
+
+                        app_type.addEventListener('change', async () => {
+                            if (app_type.value === '') {
+                                category.innerHTML = '<option value="" disabled selected hidden>Выбрать категорию</option>';
+                            } else if (app_type.value === 'game') {
+                                category.innerHTML = '<option value="" disabled selected hidden>Выбрать жанр игры</option>';
+                            } else if (app_type.value === 'app') {
+                                category.innerHTML = '<option value="" disabled selected hidden>Выбрать тип приложения</option>';
+                            }
+                            const selectedType = app_type.value;
+
+                            try {
+                                const response = await fetch(`/api/get-categories?type=${selectedType}`);
+                                const data = await response.json();
+
+                                data.categories.forEach(type => {
+                                    const opt = document.createElement('option');
+                                    opt.value = type;
+                                    opt.textContent = type;
+                                    category.appendChild(opt);
+                                });
+                            } catch (err) {
+                                console.error('Ошибка при загрузке категорий:', err);
+                            }
+                        });
+                    </script>
                 </div>
 
                 <button class="continue">
@@ -113,12 +142,11 @@
 </form>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="{{ url_for('static', filename='js/errorhandler.js') }}"></script>
 <script>
-    $('.inputs input').on('input', function() {
+    $('.inputs input').on('input', function () {
         var block = $(this).closest('.block');
-        block.find('.continue').toggleClass('active', block.find('.inputs input[required]').filter(function() { return this.value === ''; }).length === 0);
+        block.find('.continue').toggleClass('active', block.find('.inputs input[required]').filter(function () { return this.value === ''; }).length === 0);
     });
 
     $("form").on("click", ".input-link-wr", function (e) {
@@ -183,6 +211,39 @@
             showBlock(currentIndex);
         });
     });
+
+    $(function () {
+        function updateApptypeColor() {
+            const val = $('#app_type').val();
+            if (!val) {
+                $('#app_type').addClass('placeholder');
+            } else {
+                $('#app_type').removeClass('placeholder');
+            }
+        }
+
+        $('#app_type').on('change', updateApptypeColor);
+        updateApptypeColor();
+    });
+
+    $(function () {
+        function updateCategoryColor() {
+            const val = $('#category').val();
+            if (!val) {
+                $('#category').addClass('placeholder');
+            } else {
+                $('#category').removeClass('placeholder');
+            }
+        }
+
+        $('#app_type').on('change', updateCategoryColor);
+        updateCategoryColor();
+        $('#category').on('change', updateCategoryColor);
+        updateCategoryColor();
+    });
+
 </script>
+
+
 
 {% endblock content %}

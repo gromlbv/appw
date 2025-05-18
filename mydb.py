@@ -61,16 +61,31 @@ def post_register(username, password):
 
 # Приложения
 
-def get_apps_all():
+def get_shares_all():
     return Game.query.filter_by(is_archived=False).all()
 
 def get_app_one(link):
-    games = get_apps_all()
-    return next((game for game in games if game.link == link), None)
+    apps = get_shares_all()
+    return next((game for game in apps if game.link == link), None)
+
+def get_latest(limit):
+    return Game.query\
+        .join(GameInfo)\
+        .filter(Game.is_archived == False)\
+        .order_by(GameInfo.published_at.desc())\
+        .limit(limit)\
+        .all()
+
+def get_all_apps():
+    return [game for game in get_shares_all() if game.game_info and game.game_info.app_type == 'app']
+
+def get_all_games():
+    return [game for game in get_shares_all() if game.game_info and game.game_info.app_type == 'game']
+
 
 def get_app_by_user(username):
-    games = get_apps_all()
-    return [game for game in games if game.game_info and game.game_info.published_by == username]
+    apps = get_shares_all()
+    return [apps for game in apps if game.game_info and game.game_info.published_by == username]
 
 # def post_comment(userid, gameid, text):
 #     game_comment = GameComment(
@@ -84,7 +99,7 @@ def get_app_by_user(username):
 def post_game(
         title, link, comments_allowed, preview,
         # GameInfo
-        description, price, release_date, language, published_by,
+        description, price, release_date, language, published_by, app_type, category,
         # GameDownload
         file):
     game = Game(
@@ -103,6 +118,8 @@ def post_game(
         release_date=release_date,
         language=language,
         published_by=published_by,
+        app_type=app_type,
+        category=category
     )
     save_to_db(game_info)
 

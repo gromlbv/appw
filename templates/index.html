@@ -8,29 +8,122 @@
 {% block content %}
 
 
+<h2>Недавно обновлено</h2>
+<div class="library-wr flex gap-8">
+    <div class="object-wr">
+        {% for game in latest_shares %}
+        <a href="/game/{{ game.link }}">
+            {{ game.title }}
 
-<h1>Приложения</h1>
-<div class="object-wr">
-    {% for game in games %}
-    <a href="/game/{{ game.link }}">
-        {{ game.title }}
+            {% if game.game_downloads and game.game_downloads|length > 0 %}
+                <span class="file-size">
+                    {{ game.game_downloads[0].file_size|filesize }}
+                </span>
+                
+            {% else %}
+                <span class="file-size">
+                    Нет файлов
+                </span>
+            {% endif %}
 
-        {% if game.game_downloads and game.game_downloads|length > 0 %}
-            <span class="file-size">
-                {{ game.game_downloads[0].file_size|filesize }}
-            </span>
-            
-        {% else %}
-            <span class="file-size">
-                Нет файлов
-            </span>
-        {% endif %}
+            {% if game.game_info.app_type == 'app' %}
+            <img src="{{ url_for('static', filename='icons/terminal.svg') }}">
+            {% endif %}
+            {% if game.game_info.app_type == 'game' %}
+            <img src="{{ url_for('static', filename='icons/joystick.svg') }}">
+            {% endif %}
+        </a>
 
-
-    </a>
-
-    {% endfor %}
+        {% endfor %}
+    </div>
 </div>
+
+<h2>Библиотека приложений</h2>
+<div class="library-wr flex gap-8">
+    <div class="object-wr selectable" data-category="shares">
+        {% for app in shares %}
+        <a href="/game/{{ app.link }}">
+            {{ app.title }}
+
+            {% if app.game_downloads and app.game_downloads|length > 0 %}
+                <span class="file-size">
+                    {{ app.game_downloads[0].file_size|filesize }}
+                </span>
+                
+            {% else %}
+                <span class="file-size">
+                    Нет файлов
+                </span>
+            {% endif %}
+
+            {% if app.game_info.app_type == 'app' %}
+            <img src="{{ url_for('static', filename='icons/terminal.svg') }}">
+            {% endif %}
+            {% if app.game_info.app_type == 'game' %}
+            <img src="{{ url_for('static', filename='icons/joystick.svg') }}">
+            {% endif %}
+
+        </a>
+
+
+        {% endfor %}
+    </div>
+
+    <div class="object-wr selectable" data-category="games">
+        {% for game in games %}
+        <a href="/game/{{ game.link }}">
+            {{ game.title }}
+
+            {% if game.game_downloads and game.game_downloads|length > 0 %}
+                <span class="file-size">
+                    {{ game.game_downloads[0].file_size|filesize }}
+                </span>
+                
+            {% else %}
+                <span class="file-size">
+                    Нет файлов
+                </span>
+            {% endif %}
+        </a>
+
+        {% endfor %}
+    </div>
+
+
+    <div class="object-wr selectable" data-category="apps">
+        {% for app in apps %}
+        <a href="/game/{{ app.link }}">
+            {{ app.title }}
+
+            {% if app.game_downloads and app.game_downloads|length > 0 %}
+                <span class="file-size">
+                    {{ app.game_downloads[0].file_size|filesize }}
+                </span>
+                
+            {% else %}
+                <span class="file-size">
+                    Нет файлов
+                </span>
+            {% endif %}
+        </a>
+
+        {% endfor %}
+    </div>
+
+    <div class="category-wr">
+        <a href="#" class="shares" data-category="shares">
+            <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="ALL">
+        </a>
+        <a href="#" data-category="games">
+            <img src="{{ url_for('static', filename='icons/joystick.svg') }}" alt="GAMES">
+        </a>
+        <a href="#" data-category="apps">
+            <img src="{{ url_for('static', filename='icons/terminal.svg') }}" alt="APPS">
+        </a>
+    </div>
+</div>
+
+
 
 <!-- <h1>Файлы</h1>
 <div class="object-wr">
@@ -39,12 +132,39 @@
     {% endfor %}
 </div> -->
 
-<h1>Юзеры</h1>
-<div class="object-wr users">
-    {% for user in users %}
-    <a href="/user/{{ user["username"] }}">{{user["username"]}}</a>
-    {% endfor %}
+<h2>Юзеры</h2>
+<div class="library-wr flex gap-8">
+    <div class="object-wr users">
+        {% for user in users %}
+        <a href="/user/{{ user["username"] }}">{{user["username"]}}</a>
+        {% endfor %}
+    </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+    const $blocks = $('.object-wr.selectable');
+    const $links = $('.category-wr a');
+
+    function showCategory(category) {
+        $blocks.each(function () {
+            const $block = $(this);
+            $block.toggle($block.data('category') === category);
+        });
+
+        $links.removeClass('active');
+        $links.filter(`[data-category="${category}"]`).addClass('active');
+    }
+
+    $links.on('click', function (e) {
+        e.preventDefault();
+        const category = $(this).data('category');
+        showCategory(category);
+    });
+
+    showCategory('shares');
+});
+</script>
 
 
 {% endblock content %}

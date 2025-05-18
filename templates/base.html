@@ -6,6 +6,8 @@
     <title>{% block title %} {% endblock title %}apps.lbv</title>
     <link rel="stylesheet" href="{{ url_for ('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
 </head>
 <body>
     <div class="absolute-menu">
@@ -51,9 +53,10 @@
         <div class="content-wrapper">
             {% block content %}{% endblock content %}
         </div>
+
         {% set messages = get_flashed_messages() %}
         {% for message in messages %}
-            <div>{{message}}</div>
+            <div class="flash-message">{{message}}</div>
         {% endfor %}
     </div>
 

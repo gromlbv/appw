@@ -75,6 +75,25 @@ a:focus{
     outline: none !important;
 }
 
+.flash-message{
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    bottom: 24px;
+    padding: 12px 18px;
+    width: fit-content;
+    max-width: 100%;
+
+    background-color: var(--border-color);
+    border-radius: 32px;
+
+    cursor: default;
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
 .wrapper{
     display: flex;
     flex-direction: column;
@@ -253,18 +272,66 @@ body{
     background: white;
 }
 .content-wrapper{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     width: 100%;
-    h1 {
+
+    h1,h2 {
         width: 100%;
         text-align: center;
+    }
+    h2{
+        font-size: 21px;
+        padding-bottom: 24px;
+        padding-top: 48px;
+        margin: 0;
+    }
+}
+.library-wr{
+    max-width: 1020px;
+    width: 100%;
+    .category-wr{
+        position: relative;
+        display: flex;
+        flex-direction: column;
+
+        gap: 4px;
+        a{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            width: 48px;
+            height: 48px;
+
+            border-radius: 24px;
+            color: var(--secondary-color);
+
+            overflow: hidden;
+        }
+        a.shares.active{
+            display: none;
+        }
+        a.active{
+            background-color: var(--primary-color)
+        }
+        a.active:focus{
+            background-color: var(--primary-color) !important;
+            * {
+                stroke: red !important;
+            }
+        }
     }
 }
 .object-wr{
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
+    width: 100%;
 
     a{
+        position: relative;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
@@ -291,6 +358,13 @@ body{
             font-size: 16px;
 
             opacity: 0.2;
+        }
+        img{
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            width: 24px;
+            opacity: 0.4;
         }
     }
     a:hover{
@@ -500,7 +574,7 @@ form {
                 transition: color 0.2s;
             }
             select{
-                text-indent: 0;
+                /* text-indent: -2px; */
             }
             input[type="submit"]{
                 width: 100%;
@@ -696,4 +770,12 @@ form {
         stroke: white;
         transition: stroke 0.2s;
     }
+}
+
+
+
+#category.placeholder, #app_type.placeholder {
+    color: var(--secondary-color) !important;
+
+    transition: 0s;
 }
