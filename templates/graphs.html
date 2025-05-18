@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Graph with HTML nodes</title>
+  <style>
+    body {
+        background: black; color: white;
+        font-family: Arial, sans-serif;
+        text-transform: uppercase;
+    }
+    .node-link {
+        display: flex;
+        flex-direction: column;
+        color: white;
+        text-decoration: none;
+        font-size: 21px;
+    }
+    .title{
+        font-weight: bold;
+    }
+    .title::before{
+        content: "r";
+        background-color: #fff;
+        width: 19px;
+        height: 11px;
+        margin-right: 2px;
+    }
+    .file-size {
+        margin-left: 42px;
+        opacity: 0.3;
+    }
+    svg {
+        border: 1px solid #333;
+        width: 100%;
+        height: 600px;
+    }
+    .node foreignObject {
+        pointer-events: auto;
+    }
+  </style>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <div class="object-wr selectable" data-category="apps">
+        {% for app in games %}
+        <a href="/game/{{ app.link }}">
+            {{ app.title }}
+            {{ app.game_downloads[0] }}
+            {% if app.game_downloads and app.game_downloads|length > 0 %}
+                <span class="file-size">
+                    {{ app.game_downloads[0].file_size|filesize }}
+                </span>
+                
+            {% else %}
+                <span class="file-size">
+                    Нет файлов
+                </span>
+            {% endif %}
+        </a>
+
+        {% endfor %}
+    </div>
+<svg id="svg"></svg>
+
+<script type="application/json" id="apps-data">
+  {{ apps|tojson|safe }}
+</script>
+
+<script>
+  var apps = JSON.parse(document.getElementById('apps-data').textContent);
+
+  const nodes = apps.map(app => ({
+    id: app.link,
+    html: `
+      <a href="/game/${app.link}" class="node-link">
+        <span class="title"> ${app.title}</span>
+
+          <span class="file-size">${app.size} KB</span>
+      </a>
+    `
+  }));
+
+  // Пример links (можешь менять логику)
+    const links = [];
+    for (let i = 0; i < apps.length - 1; i++) {
+    links.push({ source: apps[i].link, target: apps[i + 1].link });
+    }
+
+  const width = 800;
+  const height = 600;
+
+  const svg = d3.select("#svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  const simulation = d3.forceSimulation(nodes)
+    .force("charge", d3.forceManyBody().strength(-300))
+    .force("center", d3.forceCenter(width / 2, height / 2))
+    .force("link", d3.forceLink(links).id(d => d.id).distance(150))
+    .on("tick", ticked);
+
+  const link = svg.append("g")
+    .attr("stroke", "#999")
+    .attr("stroke-opacity", 0.6)
+    .selectAll("line")
+    .data(links)
+    .join("line");
+
+  const node = svg.selectAll("g.node")
+    .data(nodes)
+    .join("g")
+    .attr("class", "node")
+    .call(drag(simulation));
+
+  node.append("foreignObject")
+    .attr("width", 200)
+    .attr("height", 50)
+    .html(d => d.html);
+
+  function ticked() {
+    node.attr("transform", d => `translate(${d.x},${d.y})`);
+    link
+      .attr("x1", d => d.source.x)
+      .attr("y1", d => d.source.y)
+      .attr("x2", d => d.target.x)
+      .attr("y2", d => d.target.y);
+  }
+
+  function drag(simulation) {
+    function dragstarted(event, d) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+    function dragged(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+    function dragended(event, d) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
+    return d3.drag()
+      .on("start", dragstarted)
+      .on("drag", dragged)
+      .on("end", dragended);
+  }
+</script>
+
+</body>
+</html>

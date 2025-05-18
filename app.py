@@ -68,6 +68,29 @@ def index():
         user_id=get_user_id()
     )
 
+@app.get('/graphs')
+def graphs():
+    games = db.get_shares_all()  # список объектов Game
+
+    apps = []
+    for game in games:
+        print(game)
+        print(game.game_downloads[0].file_size) if game.game_downloads else print(0)
+        size = game.game_downloads[0].file_size if game.game_downloads else 0
+        apps.append({
+            'link': game.link,
+            'title': game.title,
+            'size': size
+        })
+
+    print(apps)
+    return render_template(
+        "graphs.html",
+        users=db.get_users_all(),
+        apps=apps,
+        games=games,
+    )
+
 
 @app.route('/api/get-categories')
 def get_categories():
@@ -319,4 +342,4 @@ if __name__ == "__main__":
     with app.app_context():
         create_tables()
 
-    app.run(debug=True, port=5500, host='0.0.0.0')
+    app.run(debug=True, port=5200, host='0.0.0.0')

@@ -10,3 +10,4 @@
 .venv/Scripts/python.exe
 /.venv
 .DS_Store
+/__pycache__
