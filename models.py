@@ -85,11 +85,37 @@ class Game(db.Model):
     link = db.Column(db.String(32), nullable=False, unique=True)
     comments_allowed = db.Column(db.Boolean, default=False)
     is_archived = db.Column(db.Boolean, default=False)
-    
+
     game_info = relationship("GameInfo", uselist=False, back_populates="game")
     game_downloads = relationship("GameDownload", back_populates="game", order_by="GameDownload.order")
+    stats = relationship("GameStats", uselist=False, back_populates="game")
 
 
+class GameStats(db.Model):
+    __tablename__ = 'game_stats'
+    id = db.Column(db.Integer, primary_key=True)
+    
+    game_id = db.Column(db.Integer, db.ForeignKey('games.id'), unique=True)
+    game = relationship("Game", back_populates="stats")
+    
+    serious_fun = db.Column(db.Integer, default=50)
+    utility_gamified = db.Column(db.Integer, default=50)
+
+    story = db.Column(db.Integer, default=50)
+    gameplay = db.Column(db.Integer, default=50)
+    solo = db.Column(db.Integer, default=50)
+    coop = db.Column(db.Integer, default=50)
+
+    # __table_args__ = (
+    #     db.CheckConstraint('fun BETWEEN 0 AND 100'),
+    #     db.CheckConstraint('serious BETWEEN 0 AND 100'),
+    #     db.CheckConstraint('gamified BETWEEN 0 AND 100'),
+    #     db.CheckConstraint('utility BETWEEN 0 AND 100'),
+    #     db.CheckConstraint('story BETWEEN 0 AND 100'),
+    #     db.CheckConstraint('gameplay BETWEEN 0 AND 100'),
+    #     db.CheckConstraint('solo BETWEEN 0 AND 100'),
+    #     db.CheckConstraint('coop BETWEEN 0 AND 100'),
+    # )
 
 # class GameComment(db.Model):
 #     __tablename__ = 'game_comments'

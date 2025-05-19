@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Редактирование GameStats</title>
+    <style>
+        input[type="range"] { width: 100px; }
+        form { margin-bottom: 1em; }
+        table { border-collapse: collapse; }
+        th, td { padding: 8px; border: 1px solid #ccc; }
+    </style>
+      <style>
+    body {
+        background: black; color: white;
+        font-family: Arial, sans-serif;
+        text-transform: uppercase;
+    }
+    .node-link {
+        display: flex;
+        flex-direction: column;
+        color: white;
+        text-decoration: none;
+        font-size: 21px;
+    }
+    .title{
+        font-weight: bold;
+    }
+    .title::before{
+        content: "r";
+        background-color: #fff;
+        width: 19px;
+        height: 11px;
+        margin-right: 2px;
+    }
+    .file-size {
+        margin-left: 42px;
+        opacity: 0.3;
+    }
+    svg {
+        border: 1px solid #333;
+        width: 100%;
+        height: 600px;
+    }
+    .node foreignObject {
+        pointer-events: auto;
+    }
+  </style>
+
+</head>
+<body>
+    <form method="POST">
+        <table>
+            <thead>
+                <tr>
+                    <th>APP NAME</th>
+                    <th>Serious - Fun</th>
+                    <th>Utility - Gamified</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for game in games %}
+                <tr>
+                    <td>{{ game.title }}</td>
+                    <td>
+                        <input type="range" name="serious_fun_{{ game.id }}" min="0" max="100" value="{{ game.stats.serious_fun }}">
+                        {{ game.stats.serious_fun }}
+                    </td>
+                    <td>
+                        <input type="range" name="utility_gamified_{{ game.id }}" min="0" max="100" value="{{ game.stats.utility_gamified }}">
+                        {{ game.stats.utility_gamified }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <button type="submit">save</button>
+        <a href="/graphs">back</a>
+    </form>
+</body>
+</html>

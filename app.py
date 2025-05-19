@@ -9,6 +9,7 @@ from upload import upload_image, upload_file
 
 import mydb as db
 from datetime import datetime
+from models import User, Game, GameInfo, GameDownload, SharedFile, GameStats
 
 app = Flask(__name__)
 create_app(app)
@@ -70,26 +71,41 @@ def index():
 
 @app.get('/graphs')
 def graphs():
-    games = db.get_shares_all()  # список объектов Game
+    games = db.get_shares_all()
 
     apps = []
     for game in games:
-        print(game)
-        print(game.game_downloads[0].file_size) if game.game_downloads else print(0)
         size = game.game_downloads[0].file_size if game.game_downloads else 0
         apps.append({
             'link': game.link,
             'title': game.title,
-            'size': size
+            'size': size,
+                'game_stats': {
+                    'serious_fun': game.stats.serious_fun if game.stats else 50,
+                    'utility_gamified': game.stats.utility_gamified if game.stats else 50,
+                }
         })
 
-    print(apps)
     return render_template(
         "graphs.html",
         users=db.get_users_all(),
         apps=apps,
         games=games,
     )
+
+@app.route('/graphs/edit', methods=['GET', 'POST'])
+def graphs_edit():
+    if request.method == 'POST':
+        for key in request.form:
+            if key.startswith('serious_fun_'):
+                game_id = int(key.split('_')[-1])
+                serious_fun = int(request.form.get(f'serious_fun_{game_id}', 50))
+                utility_gamified = int(request.form.get(f'utility_gamified_{game_id}', 50))
+                db.update_game_stats(game_id, serious_fun, utility_gamified)
+        return redirect(furl_for('graphs_edit'))
+
+    games = db.get_all_games_with_stats()
+    return render_template('graphs_edit.html', games=games)
 
 
 @app.route('/api/get-categories')
@@ -190,6 +206,11 @@ def delete_game(game_link):
 
     flash("Игра успешно удалена")
     return redirect(furl_for('index'))
+
+
+
+
+
 
 @app.route('/game/edit/<game_link>', methods=['GET', 'POST'])
 def edit_game(game_link):

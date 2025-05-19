@@ -1,15 +1,14 @@
-from models import User, Game, GameInfo, GameDownload, SharedFile
+from models import User, Game, GameInfo, GameDownload, SharedFile, GameStats
 from models import db
 from datetime import date
-
 from mysecurity import myhash, verify, encode
 import uuid
+from sqlalchemy.orm import joinedload
 
 
 def save_to_db(instance):
     db.session.add(instance)
     db.session.commit()
-
 
 # Юзеры
 
@@ -126,6 +125,63 @@ def post_game(
     print("Game created:", game)
     return game
 
+def get_all_games_with_stats():
+    return Game.query.options(joinedload(Game.stats)).all()
+
+def update_game_stats(game_id, serious_fun, utility_gamified):
+    game = Game.query.get(game_id)
+    if not game:
+        return False
+    if not game.stats:
+        game.stats = GameStats(game_id=game.id)
+        db.session.add(game.stats)
+    stats = game.stats
+    stats.serious_fun = serious_fun
+    stats.utility_gamified = utility_gamified
+    db.session.commit()
+    return True
+
+def create_sample_games():
+    sample_data = [
+        # Игры
+        ("Arma 3", "arma3", 90, 30),
+        ("Roblox", "roblox", 60, 50),
+        ("Minecraft", "minecraft", 70, 40),
+        ("CS:GO", "csgo", 85, 25),
+        ("Fortnite", "fortnite", 75, 35),
+        ("The Sims 4", "sims4", 55, 60),
+        ("GTA V", "gta5", 80, 30),
+        ("Factorio", "factorio", 65, 55),
+        ("RimWorld", "rimworld", 60, 45),
+        ("Kerbal Space Program", "kerbal", 70, 70),
+
+        # Программы
+        ("Paint", "paint", 20, 80),
+        ("After Effects", "after_effects", 85, 65),
+        ("Photoshop", "photoshop", 80, 70),
+        ("Notepad++", "notepadpp", 30, 90),
+        ("Premiere Pro", "premiere_pro", 75, 60),
+        ("Blender", "blender", 85, 75),
+        ("Visual Studio Code", "vscode", 60, 85),
+        ("FL Studio", "flstudio", 70, 65),
+        ("Unity", "unity", 90, 70),
+        ("DaVinci Resolve", "davinci_resolve", 75, 60),
+    ]
+
+    for title, link, serious_fun, utility_gamified in sample_data:
+        game = Game(title=title, link=link)
+        db.session.add(game)
+        db.session.flush()
+
+        stats = GameStats(
+            game_id=game.id,
+            serious_fun=serious_fun,
+            utility_gamified=utility_gamified
+        )
+        db.session.add(stats)
+
+    db.session.commit()
+
 def get_download_info(filename):
     game_download = db.session.query(GameDownload).filter_by(file_link=filename).first()
     game = db.session.query(Game).filter_by(id=game_download.game_id).first()
@@ -176,3 +232,6 @@ def post_file(title, preview, file_link, link, uploaded_by):
     view_url = f"{shared_file.link}"
     print("File shared:", shared_file)
     return view_url
+
+
+

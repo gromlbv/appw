@@ -1,20 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Graph with HTML nodes</title>
+  <meta charset="UTF-8"/>
+  <title>test graphs</title>
   <style>
     body {
         background: black; color: white;
         font-family: Arial, sans-serif;
         text-transform: uppercase;
+
+        position: relative;
+        overflow: auto;
     }
     .node-link {
         display: flex;
         flex-direction: column;
         color: white;
         text-decoration: none;
-        font-size: 21px;
+        font-size: 12px;
     }
     .title{
         font-weight: bold;
@@ -31,17 +34,63 @@
         opacity: 0.3;
     }
     svg {
-        border: 1px solid #333;
-        width: 100%;
-        height: 600px;
+        width: fit-content;
+        height: fit-content;
+        overflow: visible;
     }
     .node foreignObject {
         pointer-events: auto;
     }
+    .absolute-info {
+      position: absolute;
+
+
+    }
+.absolute-info {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.absolute-info .top {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.absolute-info .bottom {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.absolute-info .left {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.absolute-info .right {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
   </style>
   <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
+    <a href="/graphs/edit">edit</a>
+  <div class="absolute-info">
+    <p class="top">Utility</p>
+    <p class="bottom">Gamified</p>
+    <p class="left">Serious</p>
+    <p class="right">FUN</p>
+  </div>
     <div class="object-wr selectable" data-category="apps">
         {% for app in games %}
         <a href="/game/{{ app.link }}">
@@ -69,23 +118,54 @@
 
 <script>
   var apps = JSON.parse(document.getElementById('apps-data').textContent);
+  const mywidth = 900;
+  const myheight = 400;
 
-  const nodes = apps.map(app => ({
-    id: app.link,
-    html: `
-      <a href="/game/${app.link}" class="node-link">
-        <span class="title"> ${app.title}</span>
+  const maxX = d3.max(apps, d => d.game_stats.serious_fun);
+  const maxY = d3.max(apps, d => d.game_stats.utility_gamified);
 
+  const nodes = apps.map((app, index) => {
+  const x = (app.game_stats.serious_fun / maxX) * mywidth + mywidth/8;
+  const y = (app.game_stats.utility_gamified / maxY) * myheight + myheight/5;
+    return {
+      id: app.link,
+      html: `
+        <a href="/game/${app.link}" class="node-link">
+          <span class="title">${app.title}</span>
           <span class="file-size">${app.size} KB</span>
-      </a>
-    `
-  }));
+        </a>
+      `,
+      x: x,
+      y: y,
+      targetX: x,
+      targetY: y
+    };
+  });
+    // const links = [];
+    // for (let i = 0; i < apps.length - 1; i++) {
+    // links.push({ source: apps[i].link, target: apps[i + 1].link });
+    // }
+const links = [];
 
-  // Пример links (можешь менять логику)
-    const links = [];
-    for (let i = 0; i < apps.length - 1; i++) {
-    links.push({ source: apps[i].link, target: apps[i + 1].link });
-    }
+for (let i = 0; i < apps.length; i++) {
+  const distances = [];
+
+  for (let j = 0; j < apps.length; j++) {
+    if (i === j) continue;
+    const dx = apps[i].game_stats.serious_fun - apps[j].game_stats.serious_fun;
+    const dy = apps[i].game_stats.utility_gamified - apps[j].game_stats.utility_gamified;
+    const dist = dx * dx + dy * dy;
+    distances.push({ index: j, dist });
+  }
+
+  distances.sort((a, b) => a.dist - b.dist);
+
+  const nearestCount = Math.min(3, distances.length);
+  for (let k = 1; k < nearestCount; k++) {
+    links.push({ source: apps[i].link, target: apps[distances[k].index].link });
+  }
+}
+
 
   const width = 800;
   const height = 600;
@@ -94,11 +174,13 @@
     .attr("width", width)
     .attr("height", height);
 
-  const simulation = d3.forceSimulation(nodes)
-    .force("charge", d3.forceManyBody().strength(-300))
-    .force("center", d3.forceCenter(width / 2, height / 2))
-    .force("link", d3.forceLink(links).id(d => d.id).distance(150))
-    .on("tick", ticked);
+const simulation = d3.forceSimulation(nodes)
+  .force("x", d3.forceX(d => d.targetX).strength(1))
+  .force("y", d3.forceY(d => d.targetY).strength(1))
+  .force("charge", d3.forceManyBody().strength(-100))
+  .force("collision", d3.forceCollide(60))
+  .force("link", d3.forceLink(links).id(d => d.id).distance(150))
+  .on("tick", ticked);
 
   const link = svg.append("g")
     .attr("stroke", "#999")
@@ -139,8 +221,8 @@
     }
     function dragended(event, d) {
       if (!event.active) simulation.alphaTarget(0);
-      d.fx = null;
-      d.fy = null;
+    d.fx = d.fx_drag;
+    d.fy = d.fy_drag;
     }
     return d3.drag()
       .on("start", dragstarted)
