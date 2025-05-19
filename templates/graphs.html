@@ -37,6 +37,14 @@
         width: fit-content;
         height: fit-content;
         overflow: visible;
+        user-select: none;
+        -webkit-user-drag: none;
+        a{
+          cursor:grab;
+        }
+        a:focus{
+          cursor: grabbing;
+        }
     }
     .node foreignObject {
         pointer-events: auto;
@@ -166,7 +174,6 @@ for (let i = 0; i < apps.length; i++) {
   }
 }
 
-
   const width = 800;
   const height = 600;
 
@@ -183,7 +190,7 @@ const simulation = d3.forceSimulation(nodes)
   .on("tick", ticked);
 
   const link = svg.append("g")
-    .attr("stroke", "#999")
+    .attr("stroke", "#000")
     .attr("stroke-opacity", 0.6)
     .selectAll("line")
     .data(links)
