@@ -27,12 +27,9 @@
         background-color: #fff;
         width: 19px;
         height: 11px;
-        margin-right: 2px;
+        margin-right: 4px;
     }
-    .file-size {
-        margin-left: 42px;
-        opacity: 0.3;
-    }
+
     svg {
         width: fit-content;
         height: fit-content;
@@ -41,6 +38,16 @@
         -webkit-user-drag: none;
         a{
           cursor:grab;
+
+          .file-size {
+            margin-left: 42px;
+            opacity: 0;
+          }
+        }
+        a:hover{
+          .file-size {
+            opacity: 0.3;
+          }
         }
         a:focus{
           cursor: grabbing;
