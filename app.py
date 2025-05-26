@@ -15,6 +15,7 @@ app = Flask(__name__)
 create_app(app)
 
 app.secret_key = 'rulevsecretkey'
+app.config['SERVER_NAME'] = "appw.su"
 
 
 @app.route('/form')
@@ -178,11 +179,10 @@ def post_game():
         )
 
 
-app.config['SERVER_NAME'] = "appw.su"
-
 
 @app.route('/', subdomain="<game_link>")
 def view_game_subdomain(game_link):
+    flash("СУБДОМЕН НА", game_link)
     game = db.get_app_one(game_link)
     if game:
         game_download = getattr(game, "game_downloads", [])
