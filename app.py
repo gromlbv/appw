@@ -366,6 +366,7 @@ def login():
     return(render_template('login.html'))
 
 @app.post('/account/login')
+@handle_valueerror('login.html')
 def login_post():
     username = request.form.get('username')
     password = request.form.get('password')
