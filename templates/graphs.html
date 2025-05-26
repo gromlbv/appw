@@ -5,9 +5,10 @@
   <meta charset="UTF-8" />
   <title>test graphs</title>
   <style>
-    *{
+    * {
       box-sizing: border-box !important;
     }
+
     body {
       background: black;
       color: white;
@@ -40,16 +41,16 @@
       margin-right: 4px;
     }
 
-    
-  svg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    overflow: visible;
-    user-select: none;
-    -webkit-user-drag: none;
+
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: visible;
+      user-select: none;
+      -webkit-user-drag: none;
 
 
       a {
@@ -155,29 +156,29 @@
     var apps = JSON.parse(document.getElementById('apps-data').textContent);
 
     const mywidth = window.innerWidth;
-const myheight = window.innerHeight;
-const padding = 150;
-const maxX = d3.max(apps, d => d.game_stats.serious_fun);
-const maxY = d3.max(apps, d => d.game_stats.utility_gamified);
+    const myheight = window.innerHeight;
+    const padding = 150;
+    const maxX = d3.max(apps, d => d.game_stats.serious_fun);
+    const maxY = d3.max(apps, d => d.game_stats.utility_gamified);
 
-const nodes = apps.map((app) => {
-  let x = (app.game_stats.serious_fun / maxX) * (mywidth - padding * 2) + padding;
-  let y = (app.game_stats.utility_gamified / maxY) * (myheight - padding * 2) + padding;
+    const nodes = apps.map((app) => {
+      let x = (app.game_stats.serious_fun / maxX) * (mywidth - padding * 2) + padding;
+      let y = (app.game_stats.utility_gamified / maxY) * (myheight - padding * 2) + padding;
 
-  return {
-    id: app.link,
-    html: `
+      return {
+        id: app.link,
+        html: `
       <a href="/game/${app.link}" class="node-link">
         <span class="title">${app.title}</span>
         <span class="file-size">${app.size} KB</span>
       </a>
     `,
-    x: x,
-    y: y,
-    targetX: x,
-    targetY: y
-  };
-});
+        x: x,
+        y: y,
+        targetX: x,
+        targetY: y
+      };
+    });
     // const links = [];
     // for (let i = 0; i < apps.length - 1; i++) {
     // links.push({ source: apps[i].link, target: apps[i + 1].link });

@@ -144,28 +144,28 @@ def update_game_stats(game_id, serious_fun, utility_gamified):
 def create_sample_games():
     sample_data = [
         # Игры
-        ("Arma 3", "arma3", 90, 30),
-        ("Roblox", "roblox", 60, 50),
-        ("Minecraft", "minecraft", 70, 40),
-        ("CS:GO", "csgo", 85, 25),
-        ("Fortnite", "fortnite", 75, 35),
-        ("The Sims 4", "sims4", 55, 60),
-        ("GTA V", "gta5", 80, 30),
-        ("Factorio", "factorio", 65, 55),
-        ("RimWorld", "rimworld", 60, 45),
-        ("Kerbal Space Program", "kerbal", 70, 70),
+        ("Arma 3", "arma3", 15, 94),
+        ("Roblox", "roblox", 98, 96),
+        ("Minecraft", "minecraft", 91, 100),
+        ("CS:GO", "csgo", 38, 97),
+        ("Fortnite", "fortnite", 94, 100),
+        ("The Sims 4", "sims4", 64, 93),
+        ("GTA V", "gta5", 94, 98),
+        ("Factorio", "factorio", 36, 90),
+        ("RimWorld", "rimworld", 43, 91),
+        ("Kerbal Space Program", "kerbal", 67, 93),
 
         # Программы
-        ("Paint", "paint", 20, 80),
-        ("After Effects", "after_effects", 85, 65),
-        ("Photoshop", "photoshop", 80, 70),
-        ("Notepad++", "notepadpp", 30, 90),
-        ("Premiere Pro", "premiere_pro", 75, 60),
-        ("Blender", "blender", 85, 75),
-        ("Visual Studio Code", "vscode", 60, 85),
-        ("FL Studio", "flstudio", 70, 65),
-        ("Unity", "unity", 90, 70),
-        ("DaVinci Resolve", "davinci_resolve", 75, 60),
+        ("Paint", "paint", 52, 13),
+        ("After Effects", "after_effects", 2, 0),
+        ("Photoshop", "photoshop", 23, 0),
+        ("Notepad++", "notepadpp", 5, 0),
+        ("Premiere Pro", "premiere_pro", 0, 0),
+        ("Blender", "blender", 25, 9),
+        ("Visual Studio Code", "vscode", 3, 0),
+        ("FL Studio", "flstudio", 10, 18),
+        ("Unity", "unity", 14, 56),
+        ("DaVinci Resolve", "davinci_resolve", 5, 5),
     ]
 
     for title, link, serious_fun, utility_gamified in sample_data:

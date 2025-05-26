@@ -12,6 +12,7 @@
     --border-color: rgba(255, 255, 255, 0.06);
     --primary-color: #FFFFFF;
     --secondary-color: #909090;
+    --background-color: #0D0D0D;
     --third-color: rgba(255, 255, 255, 0.2);
 }
 .flex {
@@ -179,7 +180,7 @@ html, body{
     width: 100vw;
     height: 100vhw;
 
-    background-color: #0D0D0D;
+    background-color: var(--background-color);
     color: var(--primary-color);
 
     overflow: hidden;
@@ -436,7 +437,7 @@ form {
 
             border-radius: 64px;
             border: 1px solid var(--border-color);
-            background: #0D0D0D;
+            background: var(--background-color);
 
             cursor: pointer;
 

@@ -177,6 +177,21 @@ def post_game():
         game_url=f"/game/{game.link}"
         )
 
+
+app.config['SERVER_NAME'] = "appw.su"
+
+
+@app.route('/', subdomain="<game_link>")
+def view_game_subdomain(game_link):
+    game = db.get_app_one(game_link)
+    if game:
+        game_download = getattr(game, "game_downloads", [])
+        return render_template("view_game.html", game=game, game_download=game_download)
+    else:
+        flash("Приложение не найдено")
+        return redirect(url_for("index"))
+    
+
 @app.get("/game/<link>")
 def view_game(link):
     game = db.get_app_one(link)
@@ -206,8 +221,6 @@ def delete_game(game_link):
 
     flash("Игра успешно удалена")
     return redirect(furl_for('index'))
-
-
 
 
 
