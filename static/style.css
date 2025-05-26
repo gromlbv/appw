@@ -14,6 +14,10 @@
     --secondary-color: #909090;
     --background-color: #0D0D0D;
     --third-color: rgba(255, 255, 255, 0.2);
+    --accent-color: #FF613E;
+    --system-error-color: #FF5E5E;
+    --system-error-color-05: rgba(255, 94, 94, 0.05);
+    /* prev accent rgb(131, 131, 255) */
 }
 .flex {
     display: flex;
@@ -597,7 +601,7 @@ form {
                 cursor: pointer;
             }
             input:focus{
-                color: rgb(131, 131, 255) !important;
+                color: var(--accent-color) !important;
             }
             input[name="title"]{
                 font-size: 32px;
@@ -607,6 +611,10 @@ form {
                 gap: 2px;
 
                 cursor: text;
+
+                input{
+                    width: 100%;
+                }
                 .prefix{
                     opacity: 0.2;
                     font-size: 24px;
@@ -728,9 +736,14 @@ form {
 }
 
 .error {
-    color: #ef476f;
-    text-align: center;
-    margin-top: 15px;
+    color: var(--system-error-color);
+    text-align: left;
+    background-color: var(--system-error-color-05);
+    border-radius: 12px;
+    margin: 12px 0;
+    padding: 12px !important;
+    border-bottom: none !important;
+    cursor: not-allowed;
 }
 
 

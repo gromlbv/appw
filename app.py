@@ -17,6 +17,22 @@ create_app(app)
 app.secret_key = 'rulevsecretkey'
 app.config['SERVER_NAME'] = "appw.su"
 
+from functools import wraps
+from flask import render_template, request
+
+def handle_valueerror(template_name):
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            try:
+                return f(*args, **kwargs)
+            except ValueError as e:
+                print("Ошибка:", repr(e))
+                context = dict(request.form)
+                context['error'] = str(e)
+                return render_template(template_name, **context)
+        return wrapped
+    return decorator
 
 @app.route('/form')
 def form():
@@ -189,7 +205,7 @@ def view_game_subdomain(game_link):
         return render_template("view_game.html", game=game, game_download=game_download)
     else:
         flash("Приложение не найдено")
-        return redirect(url_for("index"))
+        return redirect(furl_for("index"))
     
 
 @app.get("/game/<link>")
@@ -332,20 +348,16 @@ def register():
         return redirect(furl_for('index'))
     return render_template('new_account.html')
 
-@app.post('/account/register')
+@app.route('/account/register', methods=['POST'])
+@handle_valueerror('new_account.html')
 def register_post():
     username = request.form.get('username')
     password = request.form.get('password')
-    try:
-        db.post_register(username, password)
-        flash(f'Аккаунт {username} успешно создан')
-        token = db.post_login(username, password)
-        session['token'] = token
-        return redirect(furl_for('index'))
-    except ValueError as e:
-        error = (str(e), 'error')
-        return render_template('new_account.html', error=error, username=username, password=password)
-
+    db.post_register(username, password)
+    flash(f'Аккаунт {username} успешно создан')
+    token = db.post_login(username, password)
+    session['token'] = token
+    return redirect(url_for('index'))
 
 @app.get('/account/login')
 def login():

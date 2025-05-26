@@ -28,8 +28,9 @@
                 <div class="input-wr">
                     <label for="link">Ссылка</label>
                     <div class="input-link-wr">
-                        <span class="prefix">apps/</span>
                         <input type="text" id="link" name="link" placeholder="yourapp" required>
+                        <span class="prefix">.appw.su</span>
+
                     </div>
                 </div>
 
@@ -142,7 +143,6 @@
 </form>
 </div>
 
-<script src="{{ url_for('static', filename='js/errorhandler.js') }}"></script>
 <script>
     $('.inputs input').on('input', function () {
         var block = $(this).closest('.block');

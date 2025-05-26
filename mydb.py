@@ -36,7 +36,6 @@ def get_users_one(username):
 
 def post_register(username, password):
 
-    # Проверки перед отправкой
     if not username or not password:
         raise ValueError("Заполните все поля")
     
