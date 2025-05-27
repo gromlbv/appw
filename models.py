@@ -74,6 +74,7 @@ class GameDownload(db.Model):
     file_link = db.Column(db.String(255))
     file_size = db.Column(db.Integer)
     order = db.Column(db.Integer, default=0)
+    is_important = db.Column(db.Boolean, default=False)
 
 
 class Game(db.Model):

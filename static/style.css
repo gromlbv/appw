@@ -379,18 +379,19 @@ body{
     }
 
 }
-.object-wr.users{
-    a{
+.object-wr.users {
+    a {
         height: fit-content;
     }
 }
-.overlay{
+
+.overlay {
     position: absolute;
 
     display: flex;
     justify-content: center;
     align-items: center;
-    
+
     top: 0;
     left: 0;
     width: 100%;
@@ -398,6 +399,79 @@ body{
     background-color: rgba(0, 0, 0, 0.5);
     z-index: 1;
 }
+
+form, .modal {
+    position: relative;
+
+    .close-btn {
+        position: absolute;
+        right: -0px;
+
+        display: flex;
+        justify-content: center;
+        align-items: center;
+
+        width: 48px;
+        height: 48px;
+
+        border-radius: 64px;
+        border: 1px solid var(--border-color);
+        background: var(--background-color);
+
+        cursor: pointer;
+
+        transition: background 0.2s;
+    }
+
+    .close-btn:hover {
+        background: #FF5F57;
+    }
+}
+
+.modal {
+    position: fixed;
+    display: none;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background: rgba(0, 0, 0, 0.5);
+    padding: 64px;
+
+    header {
+        position: absolute;
+    }
+}
+
+.modal-content {
+    counter-reset: step;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    max-width: 800px;
+    width: 100%;
+
+    border-radius: 48px;
+    border: 1px solid var(--border-color);
+    background: radial-gradient(83.8% 78.27% at 76.31% 26.29%, #171717 0%, #141414 100%);
+
+}
+
+.close {
+    float: right;
+    font-size: 28px;
+    cursor: pointer;
+}
+
+
+
 
 form {
     counter-reset: step;
@@ -412,6 +486,9 @@ form {
     border: 1px solid var(--border-color);
     background: radial-gradient(83.8% 78.27% at 76.31% 26.29%, #171717 0%, #141414 100%);
     
+    .close-btn{
+        right: -66px !important;
+    }
     header{
         position: relative;
 
@@ -428,29 +505,9 @@ form {
             opacity: 0.5;
         }
 
-        .close-btn{
-            position: absolute;
-            right: -66px;
 
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            width: 48px;
-            height: 48px;
-
-            border-radius: 64px;
-            border: 1px solid var(--border-color);
-            background: var(--background-color);
-
-            cursor: pointer;
-
-            transition: background 0.2s;
-        }
-        .close-btn:hover{
-            background: #FF5F57;
-        }
     }
+
 
     .block{
         position: relative;

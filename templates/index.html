@@ -6,6 +6,42 @@
 
 
 {% block content %}
+<div class="overlay modal" id="gameModal">
+
+    <a id="modalClose" type="reset" class="close-btn" href="/">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="16" viewBox="0 0 15 16" fill="none">
+            <path opacity="0.5" d="M1 1.25L7.75 8M14.5 14.75L7.75 8M7.75 8L1 14.75M7.75 8L14.5 1.25" stroke="white" />
+        </svg>
+    </a>
+
+    <div class="modal-content">
+        <img id="modalPreview" src="{{ request.url_root ~ game.preview if game and game.preview else '' }}">
+
+        <div class="head">
+            <h1 id="modalTitle">{{ game.title if game else '' }}</h1>
+            <div id="modalDownloads">
+                {% if game and game.game_downloads %}
+                    {% for d in game.game_downloads %}
+                        <div>
+                            {{ loop.index }}. {{ d.title or 'Без названия' }} —
+                            <a href="{{ url_for('download_file', filename=d.file_link) }}">Скачать</a>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <p id="modalDescription">{{ game.game_info.description if game else '' }}</p>
+        <h3>Загрузки</h3>
+    </div>
+</div>
+
+<style>
+
+</style>
+
+
+
 
 
 <h2>Недавно обновлено</h2>
@@ -42,7 +78,8 @@
 <div class="library-wr flex gap-8">
     <div class="object-wr selectable" data-category="shares">
         {% for app in shares %}
-        <a href="/game/{{ app.link }}">
+        <a href="#" data-game-link="{{ app.link }}">
+        <!-- <a href="/game/{{ app.link }}"> -->
             {{ app.title }}
 
             {% if app.game_downloads and app.game_downloads|length > 0 %}
@@ -165,6 +202,48 @@
     showCategory('shares');
 });
 </script>
+<script>
+document.querySelectorAll('a[data-game-link]').forEach(link => {
+  link.addEventListener('click', async e => {
+    e.preventDefault();
+    const gameLink = link.getAttribute('data-game-link');
+    const res = await fetch(`/api/game/${gameLink}`);
+    if (!res.ok) {
+      alert("Ошибка загрузки игры");
+      return;
+    }
+    const data = await res.json();
 
+    // Заполняем модалку
+    document.getElementById('modalTitle').textContent = data.title;
+    document.getElementById('modalPreview').src = data.preview ? location.origin + data.preview : '';
+    document.getElementById('modalDescription').textContent = data.description;
+
+    // Загрузки
+    const downloadsDiv = document.getElementById('modalDownloads');
+    downloadsDiv.innerHTML = '';
+    data.downloads.forEach((d, i) => {
+      const div = document.createElement('div');
+      div.innerHTML = `${i+1}. ${d.title} — <a href="${d.file_link}">Скачать</a>`;
+      downloadsDiv.appendChild(div);
+    });
+
+    // Показываем модалку
+    document.getElementById('gameModal').style.display = 'flex';
+  });
+});
+
+// Закрытие попапа
+document.getElementById('modalClose').addEventListener('click', () => {
+  document.getElementById('gameModal').style.display = 'none';
+});
+
+// Закрытие при клике вне модального окна
+window.addEventListener('click', e => {
+  if (e.target == document.getElementById('gameModal')) {
+    document.getElementById('gameModal').style.display = 'none';
+  }
+});
+</script>
 
 {% endblock content %}

@@ -11,3 +11,5 @@
 /.venv
 .DS_Store
 /__pycache__
+/instance
+/static/uploads

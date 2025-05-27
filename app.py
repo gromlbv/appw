@@ -376,6 +376,31 @@ def login_post():
 
     return(redirect(f'/user/{username}'))
 
+@app.route('/api/game/<game_link>')
+def api_game(game_link):
+    game = db.get_app_one(game_link)
+    if not game:
+        return {"error": "Игра не найдена"}, 404
+    # Формируем данные, которые нужны для попапа
+    data = {
+        "title": game.title,
+        "preview": game.preview,
+        "description": game.game_info.description or "Описание отсутствует",
+        "downloads": [
+            {"title": d.title or "Без названия", "file_link": furl_for('download_file', filename=d.file_link)}
+            for d in getattr(game, "game_downloads", [])
+        ],
+        # Другие нужные поля
+        "release_date": game.game_info.release_date or "Дата релиза не указана",
+        "language": game.game_info.language or "Язык не указан",
+        "author": game.game_info.published_by,
+        "price": game.game_info.price,
+        "app_type": game.game_info.app_type,
+        "category": game.game_info.category,
+        "link": game.link
+    }
+    return data
+
 @app.route('/account/logout', methods=['POST', 'GET'])
 def logout():
     if is_loggined():
