@@ -13,3 +13,4 @@
 /__pycache__
 /instance
 /static/uploads
+instance/database.db
