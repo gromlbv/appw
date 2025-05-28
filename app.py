@@ -413,5 +413,4 @@ def logout():
 if __name__ == "__main__":
     with app.app_context():
         create_tables()
-
     app.run(debug=True, port=5200, host='0.0.0.0')

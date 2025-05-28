@@ -10,6 +10,11 @@
     }
 
     body {
+      position: relative;
+
+      display: flex;
+      flex-direction: column;
+
       background: black;
       color: white;
       font-family: Arial, sans-serif;
@@ -17,8 +22,15 @@
 
       padding: 0;
       margin: 0;
+      height: 100vh;
+      width: 100vw;
+        
       position: relative;
       overflow: auto;
+    }
+
+    p{
+      margin: 0;
     }
 
     .node-link {
@@ -41,7 +53,10 @@
       margin-right: 4px;
     }
 
-
+    a{
+        text-decoration: none;
+        color: white;
+    }
     svg {
       position: absolute;
       top: 0;
@@ -96,7 +111,7 @@
 
     .absolute-info .bottom {
       position: absolute;
-      bottom: 0;
+      bottom: 64px;
       left: 50%;
       transform: translateX(-50%);
     }
@@ -114,40 +129,55 @@
       top: 50%;
       transform: translateY(-50%);
     }
+
+    .bottom-absolute{
+      z-index: 200;
+
+      display: flex;
+      align-items: center;
+
+      gap: 64px;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 16px 42px;
+
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+
+      a::before {
+        content: "r";
+        background-color: #fff;
+        width: 19px;
+        height: 11px;
+        margin-right: 4px;
+      }
+    }
+
+    .wrapper{
+      width: 100%;
+      height: 100%;
+    }
   </style>
   <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 
 <body>
-  <a href="/graphs/edit">edit graphs</a>
 
-  <div class="absolute-info">
-    <p class="top">Utility</p>
-    <p class="bottom">Gamified</p>
-    <p class="left">Serious</p>
-    <p class="right">FUN</p>
+  <div class="wrapper">
+      <div class="absolute-info">
+        <p class="top">Utility</p>
+        <p class="bottom">Gamified</p>
+        <p class="left">Serious</p>
+        <p class="right">FUN</p>
+      </div>
+      <svg id="svg"></svg>
   </div>
-  <!-- <div class="object-wr selectable" data-category="apps">
-        {% for app in games %}
-        <a href="/game/{{ app.link }}">
-            {{ app.title }}
-            {{ app.game_downloads[0] }}
-            {% if app.game_downloads and app.game_downloads|length > 0 %}
-                <span class="file-size">
-                    {{ app.game_downloads[0].file_size|filesize }}
-                </span>
-                
-            {% else %}
-                <span class="file-size">
-                    Нет файлов
-                </span>
-            {% endif %}
-        </a>
 
-        {% endfor %}
-    </div> -->
-  <svg id="svg"></svg>
-
+  <div class="bottom-absolute">
+      <p>PRE ALPHA</p>
+      <a href="/graphs/edit">Edit</a>
+      <a>Modes</a>
+  </div>
   <script type="application/json" id="apps-data">
   {{ apps|tojson|safe }}
 </script>
