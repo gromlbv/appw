@@ -55,24 +55,26 @@
                 </button>
                 <nav id="nav">
                     <a class="fill orange" href="/game/create">
+                        <img src="{{ url_for('static', filename='icons/plus-black.svg') }}">
                         Добавить...
                     </a>
                     {% if not session.get('token') %}
                     <a class="fill" href="/account/register">
-                        <img src="{{ url_for('static', filename='icons/person.svg') }}" alt="Аккаунт">
+                        <img src="{{ url_for('static', filename='icons/person-sketch.svg') }}" alt="Человек">
                         Войти в аккаунт
                     </a>
                     {% else %}
                     <a class="fill" href="/account/me">
-                        <img src="{{ url_for('static', filename='icons/person.svg') }}" alt="Аккаунт">
+                        <img src="{{ url_for('static', filename='icons/person-sketch.svg') }}" alt="Человек">
                         Аккаунт
-
                     </a>
                     {% endif %}
                     <a class="fill">
+                        <img src="{{ url_for('static', filename='icons/question-sketch.svg') }}">
                         FAQ и прочее
                     </a>
-                    <a class="fill">
+                    <a class="fill" href="https://lbv_dev.t.me">
+                        <img src="{{ url_for('static', filename='icons/bug-sketch.svg') }}">
                         Сообщить об ошибке
                     </a>
 
