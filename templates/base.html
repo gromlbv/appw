@@ -5,12 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %} {% endblock title %}apps.lbv</title>
     <link rel="stylesheet" href="{{ url_for ('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ url_for('static', filename='js/errorhandler.js') }}"></script>
     
-    <meta name="theme-color" content="#1FABEC">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#000000">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
@@ -20,37 +23,62 @@
     </div>
     <div class="wrapper">
         <header class="base flex">
-            <a class="fit logo" href="/">
+
+            <a class="no-fill fit logo" href="/">
                 <svg xmlns="http://www.w3.org/2000/svg" width="54" height="29" viewBox="0 0 54 29" fill="none">
                     <path d="M1 20.5L35.5 5L43 13.5L23 27L7 3L53 24" stroke="white" stroke-width="2"/>
                 </svg>
             </a>
 
-            <div class="right-side">
-                <div class="close-buttons flex">
-                    <a class="fill fit search">
-                        <img src="{{ url_for('static', filename='icons/search.svg') }}">
-                        Поиск
-                    </a>
-                    <a class="fill" href="/game/create">
-                        <img src="{{ url_for('static', filename='icons/plus.svg') }}" alt="+">
-                    </a>
-                    {% if not session.get('token') %}
-                        <a class="fill" href="/account/register">
-                            <img src="{{ url_for('static', filename='icons/person.svg') }}" alt="Аккаунт">
-                        </a>
-                    {% else %}
-                        <a class="fill" href="/account/me">
-                            <img src="{{ url_for('static', filename='icons/person.svg') }}" alt="Аккаунт">
-                        </a>
-                    {% endif %}
-                </div>
+            <a class="outline fit search">
+                <img src="{{ url_for('static', filename='icons/search.svg') }}">
+                Поиск
+            </a>
 
+            <div class="right-side">
+
+
+                <a class="no-fill circle size48" href="/game/create">
+                    <img src="{{ url_for('static', filename='icons/plus.svg') }}" alt="+">
+                </a>
                 <!-- <a href="/file/create">FL</a> -->
 
-                <a href="/">
+                <button class="menu-btn outline circle">
+
                     <img src="{{ url_for('static', filename='icons/menu.svg') }}" alt="≡">
-                </a>
+                    <nav>
+                        <a class="fill orange" href="/game/create">
+                            Добавить...
+                        </a>
+                        {% if not session.get('token') %}
+                        <a class="fill" href="/account/register">
+                            <img src="{{ url_for('static', filename='icons/person.svg') }}" alt="Аккаунт">
+                            Войти в аккаунт
+                        </a>
+                        {% else %}
+                        <a class="fill" href="/account/me">
+                            <img src="{{ url_for('static', filename='icons/person.svg') }}" alt="Аккаунт">
+                            Аккаунт
+
+                        </a>
+                        {% endif %}
+                        <a class="fill">
+                            FAQ и прочее
+                        </a>
+                        <a class="fill">
+                            Сообщить об ошибке
+                        </a>
+
+                        <div class="divider header"></div>
+
+                        <a class="fill alt version">
+                            Alpha<span>v.01</span>
+                        </a>
+                        <a class="fill alt version" href="https://lbvo.ru">
+                            Made by lbv_dev<span>lbvo.ru</span>
+                        </a>
+                    </nav>
+                </button>
             </div>
 
         </header>

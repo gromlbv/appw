@@ -6,6 +6,32 @@
 
 
 {% block content %}
+
+
+<div class="card-wrapper flex gap-8">
+    <div class="card flex-between">
+        <div class="flex-cl gap-12">
+            <a href="/game/create" class="orange height-fill">
+                <img class="original icons" src="{{ url_for('static', filename='icons/plus-black.svg') }}" alt="">
+                Добавить...
+            </a>
+            <a href="/account/login" class="height-fill">
+                <img class="original icons" src="{{ url_for('static', filename='icons/person-sketch.svg') }}" alt="">
+                Войти в аккаунт
+            </a>
+        </div>
+
+        <a href="/graphs">
+            Graphs
+            <img class="original graphs" src="{{ url_for('static', filename='icons/graphs.svg') }}" alt="">
+
+            <span class="bottom">
+                Просматривайте игры и приложения в виде графиков
+            </span>
+        </a>
+    </div>
+</div>
+
 <div class="overlay modal" id="gameModal">
 
     <a id="modalClose" type="reset" class="close-btn" href="/">
@@ -45,19 +71,19 @@
 
 
 <h2>Недавно обновлено</h2>
-<div class="library-wr flex gap-8">
-    <div class="object-wr">
+<div class="card-wrapper flex gap-8">
+    <div class="card">
         {% for game in latest_shares %}
         <a href="/game/{{ game.link }}">
             {{ game.title }}
 
             {% if game.game_downloads and game.game_downloads|length > 0 %}
-                <span class="file-size">
+                <span class="bottom">
                     {{ game.game_downloads[0].file_size|filesize }}
                 </span>
                 
             {% else %}
-                <span class="file-size">
+                <span class="bottom">
                     Нет файлов
                 </span>
             {% endif %}
@@ -75,20 +101,20 @@
 </div>
 
 <h2>Библиотека приложений</h2>
-<div class="library-wr flex gap-8">
-    <div class="object-wr selectable" data-category="shares">
+<div class="card-wrapper flex gap-8">
+    <div class="card selectable" data-category="shares">
         {% for app in shares %}
         <a href="#" data-game-link="{{ app.link }}">
         <!-- <a href="/game/{{ app.link }}"> -->
             {{ app.title }}
 
             {% if app.game_downloads and app.game_downloads|length > 0 %}
-                <span class="file-size">
+                <span class="bottom">
                     {{ app.game_downloads[0].file_size|filesize }}
                 </span>
                 
             {% else %}
-                <span class="file-size">
+                <span class="bottom">
                     Нет файлов
                 </span>
             {% endif %}
@@ -106,18 +132,18 @@
         {% endfor %}
     </div>
 
-    <div class="object-wr selectable" data-category="games">
+    <div class="card selectable" data-category="games">
         {% for game in games %}
         <a href="/game/{{ game.link }}">
             {{ game.title }}
 
             {% if game.game_downloads and game.game_downloads|length > 0 %}
-                <span class="file-size">
+                <span class="bottom">
                     {{ game.game_downloads[0].file_size|filesize }}
                 </span>
                 
             {% else %}
-                <span class="file-size">
+                <span class="bottom">
                     Нет файлов
                 </span>
             {% endif %}
@@ -127,18 +153,18 @@
     </div>
 
 
-    <div class="object-wr selectable" data-category="apps">
+    <div class="card selectable" data-category="apps">
         {% for app in apps %}
         <a href="/game/{{ app.link }}">
             {{ app.title }}
             {{ app.game_downloads[0] }}
             {% if app.game_downloads and app.game_downloads|length > 0 %}
-                <span class="file-size">
+                <span class="bottom">
                     {{ app.game_downloads[0].file_size|filesize }}
                 </span>
                 
             {% else %}
-                <span class="file-size">
+                <span class="bottom">
                     Нет файлов
                 </span>
             {% endif %}
@@ -163,15 +189,15 @@
 
 
 <!-- <h1>Файлы</h1>
-<div class="object-wr">
+<div class="card">
     {% for file in files %}
     <a href="/file/{{ file.link }}">{{ file.title }}</a>
     {% endfor %}
 </div> -->
 
 <h2>Юзеры</h2>
-<div class="library-wr flex gap-8">
-    <div class="object-wr users">
+<div class="card-wrapper flex gap-8">
+    <div class="card users">
         {% for user in users %}
         <a href="/user/{{ user["username"] }}">{{user["username"]}}</a>
         {% endfor %}
@@ -180,7 +206,7 @@
 
 <script>
     $(document).ready(function () {
-    const $blocks = $('.object-wr.selectable');
+    const $blocks = $('.card.selectable');
     const $links = $('.category-wr a');
 
     function showCategory(category) {
