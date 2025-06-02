@@ -129,7 +129,10 @@ def post_game(
     return game
 
 def get_all_games_with_stats():
-    return Game.query.options(joinedload(Game.stats)).all()
+    games = get_shares_all()
+    game_ids = [game.id for game in games]
+    games_with_stats = Game.query.options(joinedload(Game.stats)).filter(Game.id.in_(game_ids)).all()
+    return games_with_stats
 
 def update_game_stats(game_id, serious_fun, utility_gamified):
     game = Game.query.get(game_id)
