@@ -58,6 +58,7 @@ class GameInfo(db.Model):
     language = db.Column(db.Text)
     published_by = db.Column(db.String(20), db.ForeignKey('users.id'))
     published_at = db.Column(db.Date)
+    updated_at = db.Column(db.Date)
 
     app_type = db.Column(db.String(100))
     category = db.Column(db.String(100))

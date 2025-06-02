@@ -27,7 +27,7 @@ def handle_valueerror(template_name):
             try:
                 return f(*args, **kwargs)
             except ValueError as e:
-                print("Ошибка:", repr(e))
+                print("Оши  бка:", repr(e))
                 context = dict(request.form)
                 context['error'] = str(e)
                 return render_template(template_name, **context)
@@ -62,10 +62,14 @@ def get_user_id():
 def filesize_filter(size):
     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
         if size < 1024:
-            return f"{size:.1f} {unit}"
+            return f"{size:.1f} <span>{unit}</span>"
         size /= 1024
     return f"{size:.1f} PB"
 
+# возвращает "игры" или "приложения" в зависимости от типа
+@app.template_filter('game_or_app')
+def game_or_app(app_type):
+    return 'game' if app_type == 'игры' else 'приложения'
 
 @app.get('/')
 def index():
@@ -143,6 +147,7 @@ def add_game():
     return render_template('add_game.html')
 
 @app.post('/game/create')
+@handle_valueerror('add_game.html')
 def post_game():
     title = request.form.get('title')
     link = request.form.get('link')
@@ -182,17 +187,15 @@ def post_game():
     titles = request.form.getlist("download_titles[]")
     files = request.files.getlist("download_files[]")
 
+    
     for i in range(len(titles)):
         file = files[i]
-        new_file = upload_file(file)
-        db.add_game_download(game.id, titles[i], new_file.path, new_file.size, order=i)
-    
-    flash("Игра успешно создана")
-    return jsonify(
-        success=True,    
-        message="Игра успешно создана",
-        game_url=f"/game/{game.link}"
-        )
+        if file:
+            new_file = upload_file(file)
+            db.add_game_download(game.id, titles[i], new_file.path, new_file.size, order=i)
+            
+    flash(f"Приложение успешно добавлено! <a href='/game/{game.link}'>Открыть</a>")
+    return redirect(furl_for('index'))
 
 
 
@@ -233,13 +236,29 @@ def download_file(filename):
 @app.route('/game/delete/<game_link>')
 def delete_game(game_link):
     game = db.get_app_one(game_link)
-    db.archive_game(game)
+    if not game:
+        flash("Игра не найдена")
+        return redirect(furl_for('index'))
 
+    current_user_id = get_user_id()
+
+    if game.game_info.published_by != current_user_id:
+        flash("Вы не можете удалить чужую игру")
+        return redirect(furl_for('view_game', link=game_link))
+
+    db.archive_game(game)
     flash("Игра успешно удалена")
     return redirect(furl_for('index'))
 
 
 
+@app.route('/api/game/<link>/modal')
+def game_modal(link):
+    game = db.get_app_one(link)
+    if not game:
+        return "Игра не найдена", 404
+    
+    return render_template('game_modal.html', game=game)
 
 @app.route('/game/edit/<game_link>', methods=['GET', 'POST'])
 def edit_game(game_link):
@@ -329,6 +348,7 @@ def file_share_post():
 def user(username):
     account = db.get_users_one(username)
     games = db.get_app_by_user(username)
+
     if account is None:
         return f"Юзер не найден"
     
@@ -404,9 +424,10 @@ def api_game(game_link):
 @app.route('/account/logout', methods=['POST', 'GET'])
 def logout():
     if is_loggined():
-        print('успешно удалил токен')
         session.pop('token', None)
-    return redirect(furl_for('login'))
+        flash("Вы вышли из аккаунта <a href='/account/login'>Вход</a>")
+
+    return redirect(furl_for('index'))
 
 
 

@@ -15,10 +15,17 @@
                 <img class="original icons" src="{{ url_for('static', filename='icons/plus-black.svg') }}" alt="">
                 Добавить...
             </a>
+            {% if not session.get('token') %}
             <a href="/account/login" class="height-fill">
                 <img class="original icons" src="{{ url_for('static', filename='icons/person-sketch.svg') }}" alt="">
                 Войти в аккаунт
             </a>
+            {% else %}
+            <a href="/account/me" class="height-fill">
+                <img class="original icons" src="{{ url_for('static', filename='icons/person-sketch.svg') }}" alt="">
+                Открыть профиль
+            </a>
+            {% endif %}
         </div>
 
         <a href="/graphs">
@@ -33,32 +40,8 @@
 </div>
 
 <div class="overlay modal" id="gameModal">
-
-    <a id="modalClose" type="reset" class="close-btn" href="/">
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="16" viewBox="0 0 15 16" fill="none">
-            <path opacity="0.5" d="M1 1.25L7.75 8M14.5 14.75L7.75 8M7.75 8L1 14.75M7.75 8L14.5 1.25" stroke="white" />
-        </svg>
-    </a>
-
     <div class="modal-content">
-        <img id="modalPreview" src="{{ request.url_root ~ game.preview if game and game.preview else '' }}">
 
-        <div class="head">
-            <h1 id="modalTitle">{{ game.title if game else '' }}</h1>
-            <div id="modalDownloads">
-                {% if game and game.game_downloads %}
-                    {% for d in game.game_downloads %}
-                        <div>
-                            {{ loop.index }}. {{ d.title or 'Без названия' }} —
-                            <a href="{{ url_for('download_file', filename=d.file_link) }}">Скачать</a>
-                        </div>
-                    {% endfor %}
-                {% endif %}
-            </div>
-        </div>
-
-        <p id="modalDescription">{{ game.game_info.description if game else '' }}</p>
-        <h3>Загрузки</h3>
     </div>
 </div>
 
@@ -69,17 +52,28 @@
 
 
 
+<div class="overlay modal" id="gameModal" style="display:none;">
+  <div class="modal-content">
+    <a class="close-btn" onclick="closeModal()">✕</a>
+    <div class="loading">Загружаю...</div>
+  </div>
+</div>
+
 
 <h2>Недавно обновлено</h2>
 <div class="card-wrapper flex gap-8">
     <div class="card">
-        {% for game in latest_shares %}
-        <a href="/game/{{ game.link }}">
-            {{ game.title }}
+        {% for app in latest_shares %}
+        <a
+        hx-get="/api/game/{{ app.link }}/modal" 
+        hx-target="#gameModal .modal-content"
+        hx-trigger="click"
+        onclick="document.getElementById('gameModal').style.display='flex'">
+            {{ app.title }}
 
-            {% if game.game_downloads and game.game_downloads|length > 0 %}
+            {% if app.game_downloads and app.game_downloads|length > 0 %}
                 <span class="bottom">
-                    {{ game.game_downloads[0].file_size|filesize }}
+                    {{ app.game_downloads[0].file_size|filesize|safe }}
                 </span>
                 
             {% else %}
@@ -88,10 +82,10 @@
                 </span>
             {% endif %}
 
-            {% if game.game_info.app_type == 'app' %}
+            {% if app.game_info.app_type == 'app' %}
             <img src="{{ url_for('static', filename='icons/terminal.svg') }}">
             {% endif %}
-            {% if game.game_info.app_type == 'game' %}
+            {% if app.game_info.app_type == 'game' %}
             <img src="{{ url_for('static', filename='icons/joystick.svg') }}">
             {% endif %}
         </a>
@@ -104,13 +98,18 @@
 <div class="card-wrapper flex gap-8">
     <div class="card selectable" data-category="shares">
         {% for app in shares %}
-        <a href="#" data-game-link="{{ app.link }}">
+        <a
+        hx-get="/api/game/{{ app.link }}/modal" 
+        hx-target="#gameModal .modal-content"
+        hx-trigger="click"
+        onclick="document.getElementById('gameModal').style.display='flex'">
+
         <!-- <a href="/game/{{ app.link }}"> -->
             {{ app.title }}
 
             {% if app.game_downloads and app.game_downloads|length > 0 %}
                 <span class="bottom">
-                    {{ app.game_downloads[0].file_size|filesize }}
+                    {{ app.game_downloads[0].file_size|filesize|safe }}
                 </span>
                 
             {% else %}
@@ -133,13 +132,17 @@
     </div>
 
     <div class="card selectable" data-category="games">
-        {% for game in games %}
-        <a href="/game/{{ game.link }}">
-            {{ game.title }}
+        {% for app in games %}
+        <a
+        hx-get="/api/game/{{ app.link }}/modal" 
+        hx-target="#gameModal .modal-content"
+        hx-trigger="click"
+        onclick="document.getElementById('gameModal').style.display='flex'">
+            {{ app.title }}
 
-            {% if game.game_downloads and game.game_downloads|length > 0 %}
+            {% if app.game_downloads and app.game_downloads|length > 0 %}
                 <span class="bottom">
-                    {{ game.game_downloads[0].file_size|filesize }}
+                    {{ app.game_downloads[0].file_size|filesize|safe }}
                 </span>
                 
             {% else %}
@@ -160,7 +163,7 @@
             {{ app.game_downloads[0] }}
             {% if app.game_downloads and app.game_downloads|length > 0 %}
                 <span class="bottom">
-                    {{ app.game_downloads[0].file_size|filesize }}
+                    {{ app.game_downloads[0].file_size|filesize|safe }}
                 </span>
                 
             {% else %}
@@ -260,9 +263,6 @@ document.querySelectorAll('a[data-game-link]').forEach(link => {
 });
 
 // Закрытие попапа
-document.getElementById('modalClose').addEventListener('click', () => {
-  document.getElementById('gameModal').style.display = 'none';
-});
 
 // Закрытие при клике вне модального окна
 window.addEventListener('click', e => {

@@ -70,7 +70,7 @@ def get_latest(limit):
     return Game.query\
         .join(GameInfo)\
         .filter(Game.is_archived == False)\
-        .order_by(GameInfo.published_at.desc())\
+        .order_by(GameInfo.updated_at.desc())\
         .limit(limit)\
         .all()
 
@@ -83,7 +83,11 @@ def get_all_games():
 
 def get_app_by_user(username):
     apps = get_shares_all()
-    return [apps for game in apps if game.game_info and game.game_info.published_by == username]
+    result = []
+    for game in apps:
+        if game.game_info and game.game_info.published_by == username:
+            result.append(game)
+    return result
 
 # def post_comment(userid, gameid, text):
 #     game_comment = GameComment(
@@ -191,9 +195,9 @@ def get_download_info(filename):
     extension = '.' + file_link.rsplit('.', 1)[-1]
 
     if title:
-        download_name = game_name + " · " + title + " · apps.lbvo.ru" + extension
+        download_name = game_name + " · " + title + extension
     else:
-        download_name = game_name + " · apps.lbvo.ru" + extension
+        download_name = game_name+ extension
     return download_name
 
 def add_game_download(game_id, title, file_link, file_size, order=0):

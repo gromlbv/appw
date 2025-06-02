@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %} {% endblock title %}apps.lbv</title>
+    <title>{% block title %} {% endblock title %}appw</title>
     <link rel="stylesheet" href="{{ url_for ('static', filename='style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,6 +12,7 @@
     <link rel="icon" href="{{ url_for('static', filename='/favicon.ico') }}" type="image/ico">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js"></script>
     <script type="module" src="https://lbvo.ru/utils/init.js"></script>
     <script src="{{ url_for('static', filename='js/show.js') }}"></script>
     <script src="{{ url_for('static', filename='js/errorhandler.js') }}"></script>
@@ -40,26 +41,22 @@
             </a>
 
             <div class="right-side">
-
-
+                
                 <a class="no-fill circle size48" href="/game/create">
                     <img src="{{ url_for('static', filename='icons/plus.svg') }}" alt="+">
                 </a>
-                <!-- <a href="/file/create">FL</a> -->
-
                 
                 <button id="show-nav" class="menu-btn outline circle">
-
                     <img src="{{ url_for('static', filename='icons/menu.svg') }}" alt="≡">
-                    
                 </button>
+
                 <nav id="nav">
                     <a class="fill orange" href="/game/create">
                         <img src="{{ url_for('static', filename='icons/plus-black.svg') }}">
                         Добавить...
                     </a>
                     {% if not session.get('token') %}
-                    <a class="fill" href="/account/register">
+                    <a class="fill" href="/account/login">
                         <img src="{{ url_for('static', filename='icons/person-sketch.svg') }}" alt="Человек">
                         Войти в аккаунт
                     </a>
@@ -80,8 +77,8 @@
 
                     <div class="divider header"></div>
 
-                    <a class="fill alt version">
-                        Alpha<span>v.01</span>
+                    <a class="fill alt version" href="https://github.com/gromlbv/fileShare">
+                        Alpha<span>v0.01</span>
                     </a>
                     <a class="fill alt version" href="https://lbvo.ru">
                         Made by lbv_dev<span>lbvo.ru</span>
@@ -97,7 +94,10 @@
 
         {% set messages = get_flashed_messages() %}
         {% for message in messages %}
-            <div class="flash-message">{{message}}</div>
+            <div class="flash-message">
+                {{ message|safe }}
+                <!-- <button id="close-flash-message">X</button> -->
+            </div>
         {% endfor %}
     </div>
 </body>

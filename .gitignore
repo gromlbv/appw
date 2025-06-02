@@ -10,7 +10,5 @@
 .venv/Scripts/python.exe
 /.venv
 .DS_Store
-/__pycache__
-/instance
 /static/uploads
-instance/database.db
+/__pycache__

@@ -7,18 +7,40 @@
 
 
 {% block content %}
-<div class="flex flex-center">
-    <a href="/">Назад</a>
-    <h1>{{account["username"]}}</h1>
+<div class="flex-grow flex-between flex-center gap-12">
+    <div></div>
+    <div class="flex-cl">
+        <h1>{{account["username"]}}</h1>
+        <a href="/account/logout" class="fill">Выйти из аккаунта</a>
+    </div>
+
+    <a href="/" class="outline circle">
+        <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="">
+    </a>
 </div>
 
 
-<div class="flex-cl">
-    <h3>Игры юзера</h3>
-    {% for game in games %}
-    <a href="/game/{{ game['link'] }}">{{game["title"]}}</a>
-    {% endfor %}
-</div>
+<h2>Игры юзера</h2>
+<div class="card-wrapper flex gap-8">
+    <div class="card">
+        {% for game in games %}
+        <a href="/game/{{ game.link }}">
+            {{ game.title }}
 
+            {% if game.game_downloads and game.game_downloads|length > 0 %}
+                <span class="bottom">
+                    {{ game.game_downloads[0].file_size|filesize|safe }}
+                </span>
+                
+            {% else %}
+                <span class="bottom">
+                    Нет файлов
+                </span>
+            {% endif %}
+        </a>
+
+        {% endfor %}
+    </div>
+</div>
 
 {% endblock content %}

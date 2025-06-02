@@ -1,0 +1,55 @@
+<div class="button-absolute-wr">
+    <a id="modalClose" type="reset" class="absolute-btn close">
+        <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
+    </a>
+    <a id="modalClose" class="absolute-btn expand" href="game/{{ game.link }}">
+        <img src="{{ url_for('static', filename='icons/expand.svg') }}" alt="Close">
+    </a>
+</div>
+
+<div class="img-wrapper">
+  <img src="{{ request.url_root ~ game.preview if game.preview else '' }}">
+</div>
+
+<div class="info-wrapper">
+  <div class="flex-between">
+    <h1>{{ game.title }}</h1>
+    <div class="download-wr">
+      {% if game.game_downloads %}
+        {% for d in game.game_downloads %}
+            <!-- {{ loop.index }}. {{ d.title or 'Без названия' }} — -->
+            <a href="{{ url_for('download_file', filename=d.file_link) }}">Скачать</a>
+        {% endfor %}
+      {% else %}
+        <p>Нет загрузок</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  
+  <div class="game-info">
+    {% if game.game_downloads %}
+    <div>
+        <p>Вес {{ game.game_info.app_type | game_or_app }}</p>
+        <h3>{{ game.game_downloads[0].file_size|filesize|safe }}</h3>
+    </div>
+    {% endif %}
+
+    {% if game.game_info.release_date %}
+    <div>
+      <p>Дата выхода</p>
+      <h3>{{ game.game_info.release_date }}</h3>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+    document.getElementById('modalClose').addEventListener('click', () => {
+        document.getElementById('gameModal').style.display = 'none';
+    });
+    function closeModal() {
+    document.getElementById('gameModal').style.display = 'none';
+    }
+</script>

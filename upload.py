@@ -16,13 +16,14 @@ def upload_image(file, folder='static/uploads'):
     if not allowed_file(file.filename):
         return None
 
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(current_app.root_path, folder, filename)
+    ext = os.path.splitext(file.filename)[1]
+    file_name = f"{uuid.uuid4()}{ext}"
+    file_path = os.path.join(current_app.root_path, folder, file_name)
 
-    os.makedirs(os.path.dirname(filepath), exist_ok=True)
-    file.save(filepath)
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    file.save(file_path)
 
-    return f"{folder}/{filename}"
+    return f"{folder}/{file_name}"
 
 
 @dataclass
