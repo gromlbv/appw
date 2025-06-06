@@ -7,7 +7,9 @@
 {% block content %}
 
 <div class="overlay">
-    <form action="" method="post" enctype="multipart/form-data">
+    <form
+    method="POST" enctype="multipart/form-data"
+    hx-post="/game/create" hx-target="#error-box" hx-swap="innerHTML">
     <div class="button-absolute-wr">
         <a id="modalClose" type="reset" class="absolute-btn close" href="/">
             <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
@@ -48,6 +50,7 @@
                     </select>
 
                     <script>
+                        
                         const app_type = document.getElementById('app_type');
                         const category = document.getElementById('category');
 
@@ -145,11 +148,7 @@
         </div>
     </div>
 </form>
-                {% if error %}
-                    <div class="input-wr error">
-                        <span>{{ error }}</span>
-                    </div>
-                {% endif %}
+<div id="error-box" class="error"></div>
 
 </div>
 
@@ -188,11 +187,6 @@
 
         let blocks = $(".block");
         let currentIndex = 0;
-
-        function showBlock(index) {
-            blocks.addClass("inactive");
-            $(blocks[index]).removeClass("inactive");
-        }
 
         function showBlock(index) {
             blocks.addClass("inactive");
@@ -251,7 +245,6 @@
         $('#category').on('change', updateCategoryColor);
         updateCategoryColor();
     });
-
 </script>
 
 

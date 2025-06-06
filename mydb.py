@@ -102,8 +102,14 @@ def post_game(
         title, link, comments_allowed, preview,
         # GameInfo
         description, price, release_date, language, published_by, app_type, category,
-        # GameDownload
-        file):
+        ):
+    
+    if not title or not link:
+        return ("Некоторые поля не заполнены")
+    
+    if link in [game.link for game in get_shares_all()]:
+        return (f"Ссылка {link} уже используется")
+    
     game = Game(
         title=title,
         preview=preview,

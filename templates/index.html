@@ -9,7 +9,7 @@
 
 
 <div class="card-wrapper flex gap-8">
-    <div class="card flex-between">
+    <div class="card head">
         <div class="flex-cl gap-12">
             <a href="/game/create" class="orange height-fill">
                 <img class="original icons" src="{{ url_for('static', filename='icons/plus-black.svg') }}" alt="">
@@ -28,14 +28,22 @@
             {% endif %}
         </div>
 
-        <a href="/graphs">
-            Graphs
-            <img class="original graphs" src="{{ url_for('static', filename='icons/graphs.svg') }}" alt="">
-
-            <span class="bottom">
-                Просматривайте игры и приложения в виде графиков
-            </span>
-        </a>
+        <div class="flex-end gap-12 flex-grow">
+            <a class="bigger">
+                Коллекции
+                <img class="original graphs" src="{{ url_for('static', filename='icons/heart.svg') }}" alt="">
+                <span class="bottom">
+                    В РАЗРАБОТКЕ
+                </span>
+            </a>
+            <a class="bigger" href="/graphs">
+                Graphs
+                <img class="original graphs" src="{{ url_for('static', filename='icons/graphs.svg') }}" alt="">
+                <span class="bottom">
+                    Просматривайте игры и приложения в виде графиков
+                </span>
+            </a>
+        </div>
     </div>
 </div>
 
@@ -209,67 +217,35 @@
 
 <script>
     $(document).ready(function () {
-    const $blocks = $('.card.selectable');
-    const $links = $('.category-wr a');
+        const $blocks = $('.card.selectable');
+        const $links = $('.category-wr a');
 
-    function showCategory(category) {
-        $blocks.each(function () {
-            const $block = $(this);
-            $block.toggle($block.data('category') === category);
+        function showCategory(category) {
+            $blocks.each(function () {
+                const $block = $(this);
+                $block.toggle($block.data('category') === category);
+            });
+
+            $links.removeClass('active');
+            $links.filter(`[data-category="${category}"]`).addClass('active');
+        }
+
+        $links.on('click', function (e) {
+            e.preventDefault();
+            const category = $(this).data('category');
+            showCategory(category);
         });
 
-        $links.removeClass('active');
-        $links.filter(`[data-category="${category}"]`).addClass('active');
-    }
-
-    $links.on('click', function (e) {
-        e.preventDefault();
-        const category = $(this).data('category');
-        showCategory(category);
+        showCategory('shares');
     });
-
-    showCategory('shares');
-});
 </script>
+
 <script>
-document.querySelectorAll('a[data-game-link]').forEach(link => {
-  link.addEventListener('click', async e => {
-    e.preventDefault();
-    const gameLink = link.getAttribute('data-game-link');
-    const res = await fetch(`/api/game/${gameLink}`);
-    if (!res.ok) {
-      alert("Ошибка загрузки игры");
-      return;
+    window.addEventListener('click', e => {
+    if (e.target == document.getElementById('gameModal')) {
+        document.getElementById('gameModal').style.display = 'none';
     }
-    const data = await res.json();
-
-    // Заполняем модалку
-    document.getElementById('modalTitle').textContent = data.title;
-    document.getElementById('modalPreview').src = data.preview ? location.origin + data.preview : '';
-    document.getElementById('modalDescription').textContent = data.description;
-
-    // Загрузки
-    const downloadsDiv = document.getElementById('modalDownloads');
-    downloadsDiv.innerHTML = '';
-    data.downloads.forEach((d, i) => {
-      const div = document.createElement('div');
-      div.innerHTML = `${i+1}. ${d.title} — <a href="${d.file_link}">Скачать</a>`;
-      downloadsDiv.appendChild(div);
     });
-
-    // Показываем модалку
-    document.getElementById('gameModal').style.display = 'flex';
-  });
-});
-
-// Закрытие попапа
-
-// Закрытие при клике вне модального окна
-window.addEventListener('click', e => {
-  if (e.target == document.getElementById('gameModal')) {
-    document.getElementById('gameModal').style.display = 'none';
-  }
-});
 </script>
 
 {% endblock content %}

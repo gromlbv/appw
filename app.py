@@ -6,6 +6,7 @@ from routes import *
 from models import create_app, create_tables
 from mysecurity import verify, decode
 from upload import upload_image, upload_file
+from functools import wraps
 
 import mydb as db
 from datetime import datetime
@@ -20,6 +21,33 @@ app.config['SERVER_NAME'] = "appw.su"
 from functools import wraps
 from flask import render_template, request
 
+
+def handle_valueerror_htmx():
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            try:
+                return func(*args, **kwargs)
+            except ValueError as e:
+                return str(e), 400
+        return wrapper
+    return decorator
+
+
+def handle_valueerror_json():
+    def decorator(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            try:
+                return f(*args, **kwargs)
+            except ValueError as e:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return jsonify(success=False, error=str(e))
+                raise  # если не AJAX — пусть падает
+        return wrapped
+    return decorator
+
+
 def handle_valueerror(template_name):
     def decorator(f):
         @wraps(f)
@@ -27,7 +55,6 @@ def handle_valueerror(template_name):
             try:
                 return f(*args, **kwargs)
             except ValueError as e:
-                print("Оши  бка:", repr(e))
                 context = dict(request.form)
                 context['error'] = str(e)
                 return render_template(template_name, **context)
@@ -146,14 +173,15 @@ def get_categories():
 def add_game():
     return render_template('add_game.html')
 
+def render_form_error(form):
+    return render_template("error_template.html", form=form), 400
+
+from flask import render_template_string, make_response
+
 @app.post('/game/create')
-@handle_valueerror('add_game.html')
 def post_game():
     title = request.form.get('title')
     link = request.form.get('link')
-
-    game_file = request.files.get('game_file')
-    game_file = upload_file(game_file)
 
     image_file = request.files.get('image_file')
     preview = upload_image(image_file)
@@ -180,9 +208,7 @@ def post_game():
         title, link, comments_allowed, preview, 
         # GameInfo
         description, price, release_date, language, published_by, app_type, category,
-        # GameDownload
-        game_file
-        )
+    )
     
     titles = request.form.getlist("download_titles[]")
     files = request.files.getlist("download_files[]")
