@@ -213,12 +213,13 @@ def post_game():
     titles = request.form.getlist("download_titles[]")
     files = request.files.getlist("download_files[]")
 
-    
+
     for i in range(len(titles)):
-        file = files[i]
+        file = files[i] if i < len(files) else None
         if file:
             new_file = upload_file(file)
             db.add_game_download(game.id, titles[i], new_file.path, new_file.size, order=i)
+
             
     flash(f"Приложение успешно добавлено! <a href='/game/{game.link}'>Открыть</a>")
     return redirect(furl_for('index'))
