@@ -1,55 +1,99 @@
 <div class="button-absolute-wr">
-    <a id="modalClose" type="reset" class="absolute-btn close">
-        <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
-    </a>
-    <a id="modalClose" class="absolute-btn expand" href="game/{{ game.link }}">
-        <img src="{{ url_for('static', filename='icons/expand.svg') }}" alt="Close">
-    </a>
+  <a id="modalClose" type="reset" class="absolute-btn close">
+    <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
+  </a>
+  <a id="modalClose" class="absolute-btn expand" href="game/{{ game.link }}">
+    <img src="{{ url_for('static', filename='icons/expand.svg') }}" alt="Close">
+  </a>
 </div>
 
 <div class="img-wrapper">
-  <img src="{{ request.url_root ~ game.preview if game.preview else '' }}">
+  <img class="game_not_playing" id="game_preview" src="{{ request.url_root ~ game.preview if game.preview else '' }}">
+
+  {% if game.is_unity_build and game.downloads %}
+  <div class="game_playing" style="width: 100%; height: 100%;">
+
+    <iframe id="game_iframe" src="{{ url_for('static', filename=game.downloads[0].file_link) }}" frameborder="0" allowfullscreen>
+    </iframe>
+
+  </div>
+  {% endif %}
+
 </div>
+
 
 <div class="info-wrapper">
   <div class="flex-between">
     <h1>{{ game.title }}</h1>
     <div class="download-wr">
-      {% if game.game_downloads %}
-        {% for d in game.game_downloads %}
-            <!-- {{ loop.index }}. {{ d.title or 'Без названия' }} — -->
-            <a href="{{ url_for('download_file', filename=d.file_link) }}">Скачать</a>
-        {% endfor %}
+      {% if game.downloads %}
+      {% for d in game.downloads %}
+      <!-- {{ loop.index }}. {{ d.title or 'Без названия' }} — -->
+      {% if game.is_unity_build and game.downloads %}
+
+      <button class="game_playing rounded" id="fullscreenBtn">
+        <img src="{{ url_for('static', filename='icons/fullscreen.svg') }}" alt="">
+      </button>
+      <a class="game_playing">Закрыть игру</a>
+      <a class="game_not_playing" id="play_game_btn">Играть</a>
+
+
       {% else %}
-        <p>Нет загрузок</p>
+      <a href="{{ url_for('download_file', filename=d.file_link) }}">Скачать</a>
+      {% endif %}
+      {% endfor %}
+      {% else %}
+      <p>Нет загрузок</p>
       {% endif %}
     </div>
   </div>
 
   <div class="divider"></div>
-  
+
   <div class="game-info">
-    {% if game.game_downloads %}
+    
+
+    {% if not game.is_unity_build and game.downloads %}
     <div>
-        <p>Вес {{ game.game_info.app_type | game_or_app }}</p>
-        <h3>{{ game.game_downloads[0].file_size|filesize|safe }}</h3>
+      <p>Вес {{ game.info.app_type | game_or_app }}</p>
+      <h3>{{ game.downloads[0].file_size|filesize|safe }}</h3>
     </div>
     {% endif %}
 
-    {% if game.game_info.release_date %}
+    {% if game.info.release_date %}
     <div>
       <p>Дата выхода</p>
-      <h3>{{ game.game_info.release_date }}</h3>
+      <h3>{{ game.info.release_date }}</h3>
     </div>
     {% endif %}
   </div>
 </div>
 
 <script>
-    document.getElementById('modalClose').addEventListener('click', () => {
-        document.getElementById('gameModal').style.display = 'none';
-    });
-    function closeModal() {
+  document.getElementById('modalClose').addEventListener('click', () => {
     document.getElementById('gameModal').style.display = 'none';
+  });
+  function closeModal() {
+    document.getElementById('gameModal').style.display = 'none';
+  }
+
+  $('#play_game_btn').click(function (e) {
+    e.preventDefault();
+    $('.game_playing').toggleClass('active');
+    $('.game_not_playing').toggleClass('hidden'); // аналогично
+  });
+
+
+  $('#fullscreenBtn').click(function () {
+    const iframe = document.getElementById('game_iframe');
+    if (iframe.requestFullscreen) {
+      iframe.requestFullscreen();
+    } else if (iframe.mozRequestFullScreen) { /* Firefox */
+      iframe.mozRequestFullScreen();
+    } else if (iframe.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+      iframe.webkitRequestFullscreen();
+    } else if (iframe.msRequestFullscreen) { /* IE/Edge */
+      iframe.msRequestFullscreen();
     }
+  });
 </script>

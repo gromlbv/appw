@@ -27,9 +27,9 @@
         <a href="/game/{{ game.link }}">
             {{ game.title }}
 
-            {% if game.game_downloads and game.game_downloads|length > 0 %}
+            {% if game.downloads and game.downloads|length > 0 %}
                 <span class="bottom">
-                    {{ game.game_downloads[0].file_size|filesize|safe }}
+                    {{ game.downloads[0].file_size|filesize|safe }}
                 </span>
                 
             {% else %}

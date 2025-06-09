@@ -50,7 +50,7 @@ class GameInfo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     game_id = db.Column(db.Integer, db.ForeignKey('games.id'))
-    game = relationship("Game", uselist=False, back_populates="game_info")
+    game = relationship("Game", uselist=False, back_populates="info")
 
     description = db.Column(db.Text)
     price = db.Column(db.Integer)
@@ -65,11 +65,11 @@ class GameInfo(db.Model):
 
 
 class GameDownload(db.Model):
-    __tablename__ = 'game_downloads'
+    __tablename__ = 'downloads'
     id = db.Column(db.Integer, primary_key=True)
     
     game_id = db.Column(db.Integer, db.ForeignKey('games.id'))
-    game = relationship("Game", back_populates="game_downloads")
+    game = relationship("Game", back_populates="downloads")
 
     title = db.Column(db.String(100))
     file_link = db.Column(db.String(255))
@@ -86,10 +86,12 @@ class Game(db.Model):
     preview = db.Column(db.Text)
     link = db.Column(db.String(32), nullable=False, unique=True)
     comments_allowed = db.Column(db.Boolean, default=False)
+
+    is_unity_build = db.Column(db.Boolean, default=False)
     is_archived = db.Column(db.Boolean, default=False)
 
-    game_info = relationship("GameInfo", uselist=False, back_populates="game")
-    game_downloads = relationship("GameDownload", back_populates="game", order_by="GameDownload.order")
+    info = relationship("GameInfo", uselist=False, back_populates="game")
+    downloads = relationship("GameDownload", back_populates="game", order_by="GameDownload.order")
     stats = relationship("GameStats", uselist=False, back_populates="game")
 
 

@@ -75,17 +75,17 @@ def get_latest(limit):
         .all()
 
 def get_all_apps():
-    return [game for game in get_shares_all() if game.game_info and game.game_info.app_type == 'app']
+    return [game for game in get_shares_all() if game.info and game.info.app_type == 'app']
 
 def get_all_games():
-    return [game for game in get_shares_all() if game.game_info and game.game_info.app_type == 'game']
+    return [game for game in get_shares_all() if game.info and game.info.app_type == 'game']
 
 
 def get_app_by_user(username):
     apps = get_shares_all()
     result = []
     for game in apps:
-        if game.game_info and game.game_info.published_by == username:
+        if game.info and game.info.published_by == username:
             result.append(game)
     return result
 
@@ -119,7 +119,7 @@ def post_game(
     )
     save_to_db(game)
 
-    game_info = GameInfo(
+    info = GameInfo(
         game_id=game.id,
         description=description,
         price=price,
@@ -129,7 +129,7 @@ def post_game(
         app_type=app_type,
         category=category
     )
-    save_to_db(game_info)
+    save_to_db(info)
 
     print("Game created:", game)
     return game

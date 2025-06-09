@@ -13,7 +13,7 @@
 
         <div style="margin-bottom: 20px;">
             <h1>{{ game.title }}</h1>
-            <p>{{ game.game_info.description if game.game_info.description else 'Описание отсутствует' }}</p>
+            <p>{{ game.info.description if game.info.description else 'Описание отсутствует' }}</p>
         </div>
 
         <div style="margin-bottom: 20px;" class="flex-cl gap-8">
@@ -40,32 +40,32 @@
     <div class="game-info-wrapper">
         <div>
             <h3>Дата релиза</h3>
-            <p>{{ game.game_info.release_date if game.game_info.release_date else 'Дата релиза не указана' }}</p>
+            <p>{{ game.info.release_date if game.info.release_date else 'Дата релиза не указана' }}</p>
         </div>
 
         <div>
             <h3>Язык</h3>
-            <p>{{ game.game_info.language if game.game_info.language else 'Язык не указан' }}</p>
+            <p>{{ game.info.language if game.info.language else 'Язык не указан' }}</p>
         </div>
 
         <div>
             <h3>Автор</h3>
-            <a href="/user/{{ game.game_info.published_by }}">{{ game.game_info.published_by }}</a>
+            <a href="/user/{{ game.info.published_by }}">{{ game.info.published_by }}</a>
         </div>
 
         <div>
             <h3>Цена</h3>
-            <p>{{ game.game_info.price }} {{ '₽' if game.game_info.price else 'Цена не указана' }}</p>
+            <p>{{ game.info.price }} {{ '₽' if game.info.price else 'Цена не указана' }}</p>
         </div>
 
         <div>
             <h3>Тип приложения</h3>
-            <p>{{ game.game_info.app_type }} </p>
+            <p>{{ game.info.app_type }} </p>
         </div>
 
         <div>
             <h3>Категория</h3>
-            <p>{{ game.game_info.category }} </p>
+            <p>{{ game.info.category }} </p>
         </div>
     </div>
 </div>

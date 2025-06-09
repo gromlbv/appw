@@ -7,148 +7,173 @@
 {% block content %}
 
 <div class="overlay">
-    <form
-    method="POST" enctype="multipart/form-data"
-    hx-post="/game/create" hx-target="#error-box" hx-swap="innerHTML">
-    <div class="button-absolute-wr">
-        <a id="modalClose" type="reset" class="absolute-btn close" href="/">
-            <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
-        </a>
-    </div>
-    <header>
-        <label>Добавление приложения</label>
-    </header>
-    <div class="block">
-        <h1>Главное о приложении</h1>
+    <form method="POST" enctype="multipart/form-data" hx-post="/game/create" hx-target="#error-box" hx-swap="innerHTML">
+        <div class="button-absolute-wr">
+            <a id="modalClose" type="reset" class="absolute-btn close" href="/">
+                <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
+            </a>
+        </div>
+        <header>
+            <label>Добавление приложения</label>
+        </header>
+        <div class="block">
+            <h1>Главное о приложении</h1>
 
-        <div class="two-side">
-            <div class="inputs">
-                <div class="input-wr">
-                    <label for="title">Название</label>
-                    <input type="text" id="title" name="title" placeholder="Введите название" required>
-                </div>
-                <div class="input-wr">
-                    <label for="link">Ссылка</label>
-                    <div class="input-link-wr">
-                        <input type="text" id="link" name="link" placeholder="yourapp" required>
-                        <span class="prefix">.appw.su</span>
-
+            <div class="two-side">
+                <div class="inputs">
+                    <div class="input-wr">
+                        <label for="title">Название</label>
+                        <input type="text" id="title" name="title" placeholder="Введите название" required>
                     </div>
+                    <div class="input-wr">
+                        <label for="link">Ссылка</label>
+                        <div class="input-link-wr">
+                            <input type="text" id="link" name="link" placeholder="yourapp" required>
+                            <span class="prefix">.appw.su</span>
+
+                        </div>
+                    </div>
+
+                    <div class="input-wr">
+                        <label for="app_type">Платформа</label>
+                        <select id="app_type" name="app_type">
+                            <option value="" disabled selected hidden>Выбор платформы</option>
+                            <option value="game">Игра</option>
+                            <option value="app">Приложение</option>
+                        </select>
+
+                        <label for="category">Категория</label>
+                        <select id="category" name="category">
+                            <option value="" disabled selected hidden>Выбрать категорию</option>
+                        </select>
+
+                        <script>
+
+                            const app_type = document.getElementById('app_type');
+                            const category = document.getElementById('category');
+
+                            app_type.addEventListener('change', async () => {
+                                if (app_type.value === '') {
+                                    category.innerHTML = '<option value="" disabled selected hidden>Выбрать категорию</option>';
+                                } else if (app_type.value === 'game') {
+                                    category.innerHTML = '<option value="" disabled selected hidden>Выбрать жанр игры</option>';
+                                } else if (app_type.value === 'app') {
+                                    category.innerHTML = '<option value="" disabled selected hidden>Выбрать тип приложения</option>';
+                                }
+                                const selectedType = app_type.value;
+
+                                try {
+                                    const response = await fetch(`/api/get-categories?type=${selectedType}`);
+                                    const data = await response.json();
+
+                                    data.categories.forEach(type => {
+                                        const opt = document.createElement('option');
+                                        opt.value = type;
+                                        opt.textContent = type;
+                                        category.appendChild(opt);
+                                    });
+                                } catch (err) {
+                                    console.error('Ошибка при загрузке категорий:', err);
+                                }
+                            });
+                        </script>
+                    </div>
+
+                    <button class="continue">
+                        Далее
+                        <img src="{{ url_for('static', filename='icons/arrow-bottom.svg') }}">
+                    </button>
                 </div>
 
-                <div class="input-wr">
-                    <label for="app_type">Платформа</label>
-                    <select id="app_type" name="app_type">
-                        <option value="" disabled selected hidden>Выбор платформы</option>
-                        <option value="game">Игра</option>
-                        <option value="app">Приложение</option>
-                    </select>
+                <div class="file-upload-wr">
+                    <label class="input-wr checkbox" for="is-unity-build">
+                        Это Unity сборка?
+                        <label class="custom-switch">
+                            <input type="checkbox" name="is-unity-build" id="is-unity-build">
+                            <span class="slider"></span>
+                        </label>
+                    </label>
 
-                    <label for="category">Категория</label>
-                    <select id="category" name="category">
-                        <option value="" disabled selected hidden>Выбрать категорию</option>
-                    </select>
+                    <label class="file-upload" id="unity-upload" style="display: none;">
+                        <input type="file" name="unity_file" accept=".zip">
+                        <img class="file-icon" style="display: none;">
+                        <span class="filename">Загрузите архив Unity WebGL билда (.zip)</span>
+                    </label>
 
+                    <div id="default-uploads">
+                        <div id="downloads-container" class="downloads-wr">
+                            <div class="download-item">
+                                <input name="download_titles[]" placeholder="Название загрузки">
+                                <label class="file-upload">
+                                    <input type="file" name="download_files[]" accept=".zip, .torrent">
+                                    <img class="file-icon" style="display: none;">
+                                    <span class="filename">Загрузите или перетащите файл</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button type="button" class="downloads-add-btn" onclick="addDownload()">Добавить загрузку</button>
+                    </div>
+                    
                     <script>
-                        
-                        const app_type = document.getElementById('app_type');
-                        const category = document.getElementById('category');
+                        $('#is-unity-build').on('change', function () {
+                            const isChecked = $(this).is(':checked');
 
-                        app_type.addEventListener('change', async () => {
-                            if (app_type.value === '') {
-                                category.innerHTML = '<option value="" disabled selected hidden>Выбрать категорию</option>';
-                            } else if (app_type.value === 'game') {
-                                category.innerHTML = '<option value="" disabled selected hidden>Выбрать жанр игры</option>';
-                            } else if (app_type.value === 'app') {
-                                category.innerHTML = '<option value="" disabled selected hidden>Выбрать тип приложения</option>';
-                            }
-                            const selectedType = app_type.value;
-
-                            try {
-                                const response = await fetch(`/api/get-categories?type=${selectedType}`);
-                                const data = await response.json();
-
-                                data.categories.forEach(type => {
-                                    const opt = document.createElement('option');
-                                    opt.value = type;
-                                    opt.textContent = type;
-                                    category.appendChild(opt);
-                                });
-                            } catch (err) {
-                                console.error('Ошибка при загрузке категорий:', err);
-                            }
+                            $('#unity-upload').toggle(isChecked);
+                            $('#default-uploads').toggle(!isChecked);
                         });
                     </script>
                 </div>
-
-                <button class="continue">
-                    Далее
-                    <img src="{{ url_for('static', filename='icons/arrow-bottom.svg') }}">
-                </button>
             </div>
+        </div>
 
-            <div class="file-upload-wr">
-                <div id="downloads-container" class="downloads-wr">
-                    <div class="download-item">
-                        <input name="download_titles[]" placeholder="Название загрузки">
-                        <label class="file-upload">
-                            <input type="file" name="download_files[]">
-                            <span>Загрузите или перетащите файл</span>
-                        </label>
-                    </div>
+        <div class="block inactive">
+            <h1>Кастомизация</h1>
+
+            <div class="inputs">
+                <div class="input-wr">
+                    <label for="image_file">Превью</label>
+                    <input type="file" name="image_file" id="image_file" accept="image/*">
                 </div>
-                <button type="button" class="downloads-add-btn" onclick="addDownload()">Добавить загрузку</button>
+                <div class="input-wr">
+                    <label for="description">Описание</label>
+                    <input type="text" name="description" id="description" placeholder="Опишите то, что добавляете">
+                </div>
+                <div class="input-wr">
+                    <label for="price">Цена</label>
+                    <input type="number" name="price" id="price" placeholder="900 руб">
+                </div>
+                <div class="input-wr">
+                    <label for="release_date">Дата выхода</label>
+                    <input type="date" name="release_date" id="release_date" placeholder="Опишите то, что добавляете">
+                </div>
+                <div class="input-wr">
+                    <label for="language">Язык и локализация</label>
+                    <input type="text" name="language" id="language" placeholder="RU, EN">
+                </div>
             </div>
         </div>
-    </div>
 
-    <div class="block inactive">
-        <h1>Кастомизация</h1>
+        <div class="block inactive">
+            <h1>Публикация</h1>
 
-        <div class="inputs">
-            <div class="input-wr">
-                <label for="image_file">Превью</label>
-                <input type="file" name="image_file" id="image_file" accept="image/*">
-            </div>
-            <div class="input-wr">
-                <label for="description">Описание</label>
-                <input type="text" name="description" id="description" placeholder="Опишите то, что добавляете">
-            </div>
-            <div class="input-wr">
-                <label for="price">Цена</label>
-                <input type="number" name="price" id="price" placeholder="900 руб">
-            </div>
-            <div class="input-wr">
-                <label for="release_date">Дата выхода</label>
-                <input type="date" name="release_date" id="release_date" placeholder="Опишите то, что добавляете">
-            </div>
-            <div class="input-wr">
-                <label for="language">Язык и локализация</label>
-                <input type="text" name="language" id="language" placeholder="RU, EN">
-            </div>
-        </div>
-    </div>
-
-    <div class="block inactive">
-        <h1>Публикация</h1>
-
-        <div class="inputs">
-            <div class="input-wr checkbox">
-                <label for="comments_allowed">Комментарии</label>
-                <label class="custom-switch">
-                    <input type="checkbox" name="comments_allowed" id="comments_allowed" checked>
-                    <span class="slider"></span>
+            <div class="inputs">
+                <label class="input-wr checkbox" for="comments_allowed">
+                    Комментарии
+                    <label class="custom-switch">
+                        <input type="checkbox" name="comments_allowed" id="comments_allowed" checked>
+                        <span class="slider"></span>
+                    </label>
                 </label>
+
+                <div class="input-wr">
+                    <label for="submit">Вы уверены что все заполнили? Тогда жмите!</label>
+                    <input type="submit" id="submit" value="Сохранить и опубликовать">
+                </div>
+
             </div>
-            <div class="input-wr">
-                <label for="submit">Вы уверены что все заполнили? Тогда жмите!</label>
-                <input type="submit" id="submit" value="Сохранить и опубликовать">
-            </div>
-            
         </div>
-    </div>
-</form>
-<div id="error-box" class="error"></div>
+    </form>
+    <div id="error-box" class="error"></div>
 
 </div>
 
@@ -245,6 +270,43 @@
         $('#category').on('change', updateCategoryColor);
         updateCategoryColor();
     });
+
+
+    const fileIcons = {
+        zip: "{{ url_for('static', filename='icons/file/zip.svg') }}",
+        png: "{{ url_for('static', filename='icons/file/img.svg') }}",
+        jpg: "{{ url_for('static', filename='icons/file/img.svg') }}",
+        jpeg: "{{ url_for('static', filename='icons/file/img.svg') }}",
+        gif: "{{ url_for('static', filename='icons/file/img.svg') }}",
+        default: "{{ url_for('static', filename='icons/file/default.svg') }}"
+    };
+
+    $(document).on('change', '.file-upload input[type="file"]', function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        const ext = file.name.split('.').pop().toLowerCase();
+        const iconPath = fileIcons[ext] || fileIcons.default;
+
+        const $label = $(this).closest('.file-upload');
+        $label.find('.file-icon').attr('src', iconPath).show();
+        $label.find('.filename').text(file.name);
+        $label.find('.replace-btn').show();
+    });
+
+    $(document).on('click', '.file-upload .replace-btn', function (e) {
+        e.stopPropagation();
+        $(this).closest('.file-upload').find('input[type="file"]').click();
+    });
+
+    $(document).on('click', '.file-upload', function (e) {
+        if (!$(e.target).is('input[type="file"], .replace-btn')) {
+            e.preventDefault();
+            $(this).find('input[type="file"]').trigger('click');
+        }
+    });
+
+
 </script>
 
 

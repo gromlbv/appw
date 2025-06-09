@@ -53,3 +53,51 @@ def upload_file(file, folder='static/uploads'):
     )
 
     return new_file
+
+
+
+
+
+import os
+import uuid
+import zipfile
+import shutil
+from flask import current_app
+
+def upload_unity_build(file, game_id, folder='static/uploads/unity_archives'):
+    if not file:
+        return None
+
+    ext = os.path.splitext(file.filename)[1].lower()
+    if ext != '.zip':
+        return None  # или кинуть ошибку
+
+    file_name = f"{uuid.uuid4()}{ext}"
+    file_path = os.path.join(current_app.root_path, folder, file_name)
+
+    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    file.save(file_path)
+
+    file_size = os.path.getsize(file_path)
+
+    # Папка для распаковки
+    unpack_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'unity_builds', str(game_id))
+
+    # Очистить, если есть
+    if os.path.exists(unpack_dir):
+        shutil.rmtree(unpack_dir)
+    os.makedirs(unpack_dir, exist_ok=True)
+
+    with zipfile.ZipFile(file_path, 'r') as zip_ref:
+        zip_ref.extractall(unpack_dir)
+
+    # Можно удалить архив, если не нужен
+    # os.remove(file_path)
+
+    new_file = File(
+        name=file_name,
+        path=f"uploads/unity_builds/{game_id}/index.html",
+        size=file_size
+    )
+
+    return new_file

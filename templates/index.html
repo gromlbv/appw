@@ -79,9 +79,9 @@
         onclick="document.getElementById('gameModal').style.display='flex'">
             {{ app.title }}
 
-            {% if app.game_downloads and app.game_downloads|length > 0 %}
+            {% if app.downloads and app.downloads|length > 0 %}
                 <span class="bottom">
-                    {{ app.game_downloads[0].file_size|filesize|safe }}
+                    {{ app.downloads[0].file_size|filesize|safe }}
                 </span>
                 
             {% else %}
@@ -90,10 +90,10 @@
                 </span>
             {% endif %}
 
-            {% if app.game_info.app_type == 'app' %}
+            {% if app.info.app_type == 'app' %}
             <img src="{{ url_for('static', filename='icons/terminal.svg') }}">
             {% endif %}
-            {% if app.game_info.app_type == 'game' %}
+            {% if app.info.app_type == 'game' %}
             <img src="{{ url_for('static', filename='icons/joystick.svg') }}">
             {% endif %}
         </a>
@@ -115,9 +115,9 @@
         <!-- <a href="/game/{{ app.link }}"> -->
             {{ app.title }}
 
-            {% if app.game_downloads and app.game_downloads|length > 0 %}
+            {% if app.downloads and app.downloads|length > 0 %}
                 <span class="bottom">
-                    {{ app.game_downloads[0].file_size|filesize|safe }}
+                    {{ app.downloads[0].file_size|filesize|safe }}
                 </span>
                 
             {% else %}
@@ -126,10 +126,10 @@
                 </span>
             {% endif %}
 
-            {% if app.game_info.app_type == 'app' %}
+            {% if app.info.app_type == 'app' %}
             <img src="{{ url_for('static', filename='icons/terminal.svg') }}">
             {% endif %}
-            {% if app.game_info.app_type == 'game' %}
+            {% if app.info.app_type == 'game' %}
             <img src="{{ url_for('static', filename='icons/joystick.svg') }}">
             {% endif %}
 
@@ -148,9 +148,9 @@
         onclick="document.getElementById('gameModal').style.display='flex'">
             {{ app.title }}
 
-            {% if app.game_downloads and app.game_downloads|length > 0 %}
+            {% if app.downloads and app.downloads|length > 0 %}
                 <span class="bottom">
-                    {{ app.game_downloads[0].file_size|filesize|safe }}
+                    {{ app.downloads[0].file_size|filesize|safe }}
                 </span>
                 
             {% else %}
@@ -168,10 +168,10 @@
         {% for app in apps %}
         <a href="/game/{{ app.link }}">
             {{ app.title }}
-            {{ app.game_downloads[0] }}
-            {% if app.game_downloads and app.game_downloads|length > 0 %}
+            {{ app.downloads[0] }}
+            {% if app.downloads and app.downloads|length > 0 %}
                 <span class="bottom">
-                    {{ app.game_downloads[0].file_size|filesize|safe }}
+                    {{ app.downloads[0].file_size|filesize|safe }}
                 </span>
                 
             {% else %}

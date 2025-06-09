@@ -18,7 +18,7 @@
     <label>Файлы</label>
     <div id="downloads-container">
         <div class="download-item flex-cl">
-              {% for download in game.game_downloads %}
+              {% for download in game.downloads %}
             <div class="download-wr flex">
               <input name="download_titles[]" placeholder="Название загрузки" value="{{ download.title}}">
               <input type="file" name="download_files[]">
@@ -55,16 +55,16 @@
     <input type="checkbox" id="comments_allowed" name="comments_allowed" {% if game.comments_allowed %}checked{% endif %}>
 
     <label for="description">Description:</label>
-    <textarea id="description" name="description">{{ game.game_info.description }}</textarea>
+    <textarea id="description" name="description">{{ game.info.description }}</textarea>
 
     <label for="price">Price:</label>
-    <input type="number" id="price" name="price" value="{{ game.game_info.price }}">
+    <input type="number" id="price" name="price" value="{{ game.info.price }}">
 
     <label for="release_date">Release Date:</label>
-    <input type="date" id="release_date" name="release_date" value="{{ game.game_info.release_date }}">
+    <input type="date" id="release_date" name="release_date" value="{{ game.info.release_date }}">
 
     <label for="language">Language:</label>
-    <input type="text" id="language" name="language" value="{{ game.game_info.language }}">
+    <input type="text" id="language" name="language" value="{{ game.info.language }}">
 
     <input type="submit" value="Сохранить">
 </form>

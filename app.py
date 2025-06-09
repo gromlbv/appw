@@ -5,7 +5,7 @@ from routes import *
 
 from models import create_app, create_tables
 from mysecurity import verify, decode
-from upload import upload_image, upload_file
+from upload import upload_image, upload_file, upload_unity_build
 from functools import wraps
 
 import mydb as db
@@ -123,7 +123,7 @@ def graphs():
 
     apps = []
     for game in games:
-        size = game.game_downloads[0].file_size if game.game_downloads else 0
+        size = game.downloads[0].file_size if game.downloads else 0
         apps.append({
             'link': game.link,
             'title': game.title,
@@ -201,26 +201,31 @@ def post_game():
 
     comments_allowed = True if request.form.get('comments_allowed') == 'on' else False
 
-    # if errors:
-    #     return jsonify(success=False, errors={"link": "Ссылка уже используется"})
+    is_unity_build = True if request.form.get('is_unity_build') == 'on' else False
 
     game = db.post_game(
         title, link, comments_allowed, preview, 
         # GameInfo
         description, price, release_date, language, published_by, app_type, category,
     )
-    
-    titles = request.form.getlist("download_titles[]")
-    files = request.files.getlist("download_files[]")
 
-
-    for i in range(len(titles)):
-        file = files[i] if i < len(files) else None
+    if is_unity_build:
+        file = request.files.get('unity_file')
         if file:
-            new_file = upload_file(file)
-            db.add_game_download(game.id, titles[i], new_file.path, new_file.size, order=i)
+            new_file = upload_unity_build(file, game.id)
+            if new_file:
+                db.add_game_download(game.id, "unity_build", new_file.path, new_file.size, order=0)
+    else:
+        titles = request.form.getlist("download_titles[]")
+        files = request.files.getlist("download_files[]")
 
-            
+        for i in range(len(titles)):
+            file = files[i] if i < len(files) else None
+            if file:
+                new_file = upload_file(file)
+                if new_file:
+                    db.add_game_download(game.id, titles[i], new_file.path, new_file.size, order=i)
+
     flash(f"Приложение успешно добавлено! <a href='/game/{game.link}'>Открыть</a>")
     return redirect(furl_for('index'))
 
@@ -231,7 +236,7 @@ def view_game_subdomain(game_link):
     flash("СУБДОМЕН НА", game_link)
     game = db.get_app_one(game_link)
     if game:
-        game_download = getattr(game, "game_downloads", [])
+        game_download = getattr(game, "downloads", [])
         return render_template("view_game.html", game=game, game_download=game_download)
     else:
         flash("Приложение не найдено")
@@ -243,8 +248,8 @@ def view_game(link):
     game = db.get_app_one(link)
 
     if game:
-        game_download = game.game_downloads
-        game_download = getattr(game, "game_downloads", [])
+        game_download = game.downloads
+        game_download = getattr(game, "downloads", [])
         return render_template("view_game.html", game=game, game_download=game_download)
     else:
         flash("Приложение не найдено")
@@ -269,7 +274,7 @@ def delete_game(game_link):
 
     current_user_id = get_user_id()
 
-    if game.game_info.published_by != current_user_id:
+    if game.info.published_by != current_user_id:
         flash("Вы не можете удалить чужую игру")
         return redirect(furl_for('view_game', link=game_link))
 
@@ -432,18 +437,18 @@ def api_game(game_link):
     data = {
         "title": game.title,
         "preview": game.preview,
-        "description": game.game_info.description or "Описание отсутствует",
+        "description": game.info.description or "Описание отсутствует",
         "downloads": [
             {"title": d.title or "Без названия", "file_link": furl_for('download_file', filename=d.file_link)}
-            for d in getattr(game, "game_downloads", [])
+            for d in getattr(game, "downloads", [])
         ],
         # Другие нужные поля
-        "release_date": game.game_info.release_date or "Дата релиза не указана",
-        "language": game.game_info.language or "Язык не указан",
-        "author": game.game_info.published_by,
-        "price": game.game_info.price,
-        "app_type": game.game_info.app_type,
-        "category": game.game_info.category,
+        "release_date": game.info.release_date or "Дата релиза не указана",
+        "language": game.info.language or "Язык не указан",
+        "author": game.info.published_by,
+        "price": game.info.price,
+        "app_type": game.info.app_type,
+        "category": game.info.category,
         "link": game.link
     }
     return data
