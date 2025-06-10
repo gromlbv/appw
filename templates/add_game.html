@@ -130,10 +130,11 @@
             <h1>Кастомизация</h1>
 
             <div class="inputs">
-                <div class="input-wr">
-                    <label for="image_file">Превью</label>
-                    <input type="file" name="image_file" id="image_file" accept="image/*">
-                </div>
+                <label class="file-upload">
+                    <input type="file" name="image_file" accept="image/*">
+                    <img class="file-icon" style="display: none;">
+                    <span class="filename">Картинки, скриншоты и прочее (изображение)</span>
+                </label>
                 <div class="input-wr">
                     <label for="description">Описание</label>
                     <input type="text" name="description" id="description" placeholder="Опишите то, что добавляете">
@@ -277,7 +278,11 @@
         png: "{{ url_for('static', filename='icons/file/img.svg') }}",
         jpg: "{{ url_for('static', filename='icons/file/img.svg') }}",
         jpeg: "{{ url_for('static', filename='icons/file/img.svg') }}",
-        gif: "{{ url_for('static', filename='icons/file/img.svg') }}",
+        svg: "{{ url_for('static', filename='icons/file/img.svg') }}",
+        webp: "{{ url_for('static', filename='icons/file/img.svg') }}",
+        mp4: "{{ url_for('static', filename='icons/file/video.svg') }}",
+        gif: "{{ url_for('static', filename='icons/file/video.svg') }}",
+        exe: "{{ url_for('static', filename='icons/file/exe.svg') }}",
         default: "{{ url_for('static', filename='icons/file/default.svg') }}"
     };
 

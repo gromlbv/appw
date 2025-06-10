@@ -89,6 +89,8 @@ def get_app_by_user(username):
             result.append(game)
     return result
 
+def get_app_by_id(link):
+    return Game.query.filter_by(link=link).first()
 # def post_comment(userid, gameid, text):
 #     game_comment = GameComment(
 #         gameid = gameid,
@@ -97,6 +99,44 @@ def get_app_by_user(username):
 #         text = text,
 #     )
 #     save_to_db(game_comment)
+
+def post_game_edit(
+        game_id, title, link, comments_allowed, is_unity_build, preview,
+        description, price, release_date, language, published_by, app_type, category,
+    ):
+    game = Game.query.get(game_id)
+    if not game:
+        return f"Игра с ID {game_id} не найдена"
+
+    if not title or not link:
+        return "Некоторые поля не заполнены"
+
+    # Проверка на уникальность ссылки (если изменилась)
+    if link != game.link and link in [g.link for g in get_shares_all()]:
+        return f"Ссылка {link} уже используется"
+
+    game.title = title
+    game.link = link
+    game.comments_allowed = comments_allowed
+    game.is_unity_build = is_unity_build
+    game.preview = preview
+    save_to_db(game)
+
+    info = GameInfo.query.filter_by(game_id=game_id).first()
+    if not info:
+        info = GameInfo(game_id=game_id)
+
+    info.description = description
+    info.price = price
+    info.release_date = release_date
+    info.language = language
+    info.published_by = published_by
+    info.app_type = app_type
+    info.category = category
+    save_to_db(info)
+
+    return game
+
 
 def post_game(
         title, link, comments_allowed, is_unity_build, preview,
@@ -132,7 +172,6 @@ def post_game(
     )
     save_to_db(info)
 
-    print("Game created:", game)
     return game
 
 def get_all_games_with_stats():

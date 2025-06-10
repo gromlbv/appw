@@ -298,10 +298,12 @@ def game_modal(link):
 def edit_game(game_link):
     game = db.get_app_one(game_link)
 
+    if not game:
+        return "Игра не найдена", 404
+
     if request.method == 'POST':
         title = request.form.get('title')
-
-        comments_allowed = True if request.form.get('comments_allowed') == 'on' else False
+        comments_allowed = request.form.get('comments_allowed') == 'on'
         description = request.form.get('description')
         price = request.form.get('price')
         link = game_link
@@ -319,23 +321,14 @@ def edit_game(game_link):
         else:
             preview = game.preview
 
-        game_file = request.files.get('game_file')
-        if game_file and game_file.filename:
-            game_file = upload_file(game_file)
-        else:
-            game_file = None
-
-        db.post_game(
-            title, link, comments_allowed, preview,
-            # GameInfo
+        db.post_game_edit(
+            game.id, title, link, comments_allowed, game.is_unity_build, preview,
             description, price, release_date, language, published_by,
-            # GameDownload
-            file=game_file
-            )
-
-        return redirect(url_for('view_game'))
+            game.info.app_type, game.info.category
+        )
 
     return render_template('edit_game.html', game=game)
+
 
 @app.get('/file/create')
 def add_file():
