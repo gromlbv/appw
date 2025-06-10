@@ -99,7 +99,7 @@ def get_app_by_user(username):
 #     save_to_db(game_comment)
 
 def post_game(
-        title, link, comments_allowed, preview,
+        title, link, comments_allowed, is_unity_build, preview,
         # GameInfo
         description, price, release_date, language, published_by, app_type, category,
         ):
@@ -115,6 +115,7 @@ def post_game(
         preview=preview,
         link=link,
         comments_allowed=comments_allowed,
+        is_unity_build=is_unity_build,
         is_archived=False,
     )
     save_to_db(game)

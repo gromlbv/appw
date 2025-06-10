@@ -204,10 +204,12 @@ def post_game():
     is_unity_build = True if request.form.get('is_unity_build') == 'on' else False
 
     game = db.post_game(
-        title, link, comments_allowed, preview, 
+        title, link, comments_allowed, is_unity_build, preview,
         # GameInfo
         description, price, release_date, language, published_by, app_type, category,
     )
+
+    print(game.is_unity_build)
 
     if is_unity_build:
         file = request.files.get('unity_file')
