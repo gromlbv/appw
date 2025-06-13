@@ -1,6 +1,6 @@
 from flask import Flask
 from flask import render_template, session, request, flash, redirect, jsonify
-from flask import url_for as furl_for
+from flask import url_for as furl_for # чтобы routes не жаловался
 from routes import *
 
 from models import create_app, create_tables
@@ -10,16 +10,15 @@ from functools import wraps
 
 import mydb as db
 from datetime import datetime
-from models import User, Game, GameInfo, GameDownload, SharedFile, GameStats
+from thefuzz import process, fuzz
+import re
+
 
 app = Flask(__name__)
 create_app(app)
 
 app.secret_key = 'rulevsecretkey'
 app.config['SERVER_NAME'] = "appw.su"
-
-from functools import wraps
-from flask import render_template, request
 
 
 def handle_valueerror_htmx():
@@ -31,20 +30,6 @@ def handle_valueerror_htmx():
             except ValueError as e:
                 return str(e), 400
         return wrapper
-    return decorator
-
-
-def handle_valueerror_json():
-    def decorator(f):
-        @wraps(f)
-        def wrapped(*args, **kwargs):
-            try:
-                return f(*args, **kwargs)
-            except ValueError as e:
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return jsonify(success=False, error=str(e))
-                raise  # если не AJAX — пусть падает
-        return wrapped
     return decorator
 
 
@@ -176,8 +161,6 @@ def add_game():
 def render_form_error(form):
     return render_template("error_template.html", form=form), 400
 
-from flask import render_template_string, make_response
-
 @app.post('/game/create')
 def post_game():
     title = request.form.get('title')
@@ -203,13 +186,16 @@ def post_game():
 
     is_unity_build = True if request.form.get('is_unity_build') == 'on' else False
 
-    game = db.post_game(
-        title, link, comments_allowed, is_unity_build, preview,
-        # GameInfo
-        description, price, release_date, language, published_by, app_type, category,
-    )
-
-    print(game.is_unity_build)
+    try:
+        game = db.post_game(
+            title, link, comments_allowed, is_unity_build, preview,
+            description, price, release_date, language, published_by, app_type, category,
+        )
+    except ValueError as e:
+        return jsonify({
+            'success': False,
+            'message': str(e)
+        })
 
     if is_unity_build:
         file = request.files.get('unity_file')
@@ -225,11 +211,56 @@ def post_game():
             file = files[i] if i < len(files) else None
             if file:
                 new_file = upload_file(file)
-                if new_file:
+                if new_file:    
                     db.add_game_download(game.id, titles[i], new_file.path, new_file.size, order=i)
 
-    flash(f"Приложение успешно добавлено! <a href='/game/{game.link}'>Открыть</a>")
-    return redirect(furl_for('index'))
+    flash(f"Приложение успешно добавлено! <a href='/game/{link}'>Открыть</a>")
+    return jsonify({
+        'success': True,   
+        'redirect_to': furl_for('index')
+    })
+
+
+
+@app.route('/search')
+def search():
+    query = request.args.get('q', '').strip()
+    if not query:
+        return ''
+
+    all_results = db.get_shares_all()
+
+    direct_matches = [
+        r for r in all_results
+        if query.lower() in r.title.lower()
+    ]
+
+    results = direct_matches
+
+    if len(results) < 10:
+        titles = [r.title for r in all_results]
+        fuzzy_matches = process.extract(query, titles, scorer=fuzz.token_set_ratio, limit=10)
+        fuzzy_titles = {m[0] for m in fuzzy_matches if m[1] > 60}
+
+        fuzz_results = [
+            r for r in all_results
+            if r.title in fuzzy_titles and r not in results
+        ]
+        results += fuzz_results
+
+    if not results:
+        return '<p>Ничего не найдено</p>'
+
+    def highlight(text, query):
+        pattern = re.escape(query)
+        return re.sub(f"({pattern})", r"<mark>\1</mark>", text, flags=re.IGNORECASE)
+
+    html = ''.join(
+        f'<a class="suggestion-item" href="/game/{r.link}">{highlight(r.title, query)}</a>'
+        for r in results
+    )
+
+    return html
 
 
 
@@ -369,7 +400,7 @@ def file_share_get():
 
 @app.get('/file/share')
 def file_share_post():
-    return redirect(url_for('index'))
+    return redirect(furl_for('index'))
 
 @app.get('/user/<username>')
 def user(username):
@@ -404,7 +435,7 @@ def register_post():
     flash(f'Аккаунт {username} успешно создан')
     token = db.post_login(username, password)
     session['token'] = token
-    return redirect(url_for('index'))
+    return redirect(furl_for('index'))
 
 @app.get('/account/login')
 def login():

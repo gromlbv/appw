@@ -7,7 +7,11 @@
 {% block content %}
 
 <div class="overlay">
-    <form method="POST" enctype="multipart/form-data" hx-post="/game/create" hx-target="#error-box" hx-swap="innerHTML">
+        <form method="POST" enctype="multipart/form-data"
+            hx-post="/game/create"
+            hx-target="#error-box"
+            hx-swap="innerHTML"
+            hx-on="htmx:afterOnLoad: handleResponse(event)">
         <div class="button-absolute-wr">
             <a id="modalClose" type="reset" class="absolute-btn close" href="/">
                 <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
@@ -210,7 +214,6 @@
 
 
     $(function () {
-
         let blocks = $(".block");
         let currentIndex = 0;
 
@@ -311,9 +314,25 @@
         }
     });
 
-
 </script>
 
+<script>
+function handleResponse(event) {
+    const xhr = event.detail.xhr;
+    const target = event.detail.target;
 
+    try {
+        const responseJSON = JSON.parse(xhr.responseText);
+
+        if (responseJSON.success === false && responseJSON.message) {
+            target.innerHTML = responseJSON.message;
+        } else if (responseJSON.success === true && responseJSON.redirect_to) {
+            window.location.href = responseJSON.redirect_to;
+        }
+    } catch {
+    }
+}
+
+</script>
 
 {% endblock content %}

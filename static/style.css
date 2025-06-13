@@ -16,8 +16,9 @@
     --background-color: #000000;
     --third-color: rgba(255, 255, 255, 0.2);
     --accent-color: #FF613E;
+    --accent-color-05: #7F301F;
     --system-error-color: #FF5E5E;
-    --system-error-color-12: #FF613E1F;
+    --system-accent-color-12: #FF613E1F;
     --system-error-color-05: rgba(255, 94, 94, 0.05);
     --system-success-color: #22BA40;
     --system-success-color-12: #22BA401F;
@@ -171,14 +172,14 @@ a:focus{
 }
 
 header.base {
-    position: relative;
+    position: fixed;
     display: flex;
     justify-content: space-between;
     align-items: center;
 
     width: 100%;
     max-width: 1020px;
-
+    z-index: 10;
     .right-side{
         display: flex;
         flex-direction: row;
@@ -188,10 +189,88 @@ header.base {
         width: fit-content;
     }
 
-    .search{
-        width: 256px;
-        cursor: text;
+    #search-btn{
+        white-space: pre;
+        font: inherit;
     }
+    .outline{
+        background-color: rgba(0, 0, 0, 0.6) !important;
+        backdrop-filter: blur(24px);
+    }
+    .search{
+        position: relative;
+        width: fit-content;
+        padding: 0 24px;
+        cursor: text;
+        user-select: none;
+        -webkit-user-drag: none;
+        gap: 8px;
+
+        img{
+            -webkit-user-drag: none;
+            width: fit-content;
+            height: fit-content;
+        }
+        input{
+            font: inherit;
+        }
+
+        #results{
+            position: absolute;
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+            margin-top: 8px;
+
+            .suggestion-item {
+                position: relative;
+                display: flex;
+                align-items: center;
+                justify-content: flex-start;
+                padding: 12px;
+                width: 420px;
+                width: 100%;
+                height: 48px;
+                margin-top: 2px;
+
+                border-radius: 16px;
+                border: 1px solid var(--border-color);
+                background: var(--button-color);
+                color: var(--secondary-color);
+
+                transition: background-color 0.1s, padding 0.2s, margin 0.2s, color 0.2s;
+            }
+            .suggestion-item.highlighted {
+                background-color: var(--accent-color);
+                color: var(--primary-color) !important;
+            }
+            /* .suggestion-item.highlighted::after{
+                content: "AAA";
+                position: absolute;
+
+                height: 100%;
+                top: 0;
+                right: 0;
+
+                background-color: var(--primary-color);
+            } */
+
+            .suggestion-item:hover {
+                background-color: var(--accent-color-05);
+                color: var(--primary-color) !important;
+                opacity: 1;
+            }
+
+            mark{
+                background-color: transparent;
+                color: white;
+            }
+
+        }
+    }
+    
     #show-nav.active{
         z-index: 15;
         background-color: #111;
@@ -452,7 +531,7 @@ body{
     align-items: center;
 
     width: 100%;
-    margin-top: 32px;
+    margin-top: 96px;
 
     h1,h2 {
         font-family: "EB Garamond", serif;
@@ -933,7 +1012,7 @@ form {
                     cursor: pointer;
                 }
                 .remove-btn:hover{
-                    background-color: var(--system-error-color-12);
+                    background-color: var(--system-accent-color-12);
                     color: var(--system-error-color);
                 }
             }
@@ -1148,7 +1227,7 @@ form {
             width: 22px;
 
             border: 1px solid var(--system-error-color);
-            background-color: var(--system-error-color-12);
+            background-color: var(--system-accent-color-12);
             background-image: url('/static/icons/slider-off.svg');
             background-position: center;
             background-repeat: no-repeat;

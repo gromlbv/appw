@@ -1,21 +1,31 @@
 $('form').on('submit', function (e) {
     e.preventDefault();
-    var formData = new FormData(this);
+
+    const formData = new FormData(this);
+
     $.ajax({
         url: '/game/create',
-        method: 'POST',
+        type: 'POST',
         data: formData,
         processData: false,
         contentType: false,
         success: function (response) {
-            alert(response.message);
-            if (response.success) {
+            console.log('Что-то пошло не так');
+            if (response.success && response.game_url) {
                 window.location.href = response.game_url;
+            } else {
+                alert(response.message || 'Что-то пошло не так');
             }
         },
         error: function (xhr) {
-            var res = JSON.parse(xhr.responseText);
-            alert('Ошибка: ' + res.message);
+            console.log('error');
+
+            try {
+                const res = JSON.parse(xhr.responseText);
+                alert('Ошибка: ' + (res.message || 'Неизвестная ошибка'));
+            } catch {
+                alert('Ошибка сервера');
+            }
         }
     });
 });

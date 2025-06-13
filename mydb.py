@@ -4,6 +4,7 @@ from datetime import date
 from mysecurity import myhash, verify, encode
 import uuid
 from sqlalchemy.orm import joinedload
+from sqlalchemy import func
 
 
 def save_to_db(instance):
@@ -13,9 +14,7 @@ def save_to_db(instance):
 # Юзеры
 
 def post_login(username, password):
-
     user = User.query.filter_by(username=username).first()
-    print(user)
 
     if not user:
         raise ValueError('Такого аккаунта не существует')
@@ -61,6 +60,16 @@ def post_register(username, password):
 
 def get_shares_all():
     return Game.query.filter_by(is_archived=False).all()
+
+
+def get_shares_search(query):
+    results = (
+        Game.query.filter_by(is_archived=False)
+        .filter(func.lower(Game.title).like(f"%{query.lower()}%"))
+        .limit(10)
+        .all()
+    )
+    return results
 
 def get_app_one(link):
     apps = get_shares_all()
@@ -111,9 +120,9 @@ def post_game_edit(
     if not title or not link:
         return "Некоторые поля не заполнены"
 
-    # Проверка на уникальность ссылки (если изменилась)
     if link != game.link and link in [g.link for g in get_shares_all()]:
         return f"Ссылка {link} уже используется"
+        
 
     game.title = title
     game.link = link
@@ -145,10 +154,10 @@ def post_game(
         ):
     
     if not title or not link:
-        return ("Некоторые поля не заполнены")
+        raise ValueError("Некоторые поля не заполнены")
     
     if link in [game.link for game in get_shares_all()]:
-        return (f"Ссылка {link} уже используется")
+        raise ValueError(f"Ссылка {link} уже используется")
     
     game = Game(
         title=title,

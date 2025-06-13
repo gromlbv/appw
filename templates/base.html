@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,7 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap"
+        rel="stylesheet">
     <link rel="icon" href="{{ url_for('static', filename='/favicon.ico') }}" type="image/ico">
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -16,36 +18,122 @@
     <script type="module" src="https://lbvo.ru/utils/init.js"></script>
     <script src="{{ url_for('static', filename='js/show.js') }}"></script>
     <script src="{{ url_for('static', filename='js/errorhandler.js') }}"></script>
-    
+
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
 
 </head>
+
 <body>
+
+
     <div id="nav-bg"></div>
     <div class="absolute-menu">
         <a href="/account/login">Войти в аккаунт</a>
     </div>
-    <div class="wrapper">
+
+    <div class="wrapper">   
         <header class="base flex">
 
             <a class="no-fill fit logo" href="/">
                 <svg xmlns="http://www.w3.org/2000/svg" width="54" height="29" viewBox="0 0 54 29" fill="none">
-                    <path d="M1 20.5L35.5 5L43 13.5L23 27L7 3L53 24" stroke="white" stroke-width="2"/>
+                    <path d="M1 20.5L35.5 5L43 13.5L23 27L7 3L53 24" stroke="white" stroke-width="2" />
                 </svg>
             </a>
 
-            <a class="outline fit search">
-                <img src="{{ url_for('static', filename='icons/search.svg') }}">
-                Поиск
-            </a>
+
+            <!-- В БУДУЩЕМ ПОМЕНЯТЬ ЗАДЕРЖКУ -->
+            <!-- hx-trigger="keyup delay:300ms, search" -->
+
+    <div id="search-btn" class="outline fit search" style="position: relative;">
+        <img src="{{ url_for('static', filename='icons/search.svg') }}">
+        <input
+            type="search"
+            name="q"
+            id="search"
+            placeholder="Поиск"
+            autocomplete="off"
+            hx-trigger="keyup changed, search"
+            hx-get="/search"
+            hx-target="#results"
+            hx-swap="innerHTML"
+        />
+        <div id="results" class="suggestions-box" style="position: absolute; z-index: 1000; top: 100%; left: 0; width: 300px;"></div>
+    </div>
+
+
+    <script>
+        
+    $(function() {
+        // было для подсветки хайлайта другим цветом при ховере на нехайлайт
+        // $('#results').on('mouseenter', '.suggestion-item', function () {
+        //     $('highlighted').add('highlighted05');
+        //     $(this).addClass('highlighted05');
+        // });
+
+        let selectedIndex = -1;
+
+        function updateHighlight($items) {
+            $items.removeClass('highlighted');
+            if (selectedIndex >= 0) {
+                $items.eq(selectedIndex).addClass('highlighted');
+            }
+        }
+
+        $('#search').on('keydown', function(e) {
+            const $items = $('#results .suggestion-item');
+            if (!$items.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex + 1) % $items.length;
+                updateHighlight($items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                selectedIndex = (selectedIndex - 1 + $items.length) % $items.length;
+                updateHighlight($items);
+            } else if (e.key === 'Enter') {
+                if (selectedIndex >= 0) {
+                    e.preventDefault();
+                    const href = $items.eq(selectedIndex).attr('href') || $items.eq(selectedIndex).data('link');
+                    if (href) window.location.href = href;
+                }
+            }
+        });
+
+        $('#results').on('click', '.suggestion-item', function() {
+            const href = $(this).attr('href') || $(this).data('link');
+            if (href) window.location.href = href;
+        });
+
+        document.body.addEventListener('htmx:afterSwap', (evt) => {
+            if (evt.detail.target.id === 'results') {
+                selectedIndex = 0;
+                const $items = $('#results .suggestion-item');
+                if ($items.length) {
+                    $items.removeClass('highlighted');
+                    $items.eq(selectedIndex).addClass('highlighted');
+                }
+            }
+        });
+
+
+        $('#search-btn').on('click', function () {
+            $('#search').focus();
+        });
+    });
+
+
+
+    </script>
+
 
             <div class="right-side">
-                
+
                 <a class="no-fill circle size48" href="/game/create">
                     <img src="{{ url_for('static', filename='icons/plus.svg') }}" alt="+">
                 </a>
-                
+
                 <button id="show-nav" class="menu-btn outline circle">
                     <img src="{{ url_for('static', filename='icons/menu.svg') }}" alt="≡">
                 </button>
@@ -78,7 +166,7 @@
                     <div class="divider header"></div>
 
                     <a class="fill alt version" href="https://github.com/gromlbv/appw">
-                        Alpha<span>v0.02</span>
+                        Alpha<span>v0.03</span>
                     </a>
                     <a class="fill alt version" href="https://lbvo.ru">
                         Made by lbv_dev<span>lbvo.ru</span>
@@ -94,12 +182,13 @@
 
         {% set messages = get_flashed_messages() %}
         {% for message in messages %}
-            <div class="flash-message">
-                {{ message|safe }}
-                <!-- <button id="close-flash-message">X</button> -->
-            </div>
+        <div class="flash-message">
+            {{ message|safe }}
+            <!-- <button id="close-flash-message">X</button> -->
+        </div>
         {% endfor %}
     </div>
 </body>
-    
+
+
 </html>
