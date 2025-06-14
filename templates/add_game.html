@@ -1,17 +1,14 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Новая загрузка ·
+add /
 {% endblock title %}
 
 {% block content %}
 
 <div class="overlay">
-        <form method="POST" enctype="multipart/form-data"
-            hx-post="/game/create"
-            hx-target="#error-box"
-            hx-swap="innerHTML"
-            hx-on="htmx:afterOnLoad: handleResponse(event)">
+    <form method="POST" enctype="multipart/form-data" hx-post="/add" hx-target="#error-box" hx-swap="innerHTML"
+        hx-on="htmx:afterOnLoad: handleResponse(event)">
         <div class="button-absolute-wr">
             <a id="modalClose" type="reset" class="absolute-btn close" href="/">
                 <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
@@ -115,9 +112,10 @@
                                 </label>
                             </div>
                         </div>
-                        <button type="button" class="downloads-add-btn" onclick="addDownload()">Добавить загрузку</button>
+                        <button type="button" class="downloads-add-btn" onclick="addDownload()">Добавить
+                            загрузку</button>
                     </div>
-                    
+
                     <script>
                         $('#is_unity_build').on('change', function () {
                             const isChecked = $(this).is(':checked');
@@ -278,14 +276,32 @@
 
     const fileIcons = {
         zip: "{{ url_for('static', filename='icons/file/zip.svg') }}",
+
+        // img
         png: "{{ url_for('static', filename='icons/file/img.svg') }}",
         jpg: "{{ url_for('static', filename='icons/file/img.svg') }}",
         jpeg: "{{ url_for('static', filename='icons/file/img.svg') }}",
         svg: "{{ url_for('static', filename='icons/file/img.svg') }}",
         webp: "{{ url_for('static', filename='icons/file/img.svg') }}",
+
+        // video
         mp4: "{{ url_for('static', filename='icons/file/video.svg') }}",
         gif: "{{ url_for('static', filename='icons/file/video.svg') }}",
+        
         exe: "{{ url_for('static', filename='icons/file/exe.svg') }}",
+
+        // android
+        apk: "{{ url_for('static', filename='icons/file/android.svg') }}",
+        aab: "{{ url_for('static', filename='icons/file/android.svg') }}",
+        obb: "{{ url_for('static', filename='icons/file/android.svg') }}",
+
+        // apple
+        ipa: "{{ url_for('static', filename='icons/file/apple.svg') }}",
+        app: "{{ url_for('static', filename='icons/file/apple.svg') }}",
+        dmg: "{{ url_for('static', filename='icons/file/apple.svg') }}",
+        pkg: "{{ url_for('static', filename='icons/file/apple.svg') }}",
+        xip: "{{ url_for('static', filename='icons/file/apple.svg') }}",
+
         default: "{{ url_for('static', filename='icons/file/default.svg') }}"
     };
 
@@ -300,6 +316,8 @@
         $label.find('.file-icon').attr('src', iconPath).show();
         $label.find('.filename').text(file.name);
         $label.find('.replace-btn').show();
+
+        $label.addClass('success');
     });
 
     $(document).on('click', '.file-upload .replace-btn', function (e) {
@@ -317,21 +335,21 @@
 </script>
 
 <script>
-function handleResponse(event) {
-    const xhr = event.detail.xhr;
-    const target = event.detail.target;
+    function handleResponse(event) {
+        const xhr = event.detail.xhr;
+        const target = event.detail.target;
 
-    try {
-        const responseJSON = JSON.parse(xhr.responseText);
+        try {
+            const responseJSON = JSON.parse(xhr.responseText);
 
-        if (responseJSON.success === false && responseJSON.message) {
-            target.innerHTML = responseJSON.message;
-        } else if (responseJSON.success === true && responseJSON.redirect_to) {
-            window.location.href = responseJSON.redirect_to;
+            if (responseJSON.success === false && responseJSON.message) {
+                target.innerHTML = responseJSON.message;
+            } else if (responseJSON.success === true && responseJSON.redirect_to) {
+                window.location.href = responseJSON.redirect_to;
+            }
+        } catch {
         }
-    } catch {
     }
-}
 
 </script>
 

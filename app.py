@@ -1,7 +1,6 @@
 from flask import Flask
 from flask import render_template, session, request, flash, redirect, jsonify
 from flask import url_for as furl_for # чтобы routes не жаловался
-from routes import *
 
 from models import create_app, create_tables
 from mysecurity import verify, decode
@@ -10,7 +9,7 @@ from functools import wraps
 
 import mydb as db
 from datetime import datetime
-from thefuzz import process, fuzz
+from rapidfuzz import process, fuzz
 import re
 
 
@@ -69,6 +68,12 @@ def get_user_id():
         return None
     user_id = decode(user_token)
     return user_id
+
+def compare_users(username):
+    current_user = get_user_id()
+    if not current_user:
+        return False
+    return current_user == username
 
 @app.template_filter('filesize')
 def filesize_filter(size):
@@ -154,15 +159,22 @@ def get_categories():
     return jsonify({'categories': categories})
 
 
-@app.get('/game/create')
+@app.get('/add')
 def add_game():
+    if not is_loggined():
+        flash("Чтобы добавить игру необходимо <a href='/account/login'>Войти в аккаунт</a>")
+        return redirect(furl_for('index'))
     return render_template('add_game.html')
 
 def render_form_error(form):
     return render_template("error_template.html", form=form), 400
 
-@app.post('/game/create')
+@app.post('/add')
 def post_game():
+    if not is_loggined():
+        flash("Чтобы добавить игру необходимо <a href='/account/login'>Войти в аккаунт</a>")
+        return redirect(furl_for('index'))
+    
     title = request.form.get('title')
     link = request.form.get('link')
 
@@ -214,7 +226,7 @@ def post_game():
                 if new_file:    
                     db.add_game_download(game.id, titles[i], new_file.path, new_file.size, order=i)
 
-    flash(f"Приложение успешно добавлено! <a href='/game/{link}'>Открыть</a>")
+    flash(f"Приложение успешно добавлено! <a href='/a/{link}'>Открыть</a>")
     return jsonify({
         'success': True,   
         'redirect_to': furl_for('index')
@@ -256,7 +268,7 @@ def search():
         return re.sub(f"({pattern})", r"<mark>\1</mark>", text, flags=re.IGNORECASE)
 
     html = ''.join(
-        f'<a class="suggestion-item" href="/game/{r.link}">{highlight(r.title, query)}</a>'
+        f'<a class="suggestion-item" href="/a/{r.link}">{highlight(r.title, query)}</a>'
         for r in results
     )
 
@@ -276,7 +288,7 @@ def view_game_subdomain(game_link):
         return redirect(furl_for("index"))
     
 
-@app.get("/game/<link>")
+@app.get("/a/<link>")
 def view_game(link):
     game = db.get_app_one(link)
 
@@ -298,7 +310,7 @@ def download_file(filename):
     resp = send_from_directory('static/uploads', filename, as_attachment=True, download_name=download_name)
     return resp
     
-@app.route('/game/delete/<game_link>')
+@app.route('/hide/<game_link>')
 def delete_game(game_link):
     game = db.get_app_one(game_link)
     if not game:
@@ -312,20 +324,21 @@ def delete_game(game_link):
         return redirect(furl_for('view_game', link=game_link))
 
     db.archive_game(game)
-    flash("Игра успешно удалена")
+    flash("Игра успешно скрыта")
     return redirect(furl_for('index'))
 
 
 
-@app.route('/api/game/<link>/modal')
+@app.route('/api/a/<link>/modal')
 def game_modal(link):
     game = db.get_app_one(link)
     if not game:
         return "Игра не найдена", 404
+    is_admin = compare_users(game.info.published_by)
     
-    return render_template('game_modal.html', game=game)
+    return render_template('game_modal.html', game=game, is_admin=is_admin)
 
-@app.route('/game/edit/<game_link>', methods=['GET', 'POST'])
+@app.route('/edit/<game_link>', methods=['GET', 'POST'])
 def edit_game(game_link):
     game = db.get_app_one(game_link)
 
@@ -383,7 +396,7 @@ def post_file():
     )
 
     flash("Файл успешно выложен")
-    return redirect(link)
+    return redirect(furl_for('view_file', link=link))
     
 @app.get("/file/<link>")
 def view_file(link):
@@ -410,7 +423,9 @@ def user(username):
     if account is None:
         return f"Юзер не найден"
     
-    return render_template('user.html', account=account, games=games)
+    is_guest = compare_users(username)
+
+    return render_template('user.html', account=account, games=games, is_guest=is_guest)
 
 
 # Аккаунт
@@ -454,12 +469,11 @@ def login_post():
 
     return(redirect(f'/user/{username}'))
 
-@app.route('/api/game/<game_link>')
+@app.route('/api/a/<game_link>')
 def api_game(game_link):
     game = db.get_app_one(game_link)
     if not game:
         return {"error": "Игра не найдена"}, 404
-    # Формируем данные, которые нужны для попапа
     data = {
         "title": game.title,
         "preview": game.preview,
@@ -468,15 +482,17 @@ def api_game(game_link):
             {"title": d.title or "Без названия", "file_link": furl_for('download_file', filename=d.file_link)}
             for d in getattr(game, "downloads", [])
         ],
-        # Другие нужные поля
         "release_date": game.info.release_date or "Дата релиза не указана",
         "language": game.info.language or "Язык не указан",
         "author": game.info.published_by,
         "price": game.info.price,
         "app_type": game.info.app_type,
         "category": game.info.category,
-        "link": game.link
+        "link": game.link,
+
+        "is_admin": compare_users(game.uploaded_by),
     }
+    print(data['is_admin'])
     return data
 
 @app.route('/account/logout', methods=['POST', 'GET'])

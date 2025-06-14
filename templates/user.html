@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block title %}
-Создать аккаунт
+{{account["username"]}} / user /
 {% endblock title %}
 
 
@@ -11,11 +11,13 @@
     <div></div>
     <div class="flex-cl">
         <h1>{{account["username"]}}</h1>
+        {% if is_guest %}
         <a href="/account/logout" class="fill">Выйти из аккаунта</a>
+        {% endif %}
     </div>
 
     <a href="/" class="outline circle">
-        <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="">
+        <img src="{{ url_for('static', filename='icons/close.svg') }}">
     </a>
 </div>
 
@@ -23,13 +25,17 @@
 <h2>Игры юзера</h2>
 <div class="card-wrapper flex gap-8">
     <div class="card">
-        {% for game in games %}
-        <a href="/game/{{ game.link }}">
-            {{ game.title }}
+        {% for app in games %}
+        <a
+        hx-get="/api/a/{{ app.link }}/modal" 
+        hx-target="#gameModal"
+        hx-trigger="click"
+        onclick="document.getElementById('gameModal').style.display='flex'">
+            {{ app.title }}
 
-            {% if game.downloads and game.downloads|length > 0 %}
+            {% if app.downloads and app.downloads|length > 0 %}
                 <span class="bottom">
-                    {{ game.downloads[0].file_size|filesize|safe }}
+                    {{ app.downloads[0].file_size|filesize|safe }}
                 </span>
                 
             {% else %}
@@ -37,8 +43,14 @@
                     Нет файлов
                 </span>
             {% endif %}
-        </a>
 
+            {% if app.info.app_type == 'app' %}
+            <img src="{{ url_for('static', filename='icons/terminal.svg') }}">
+            {% endif %}
+            {% if app.info.app_type == 'game' %}
+            <img src="{{ url_for('static', filename='icons/joystick.svg') }}">
+            {% endif %}
+        </a>
         {% endfor %}
     </div>
 </div>

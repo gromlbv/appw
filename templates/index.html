@@ -11,7 +11,7 @@
 <div class="card-wrapper flex gap-8">
     <div class="card head">
         <div class="flex-cl gap-12">
-            <a href="/game/create" class="orange height-fill">
+            <a href="/add" class="orange height-fill">
                 <img class="original icons" src="{{ url_for('static', filename='icons/plus-black.svg') }}" alt="">
                 Добавить...
             </a>
@@ -47,25 +47,8 @@
     </div>
 </div>
 
-<div class="overlay modal" id="gameModal">
-    <div class="modal-content">
-
-    </div>
-</div>
-
-<style>
-
-</style>
 
 
-
-
-<div class="overlay modal" id="gameModal" style="display:none;">
-  <div class="modal-content">
-    <a class="close-btn" onclick="closeModal()">✕</a>
-    <div class="loading">Загружаю...</div>
-  </div>
-</div>
 
 
 <h2>Недавно обновлено</h2>
@@ -73,8 +56,8 @@
     <div class="card">
         {% for app in latest_shares %}
         <a
-        hx-get="/api/game/{{ app.link }}/modal" 
-        hx-target="#gameModal .modal-content"
+        hx-get="/api/a/{{ app.link }}/modal" 
+        hx-target="#gameModal"
         hx-trigger="click"
         onclick="document.getElementById('gameModal').style.display='flex'">
             {{ app.title }}
@@ -107,12 +90,12 @@
     <div class="card selectable" data-category="shares">
         {% for app in shares %}
         <a
-        hx-get="/api/game/{{ app.link }}/modal" 
-        hx-target="#gameModal .modal-content"
+        hx-get="/api/a/{{ app.link }}/modal" 
+        hx-target="#gameModal"
         hx-trigger="click"
         onclick="document.getElementById('gameModal').style.display='flex'">
 
-        <!-- <a href="/game/{{ app.link }}"> -->
+        <!-- <a href="/a/{{ app.link }}"> -->
             {{ app.title }}
 
             {% if app.downloads and app.downloads|length > 0 %}
@@ -142,8 +125,8 @@
     <div class="card selectable" data-category="games">
         {% for app in games %}
         <a
-        hx-get="/api/game/{{ app.link }}/modal" 
-        hx-target="#gameModal .modal-content"
+        hx-get="/api/a/{{ app.link }}/modal" 
+        hx-target="#gameModal"
         hx-trigger="click"
         onclick="document.getElementById('gameModal').style.display='flex'">
             {{ app.title }}
@@ -166,7 +149,7 @@
 
     <div class="card selectable" data-category="apps">
         {% for app in apps %}
-        <a href="/game/{{ app.link }}">
+        <a href="/a/{{ app.link }}">
             {{ app.title }}
             {{ app.downloads[0] }}
             {% if app.downloads and app.downloads|length > 0 %}
@@ -240,12 +223,6 @@
     });
 </script>
 
-<script>
-    window.addEventListener('click', e => {
-    if (e.target == document.getElementById('gameModal')) {
-        document.getElementById('gameModal').style.display = 'none';
-    }
-    });
-</script>
+
 
 {% endblock content %}

@@ -4,7 +4,7 @@ $('form').on('submit', function (e) {
     const formData = new FormData(this);
 
     $.ajax({
-        url: '/game/create',
+        url: '/add',
         type: 'POST',
         data: formData,
         processData: false,
