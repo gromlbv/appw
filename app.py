@@ -20,7 +20,6 @@ create_app(app)
 app.secret_key = 'rulevsecretkey'
 app.config['SERVER_NAME'] = "appw.su"
 
-
 def handle_valueerror_htmx():
     def decorator(func):
         @wraps(func)
@@ -383,7 +382,7 @@ def post_file():
     )
 
     flash("Файл успешно выложен")
-    return redirect(link)
+    return redirect(furl_for('index'))
     
 @app.get("/file/<link>")
 def view_file(link):
