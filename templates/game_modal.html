@@ -1,73 +1,126 @@
-<div class="button-absolute-wr">
-  <a id="modalClose" type="reset" class="absolute-btn close">
-    <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
-  </a>
-  <a id="modalClose" class="absolute-btn expand" href="game/{{ game.link }}">
-    <img src="{{ url_for('static', filename='icons/expand.svg') }}" alt="Close">
-  </a>
-</div>
-
-<div class="img-wrapper">
-  <img class="game_not_playing" id="game_preview" src="{{ request.url_root ~ game.preview if game.preview else '' }}">
-
-  {% if game.is_unity_build and game.downloads %}
-  <div class="game_playing" style="width: 100%; height: 100%;">
-
-    <iframe id="game_iframe" src="{{ url_for('static', filename=game.downloads[0].file_link) }}" frameborder="0" allowfullscreen>
-    </iframe>
-
-  </div>
-  {% endif %}
-
-</div>
-
-
-<div class="info-wrapper">
-  <div class="flex-between">
-    <h1>{{ game.title }}</h1>
-    <div class="download-wr">
-      {% if game.downloads %}
-      {% for d in game.downloads %}
-      <!-- {{ loop.index }}. {{ d.title or 'Без названия' }} — -->
-      {% if game.is_unity_build and game.downloads %}
-
-      <button class="game_playing rounded" id="fullscreenBtn">
-        <img src="{{ url_for('static', filename='icons/fullscreen.svg') }}" alt="">
-      </button>
-      <a class="game_playing">Закрыть игру</a>
-      <a class="game_not_playing" id="play_game_btn">Играть</a>
-
-
-      {% else %}
-      <a href="{{ url_for('download_file', filename=d.file_link) }}">Скачать</a>
-      {% endif %}
-      {% endfor %}
-      {% else %}
-      <p>Нет загрузок</p>
-      {% endif %}
-    </div>
+<div class="modal-content">
+  <div class="button-absolute-wr">
+    <a id="modalClose" type="reset" class="absolute-btn close">
+      <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
+    </a>
+    <a id="modalClose" class="absolute-btn expand" href="a/{{ game.link }}">
+      <img src="{{ url_for('static', filename='icons/expand.svg') }}" alt="Close">
+    </a>
   </div>
 
-  <div class="divider"></div>
+  <div class="img-wrapper">
+    <img class="game_not_playing" id="game_preview" src="{{ request.url_root ~ game.preview if game.preview else '' }}">
 
-  <div class="game-info">
-    
-
-    {% if not game.is_unity_build and game.downloads %}
-    <div>
-      <p>Вес {{ game.info.app_type | game_or_app }}</p>
-      <h3>{{ game.downloads[0].file_size|filesize|safe }}</h3>
-    </div>
-    {% endif %}
-
-    {% if game.info.release_date %}
-    <div>
-      <p>Дата выхода</p>
-      <h3>{{ game.info.release_date }}</h3>
+    {% if game.is_unity_build and game.downloads %}
+    <div class="game_playing" style="width: 100%; height: 100%;">
+      <iframe id="game_iframe" src="{{ url_for('static', filename=game.downloads[0].file_link) }}" frameborder="0"
+        allowfullscreen>
+      </iframe>
     </div>
     {% endif %}
   </div>
+  <div class="info-wrapper">
+    <div class="flex-between flex-wrap gap-12">
+      <h1>{{ game.title }}</h1>
+      <div class="download-wr">
+        <a href="game.link" class="rounded with-popup copy" data-link="https://{{ game.link }}.appw.su">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path
+              d="M10.0002 17.4561C7.94125 19.5151 4.6031 19.5151 2.54418 17.4561C0.485272 15.3972 0.485272 12.0591 2.54418 10.0002L4.78097 7.76338C6.22221 6.32214 8.55893 6.32213 10.0002 7.76337M9.99984 2.54418C12.0587 0.485272 15.3969 0.485272 17.4558 2.54418C19.5147 4.6031 19.5147 7.94125 17.4558 10.0002L15.219 12.237C13.7778 13.6782 11.4411 13.6782 9.99984 12.237"
+              stroke="white" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </a>
+
+        <script>
+          $(document).on('click', '.with-popup', function (e) {
+            const $el = $(this);
+            $el.addClass('success');
+            setTimeout(() => $el.removeClass('success'), 1000);
+          });
+          $(document).on('click', '.copy', function (e) {
+              e.preventDefault();
+              const link = $(this).data('link');
+              const $el = $(this);
+              navigator.clipboard.writeText(link).then(function () {
+                  $el.addClass('success');
+                  setTimeout(() => $el.removeClass('success'), 1500);
+              });
+          });
+
+          $(document).on('keydown', function(e) {
+              if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+                  if ($('#gameModal').is(':visible')) {
+                      const $copyBtn = $('#gameModal').find('.copy').first();
+                      if ($copyBtn.length) {
+                          e.preventDefault();
+                          const link = $copyBtn.data('link');
+                          navigator.clipboard.writeText(link).then(function () {
+                              $copyBtn.addClass('success');
+                              setTimeout(() => $copyBtn.removeClass('success'), 1500);
+                          });
+                      }
+                  }
+              }
+          });
+        </script>
+
+        {% if game.downloads %}
+        {% for d in game.downloads %}
+        <!-- {{ loop.index }}. {{ d.title or 'Без названия' }} — -->
+        {% if game.is_unity_build and game.downloads %}
+
+        <button class="game_playing rounded" id="fullscreenBtn">
+          <img src="{{ url_for('static', filename='icons/fullscreen.svg') }}">
+        </button>
+        <a class="game_playing">Закрыть игру</a>
+        <a class="game_not_playing" id="play_game_btn">Играть</a>
+
+
+        {% else %}
+        <a class="with-popup download" href="{{ url_for('download_file', filename=d.file_link) }}">Скачать</a>
+        {% endif %}
+        {% endfor %}
+        {% else %}
+        <a class="disabled"> Нет загрузок</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="game-info">
+
+      {% if is_admin %}
+      <div class="flex gap-6">
+        <a class="fill" href="/edit/{{ game.link }}" class="edit-link">Редактировать</a>
+        <a class="fill danger" href="/hide/{{ game.link }}" class="edit-link">Скрыть</a>
+      </div>
+
+      {% endif %}
+
+      {% if not game.is_unity_build and game.downloads %}
+      <div>
+        <p>Вес {{ game.info.app_type | game_or_app }}</p>
+        <h3>{{ game.downloads[0].file_size|filesize|safe }}</h3>
+      </div>
+      {% endif %}
+
+      {% if game.info.release_date %}
+      <div>
+        <p>Дата выхода</p>
+        <h3>{{ game.info.release_date }}</h3>
+      </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
+{% if game.info.description %}
+<div class="modal-content">
+  <div class="info-wrapper">
+    {{ game.info.description }}
+  </div>
+</div>
+{% endif %}
 
 <script>
   document.getElementById('modalClose').addEventListener('click', () => {
@@ -80,7 +133,7 @@
   $('#play_game_btn').click(function (e) {
     e.preventDefault();
     $('.game_playing').toggleClass('active');
-    $('.game_not_playing').toggleClass('hidden'); // аналогично
+    $('.game_not_playing').toggleClass('hidden');
   });
 
 
@@ -88,11 +141,11 @@
     const iframe = document.getElementById('game_iframe');
     if (iframe.requestFullscreen) {
       iframe.requestFullscreen();
-    } else if (iframe.mozRequestFullScreen) { /* Firefox */
+    } else if (iframe.mozRequestFullScreen) {
       iframe.mozRequestFullScreen();
-    } else if (iframe.webkitRequestFullscreen) { /* Chrome, Safari & Opera */
+    } else if (iframe.webkitRequestFullscreen) {
       iframe.webkitRequestFullscreen();
-    } else if (iframe.msRequestFullscreen) { /* IE/Edge */
+    } else if (iframe.msRequestFullscreen) {
       iframe.msRequestFullscreen();
     }
   });

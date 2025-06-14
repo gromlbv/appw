@@ -71,6 +71,9 @@ body {
     display: flex;
     justify-content: flex-end;
 }
+.flex-wrap{
+    flex-wrap: wrap;
+}
 
 .gap-12{
     gap: 12px;
@@ -179,7 +182,9 @@ header.base {
 
     width: 100%;
     max-width: 1020px;
+    padding: 0 24px;
     z-index: 10;
+
     .right-side{
         display: flex;
         flex-direction: row;
@@ -422,6 +427,9 @@ img{
     background-color: transparent !important;
     border-radius: 32px;
 }
+.fill.danger{
+    color: var(--system-error-color) !important;
+}
 
 .version{
     span{
@@ -536,7 +544,7 @@ body{
     h1,h2 {
         font-family: "EB Garamond", serif;
 
-        width: 100%;
+        /* width: 100%; */
         text-align: center;
     }
     h2{
@@ -697,8 +705,8 @@ body{
     background-color: rgba(68, 68, 68, 0.24);
     backdrop-filter: blur(6px);
 
-    z-index: 1;
-    overflow: hidden;
+    z-index: 20;
+    overflow: auto;
 }
 
 form, .modal {
@@ -710,6 +718,12 @@ form, .modal {
         flex-direction: column;
         gap: 8px;
         right: -80px;
+    }
+
+    @media screen and (max-width: 960px) {
+        .button-absolute-wr {
+            right: 12px;
+        }
     }
     
     .absolute-btn {
@@ -741,9 +755,8 @@ form, .modal {
 .modal {
     position: fixed;
     display: none;
-    flex-direction: row;
     justify-content: center;
-    align-items: flex-start;
+    gap: 12px;
 
     z-index: 1000;
     left: 0;
@@ -757,6 +770,7 @@ form, .modal {
         position: absolute;
     }
 }
+
 
 .modal-content {
     position: relative;
@@ -836,7 +850,7 @@ form, .modal {
                 justify-content: center;
                 align-items: center;
 
-                border: none;
+                border: 1px solid transparent;
                 border-radius: 24px;
                 background: #0F0F12;
                 background-blend-mode: screen;
@@ -848,17 +862,78 @@ form, .modal {
                 font-style: italic;
                 white-space: nowrap;
 
+                transition: background-color 0.2s, border-color 0.2s;
+
             }
             .rounded{
                 height: 68px;
                 width: 68px;
                 
-                border-radius: 32px;
+                border-radius: 34px;
                 
                 img{
                     max-width: initial;
                     max-height: initial;
                 }
+            }
+
+            .disabled{
+                color: var(--secondary-color);
+                font-weight: 300;
+
+                cursor: not-allowed;
+            }
+
+            .with-popup{
+                position: relative;
+            }
+
+            .with-popup::after{
+                content: "Успешно";
+                position: absolute;
+
+                display: flex;
+                justify-content: center;
+                align-items: center;
+
+                bottom: -18px;
+                padding: 4px 12px;
+
+                color: black;
+                background-color: var(--system-success-color);
+                backdrop-filter: blur(12px);
+                border-radius: 24px;
+
+                font-weight: 500;
+                font-size: 16px;
+
+                opacity: 0;
+                transform: translateY(-10px) scale(0.8);
+                filter: blur(8px);
+                transition: opacity 0.2s, transform 0.2s, filter 0.2s;
+            }
+            .with-popup.copy::after{
+                content: "Скопировано";
+            }
+            .with-popup.download::after{
+                content: "Загрузка началась";
+            }
+
+            .success{
+                opacity: 1 !important;
+                background-color: var(--system-success-color-12) !important;
+                border: 1px solid var(--system-success-color) !important;
+            }
+            .with-popup svg path{
+                transition: stroke 0.2s;
+            }
+            .with-popup.success svg path{
+                stroke: var(--system-success-color) !important;
+            }
+            .with-popup.success::after{
+                opacity: 1;
+                filter: blur(0);
+                transform: translateY(0) scale(1);
             }
 
             p{
@@ -1065,6 +1140,9 @@ form {
             user-select: none;
             cursor: pointer;
         }
+        .file-upload.success{
+            border-color: var(--system-success-color-12);
+        }
 
 
         .file-upload{
@@ -1171,7 +1249,7 @@ form {
 
             color: #6D6D72;
 
-            cursor: pointer;
+            cursor: pointer !important;
             transition: background-color 0.2s, margin 0.2s, padding 0.2s, border-color 0.1s, border-radius 0.2s;
         }
         .input-wr.checkbox:hover {
@@ -1418,6 +1496,20 @@ form {
 
 
 
+
+@media (max-width: 540px){
+    header.base{
+        .add-btn{
+            display: none;
+        }
+    }
+}
+
+@media (max-width: 1020px){
+    .modal{
+        padding: 24px;
+    }
+}
 
 @media (max-width: 1020px){
     .two-side{

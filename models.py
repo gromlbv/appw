@@ -31,7 +31,7 @@ class User(db.Model):
 
     is_premium = db.Column(db.Boolean, default=False)
     is_approved = db.Column(db.Boolean, default=False)
-
+            
     def anonim(self):
         return {
             "username": self.username,

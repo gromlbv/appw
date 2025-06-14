@@ -1,8 +1,7 @@
 from models import User, Game, GameInfo, GameDownload, SharedFile, GameStats
 from models import db
-from datetime import date
+
 from mysecurity import myhash, verify, encode
-import uuid
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
 
@@ -50,7 +49,10 @@ def post_register(username, password):
 
     password = myhash(password)
 
-    user = User(username = username, password = password)
+    user = User()
+    user.username = username
+    user.password = password
+
     save_to_db(user)
 
     return user
@@ -133,7 +135,8 @@ def post_game_edit(
 
     info = GameInfo.query.filter_by(game_id=game_id).first()
     if not info:
-        info = GameInfo(game_id=game_id)
+        info = GameInfo()
+        info.game_id = game_id
 
     info.description = description
     info.price = price
@@ -159,28 +162,27 @@ def post_game(
     if link in [game.link for game in get_shares_all()]:
         raise ValueError(f"Ссылка {link} уже используется")
     
-    game = Game(
-        title=title,
-        preview=preview,
-        link=link,
-        comments_allowed=comments_allowed,
-        is_unity_build=is_unity_build,
-        is_archived=False,
-    )
+    game = Game()
+    game.title = title
+    game.preview = preview
+    game.link = link
+    game.comments_allowed = comments_allowed
+    game.is_unity_build = is_unity_build
+    game.is_archived = False
+
     save_to_db(game)
 
-    info = GameInfo(
-        game_id=game.id,
-        description=description,
-        price=price,
-        release_date=release_date,
-        language=language,
-        published_by=published_by,
-        app_type=app_type,
-        category=category
-    )
-    save_to_db(info)
+    info = GameInfo()
+    info.game_id = game.id
+    info.description = description
+    info.price = price
+    info.release_date = release_date
+    info.language = language
+    info.published_by = published_by
+    info.app_type = app_type
+    info.category = category
 
+    save_to_db(info)
     return game
 
 def get_all_games_with_stats():
@@ -194,7 +196,8 @@ def update_game_stats(game_id, serious_fun, utility_gamified):
     if not game:
         return False
     if not game.stats:
-        game.stats = GameStats(game_id=game.id)
+        game.stats = GameStats()
+        game.stats.game_id = game_id
         db.session.add(game.stats)
     stats = game.stats
     stats.serious_fun = serious_fun
@@ -230,23 +233,31 @@ def create_sample_games():
     ]
 
     for title, link, serious_fun, utility_gamified in sample_data:
-        game = Game(title=title, link=link)
+        game = Game()
+        game.title = title
+        game.link = link
+        
         db.session.add(game)
         db.session.flush()
 
-        stats = GameStats(
-            game_id=game.id,
-            serious_fun=serious_fun,
-            utility_gamified=utility_gamified
-        )
+        stats = GameStats()
+        stats.game_id = game.id
+        stats.serious_fun = serious_fun
+        stats.utility_gamified = utility_gamified
+        
         db.session.add(stats)
 
     db.session.commit()
 
 def get_download_info(filename):
     game_download = db.session.query(GameDownload).filter_by(file_link=filename).first()
+    if game_download is None:
+        return None
     game = db.session.query(Game).filter_by(id=game_download.game_id).first()
 
+    if game is None:
+        return None
+    
     game_name = game.title
     title = game_download.title
     file_link = game_download.file_link
@@ -259,7 +270,13 @@ def get_download_info(filename):
     return download_name
 
 def add_game_download(game_id, title, file_link, file_size, order=0):
-    game_download = GameDownload(game_id=game_id, title=title, file_link=file_link, file_size=file_size, order=order)
+    game_download = GameDownload()
+    game_download.game_id = game_id
+    game_download.title = title
+    game_download.file_link = file_link
+    game_download.file_size = file_size
+    game_download.order = order
+
     save_to_db(game_download)
 
     return game_download
@@ -277,21 +294,18 @@ def get_files_one(link):
     return file
 
 def post_file(title, preview, file_link, link, uploaded_by):
-    shared_file = SharedFile(
-        title=title,
-        preview=preview,
-        file_link=file_link,
-        uploaded_by=uploaded_by,
-        is_active=True,
-        expires=30,
-        auto_download=0,
-        link=link
-        # link="file-" + uuid.uuid4().hex[:10]
-    )
+    shared_file = SharedFile()
+    shared_file.title = title
+    shared_file.preview = preview
+    shared_file.file_link = file_link
+    shared_file.uploaded_by = uploaded_by
+    shared_file.is_active = True
+    shared_file.expires = 30
+    shared_file.auto_download = 0
+    shared_file.link = link
     save_to_db(shared_file)
 
     view_url = f"{shared_file.link}"
-    print("File shared:", shared_file)
     return view_url
 
 
