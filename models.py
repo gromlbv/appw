@@ -54,7 +54,7 @@ class GameInfo(db.Model):
 
     description = db.Column(db.Text)
     price = db.Column(db.Integer)
-    release_date = db.Column(db.DateTime)
+    release_date = db.Column(db.Date)
     language = db.Column(db.Text)
     published_by = db.Column(db.String(20), db.ForeignKey('users.id'))
     published_at = db.Column(db.DateTime)
