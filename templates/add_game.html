@@ -7,8 +7,10 @@ add /
 {% block content %}
 
 <div class="overlay">
-    <form method="POST" enctype="multipart/form-data" hx-post="/add" hx-target="#error-box" hx-swap="innerHTML"
-        hx-on="htmx:afterOnLoad: handleResponse(event)">
+    <form method="POST"
+    enctype="multipart/form-data"
+    hx-post="/add" hx-target="#error-box" hx-swap="innerHTML"
+    hx-on="htmx:afterOnLoad: handleResponse(event)">
         <div class="button-absolute-wr">
             <a id="modalClose" type="reset" class="absolute-btn close" href="/">
                 <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
@@ -176,7 +178,7 @@ add /
             </div>
         </div>
     </form>
-    <div id="error-box" class="error"></div>
+    <div id="error-box"></div>
 
 </div>
 
@@ -331,25 +333,6 @@ add /
             $(this).find('input[type="file"]').trigger('click');
         }
     });
-
-</script>
-
-<script>
-    function handleResponse(event) {
-        const xhr = event.detail.xhr;
-        const target = event.detail.target;
-
-        try {
-            const responseJSON = JSON.parse(xhr.responseText);
-
-            if (responseJSON.success === false && responseJSON.message) {
-                target.innerHTML = responseJSON.message;
-            } else if (responseJSON.success === true && responseJSON.redirect_to) {
-                window.location.href = responseJSON.redirect_to;
-            }
-        } catch {
-        }
-    }
 
 </script>
 

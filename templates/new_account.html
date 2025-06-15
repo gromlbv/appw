@@ -17,8 +17,6 @@
             </a>
         </div>
 
-
-
         <div class="block">
             <h1>Создать аккаунт</h1>
             <div class="inputs">
@@ -30,8 +28,9 @@
                     <label for="password">Пароль</label>
                     <input type="password" name="password" id="password" placeholder="12341234" required>
                 </div>
+                
                 {% if error %}
-                    <div class="input-wr error">
+                    <div class="input-wr error-span">
                         <span>{{ error }}</span>
                     </div>
                 {% endif %}

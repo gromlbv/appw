@@ -55,6 +55,7 @@
 <div class="card-wrapper flex gap-8">
     <div class="card">
         {% for app in latest_shares %}
+            {% set show_update_at = true %}
             {% include 'partials/_game_card.html' %}
         {% endfor %}
     </div>

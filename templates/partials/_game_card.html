@@ -1,22 +1,27 @@
 <!-- templates/partials/_game_card.html -->
 <a
-    hx-get="/api/game/{{ app.link }}/modal" 
-    hx-target="#gameModal .modal-content"
+    hx-get="/api/a/{{ app.link }}/modal" 
+    hx-target="#gameModal"
     hx-trigger="click"
     onclick="document.getElementById('gameModal').style.display='flex'">
 
     {{ app.title }}
 
-    {% if app.downloads and app.downloads|length > 0 %}
-        <span class="bottom">
+
+    <span class="bottom">
+        {% if app.is_unity_build %}
+            Играть
+        {% elif app.downloads and app.downloads|length > 0 %}
             {{ app.downloads[0].file_size|filesize|safe }}
-        </span>
-        
-    {% else %}
-        <span class="bottom">
+        {% else %}
             Нет файлов
-        </span>
-    {% endif %}
+        {% endif %}
+        
+        {% if show_update_at %}
+            · {{ app.info.updated_at|time_ago }}
+        {% endif %}
+    </span>
+
 
     {% if app.info.app_type == 'app' %}
     <img src="{{ url_for('static', filename='icons/terminal.svg') }}">
@@ -25,3 +30,4 @@
     <img src="{{ url_for('static', filename='icons/joystick.svg') }}">
     {% endif %}
 </a>
+

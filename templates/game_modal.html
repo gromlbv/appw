@@ -32,10 +32,10 @@
         </a>
 
         <script>
-          $(document).on('click', '.with-popup', function (e) {
+          $(document).on('click', '.download', function (e) {
             const $el = $(this);
             $el.addClass('success');
-            setTimeout(() => $el.removeClass('success'), 1000);
+            setTimeout(() => $el.removeClass('success'), 5000);
           });
           $(document).on('click', '.copy', function (e) {
               e.preventDefault();
@@ -43,7 +43,7 @@
               const $el = $(this);
               navigator.clipboard.writeText(link).then(function () {
                   $el.addClass('success');
-                  setTimeout(() => $el.removeClass('success'), 1500);
+                  setTimeout(() => $el.removeClass('success'), 1000);
               });
           });
 
@@ -89,15 +89,6 @@
     <div class="divider"></div>
 
     <div class="game-info">
-
-      {% if is_admin %}
-      <div class="flex gap-6">
-        <a class="fill" href="/edit/{{ game.link }}" class="edit-link">Редактировать</a>
-        <a class="fill danger" href="/hide/{{ game.link }}" class="edit-link">Скрыть</a>
-      </div>
-
-      {% endif %}
-
       {% if not game.is_unity_build and game.downloads %}
       <div>
         <p>Вес {{ game.info.app_type | game_or_app }}</p>
@@ -111,7 +102,24 @@
         <h3>{{ game.info.release_date }}</h3>
       </div>
       {% endif %}
+
+      {% if game.info.updated_at %}
+      <div>
+        <p>Обновлено</p>
+        <h3>{{ game.info.updated_at|time_ago }}</h3>
+      </div>
+      {% endif %}
     </div>
+
+    {% if is_admin %}
+      <div class="divider"></div>
+
+      <div class="flex gap-6">
+        <a class="fill" href="/edit/{{ game.link }}" class="edit-link">Редактировать</a>
+        <a class="fill danger" href="/hide/{{ game.link }}" class="edit-link">Скрыть из библиотеки</a>
+      </div>
+    {% endif %}
+
   </div>
 </div>
 {% if game.info.description %}

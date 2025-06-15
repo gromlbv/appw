@@ -1,6 +1,5 @@
 from flask import Flask
-from flask import render_template, session, request, flash, redirect, jsonify
-from flask import url_for as furl_for # чтобы routes не жаловался
+from flask import render_template, session, request, flash, redirect, jsonify, url_for
 
 from models import create_app, create_tables
 from mysecurity import verify, decode
@@ -12,12 +11,19 @@ from datetime import datetime
 from rapidfuzz import process, fuzz
 import re
 
+import redis
+from functools import wraps
+from utils import json_response
+
+
 
 app = Flask(__name__)
 create_app(app)
 
 app.secret_key = 'rulevsecretkey'
 app.config['SERVER_NAME'] = "appw.su"
+
+r = redis.Redis()
 
 def handle_valueerror_htmx():
     def decorator(func):
@@ -30,6 +36,48 @@ def handle_valueerror_htmx():
         return wrapper
     return decorator
 
+def rate_limit(timeout=1, max_attempts=5):
+    def decorator(f):
+        @wraps(f)
+        def wrapper(*args, **kwargs):
+            user_ip = request.remote_addr
+            if not user_ip:
+                return json_response({
+                    'type': 'error',
+                    'message': 'Что-то пошло не так <a href="https://lbv_dev.t.me">Поддержка</a>'
+                })
+
+            counter_key = f"rl_counter:{user_ip}"
+
+            attempts = r.incr(counter_key)
+            if attempts == 1:
+                r.expire(counter_key, timeout)
+            if attempts > max_attempts:
+                return json_response({
+                    'type': 'warning',
+                    'message': 'Слишком быстро кликаешь!'
+                })
+            if attempts > 20:
+                return json_response({
+                    'type': 'warning',
+                    'message': 'Чего?'
+                })
+            if attempts > 100:
+                return json_response({
+                    'type': 'warning',
+                    'message': 'Окей на этом моменте виноват точно я'
+                })
+            
+            if r.exists(user_ip):
+                return json_response({
+                    'type': 'warning',
+                    'message': 'Подождите 1 секунду перед повторной отправкой'
+                })
+
+            r.setex(user_ip, timeout, "blocked")
+            return f(*args, **kwargs)
+        return wrapper
+    return decorator
 
 def handle_valueerror(template_name):
     def decorator(f):
@@ -44,11 +92,70 @@ def handle_valueerror(template_name):
         return wrapped
     return decorator
 
-@app.route('/form')
-def form():
-    return render_template('form.html')
+from datetime import datetime, timedelta
+import pytz
+from flask import g, request
+
+@app.template_filter('time_ago')
+def time_ago_filter(dt):
+    if not dt:
+        return "никогда"
     
+    user_tz = getattr(g, 'user_timezone', None) or request.cookies.get('timezone') or 'UTC'
     
+    try:
+        tz = pytz.timezone(user_tz)
+        now = datetime.now(tz)
+        local_dt = dt.replace(tzinfo=pytz.utc).astimezone(tz)
+        
+        diff = now - local_dt
+    except:
+        now = datetime.now()
+        diff = now - dt
+
+    if diff < timedelta(minutes=1):
+        return "только что"
+    elif diff < timedelta(hours=1):
+        minutes = int(diff.seconds / 60)
+        return f"{minutes} {pluralize(minutes, 'минуту', 'минуты', 'минут')} назад"
+    elif diff < timedelta(days=1):
+        hours = int(diff.seconds / 3600)
+        return f"{hours} {pluralize(hours, 'час', 'часа', 'часов')} назад"
+    elif diff < timedelta(days=2):
+        return "вчера"
+    elif diff < timedelta(days=7):
+        return f"{diff.days} {pluralize(diff.days, 'день', 'дня', 'дней')} назад"
+    elif dt.year == now.year:
+        return dt.strftime("%d %b")
+    else:
+        return dt.strftime("%d %b %Y")
+
+def pluralize(n, form1, form2, form5):
+    n = abs(n) % 100
+    n1 = n % 10
+    if 10 < n < 20:
+        return form5
+    if 1 < n1 < 5:
+        return form2
+    if n1 == 1:
+        return form1
+    return form5
+
+@app.template_filter('filesize')
+def filesize_filter(size):
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if size < 1024:
+            return f"{size:.1f} <span>{unit}</span>"
+        size /= 1024
+    return f"{size:.1f} PB"
+
+# возвращает "игры" или "приложения" в зависимости от типа
+@app.template_filter('game_or_app')
+def game_or_app(app_type):
+    return 'game' if app_type == 'игры' else 'приложения'
+
+
+
 def is_loggined():
     print('Проверяю токен')
     if 'token' in session:
@@ -70,22 +177,17 @@ def get_user_id():
 
 def compare_users(username):
     current_user = get_user_id()
+    if current_user == 'lbv': # обход для меня 
+        return True
     if not current_user:
         return False
     return current_user == username
 
-@app.template_filter('filesize')
-def filesize_filter(size):
-    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-        if size < 1024:
-            return f"{size:.1f} <span>{unit}</span>"
-        size /= 1024
-    return f"{size:.1f} PB"
+@app.route('/form')
+def form():
+    return render_template('form.html')
 
-# возвращает "игры" или "приложения" в зависимости от типа
-@app.template_filter('game_or_app')
-def game_or_app(app_type):
-    return 'game' if app_type == 'игры' else 'приложения'
+
 
 @app.get('/')
 def index():
@@ -106,43 +208,7 @@ def index():
         user_id=get_user_id()
     )
 
-@app.get('/graphs')
-def graphs():
-    games = db.get_shares_all()
 
-    apps = []
-    for game in games:
-        size = game.downloads[0].file_size if game.downloads else 0
-        apps.append({
-            'link': game.link,
-            'title': game.title,
-            'size': size,
-                'game_stats': {
-                    'serious_fun': game.stats.serious_fun if game.stats else 50,
-                    'utility_gamified': game.stats.utility_gamified if game.stats else 50,
-                }
-        })
-
-    return render_template(
-        "graphs.html",
-        users=db.get_users_all(),
-        apps=apps,
-        games=games,
-    )
-
-@app.route('/graphs/edit', methods=['GET', 'POST'])
-def graphs_edit():
-    if request.method == 'POST':
-        for key in request.form:
-            if key.startswith('serious_fun_'):
-                game_id = int(key.split('_')[-1])
-                serious_fun = int(request.form.get(f'serious_fun_{game_id}', 50))
-                utility_gamified = int(request.form.get(f'utility_gamified_{game_id}', 50))
-                db.update_game_stats(game_id, serious_fun, utility_gamified)
-        return redirect(furl_for('graphs_edit'))
-
-    games = db.get_all_games_with_stats()
-    return render_template('graphs_edit.html', games=games)
 
 
 @app.route('/api/get-categories')
@@ -162,17 +228,16 @@ def get_categories():
 def add_game():
     if not is_loggined():
         flash("Чтобы добавить игру необходимо <a href='/account/login'>Войти в аккаунт</a>")
-        return redirect(furl_for('index'))
+        return redirect(url_for('index'))
     return render_template('add_game.html')
 
-def render_form_error(form):
-    return render_template("error_template.html", form=form), 400
 
 @app.post('/add')
+@rate_limit(timeout=1)
 def post_game():
     if not is_loggined():
         flash("Чтобы добавить игру необходимо <a href='/account/login'>Войти в аккаунт</a>")
-        return redirect(furl_for('index'))
+        return redirect(url_for('index'))
     
     title = request.form.get('title')
     link = request.form.get('link')
@@ -203,17 +268,35 @@ def post_game():
             description, price, release_date, language, published_by, app_type, category,
         )
     except ValueError as e:
-        return jsonify({
-            'success': False,
+        return json_response({
+            'type': 'error',
             'message': str(e)
         })
 
     if is_unity_build:
         file = request.files.get('unity_file')
-        if file:
+        if not file:
+            db.delete_game(game.id)
+            return json_response({
+                'type': 'error',
+                'message': "Не нашел файла Unity сборки (.zip)"
+            })
+        
+        try:
             new_file = upload_unity_build(file, game.id)
-            if new_file:
-                db.add_game_download(game.id, "unity_build", new_file.path, new_file.size, order=0)
+            if not new_file:
+                return json_response({
+                    'type': 'error',
+                    'message': "Ошибка загрузки Unity сборки"
+                })
+            
+            db.add_game_download(game.id, "unity_build", new_file.path, new_file.size, order=0)
+        except ValueError as e:
+            db.delete_game(game.id)
+            return json_response({
+                'type': 'error',
+                'message': str(e)
+            })
     else:
         titles = request.form.getlist("download_titles[]")
         files = request.files.getlist("download_files[]")
@@ -224,11 +307,11 @@ def post_game():
                 new_file = upload_file(file)
                 if new_file:    
                     db.add_game_download(game.id, titles[i], new_file.path, new_file.size, order=i)
-
+                    
     flash(f"Приложение успешно добавлено! <a href='/a/{link}'>Открыть</a>")
-    return jsonify({
-        'success': True,   
-        'redirect_to': furl_for('index')
+    return json_response({
+        'type': 'success',  
+        'redirect_to': url_for('index')
     })
 
 
@@ -284,7 +367,7 @@ def view_game_subdomain(game_link):
         return render_template("view_game.html", game=game, game_download=game_download)
     else:
         flash("Приложение не найдено")
-        return redirect(furl_for("index"))
+        return redirect(url_for("index"))
     
 
 @app.get("/a/<link>")
@@ -297,7 +380,7 @@ def view_game(link):
         return render_template("view_game.html", game=game, game_download=game_download)
     else:
         flash("Приложение не найдено")
-        return redirect(furl_for('index'))
+        return redirect(url_for('index'))
 
 from flask import send_from_directory
 
@@ -314,17 +397,15 @@ def delete_game(game_link):
     game = db.get_app_one(game_link)
     if not game:
         flash("Игра не найдена")
-        return redirect(furl_for('index'))
+        return redirect(url_for('index'))
 
-    current_user_id = get_user_id()
-
-    if game.info.published_by != current_user_id:
+    if not compare_users(game.info.published_by):
         flash("Вы не можете удалить чужую игру")
-        return redirect(furl_for('view_game', link=game_link))
+        return redirect(url_for('view_game', link=game_link))
 
     db.archive_game(game)
     flash("Игра успешно скрыта")
-    return redirect(furl_for('index'))
+    return redirect(url_for('index'))
 
 
 
@@ -395,7 +476,7 @@ def post_file():
     )
 
     flash("Файл успешно выложен")
-    return redirect(furl_for('view_file', link=link))
+    return redirect(url_for('view_file', link=link))
     
 @app.get("/file/<link>")
 def view_file(link):
@@ -412,7 +493,7 @@ def file_share_get():
 
 @app.get('/file/share')
 def file_share_post():
-    return redirect(furl_for('index'))
+    return redirect(url_for('index'))
 
 @app.get('/user/<username>')
 def user(username):
@@ -427,17 +508,18 @@ def user(username):
     return render_template('user.html', account=account, games=games, is_guest=is_guest)
 
 
+
 # Аккаунт
 
 @app.get('/account/me')
 def redirect_to_user():
-    return redirect(furl_for('user', username=get_user_id()))
+    return redirect(url_for('user', username=get_user_id()))
 
 
 @app.get('/account/register')
 def register():
     if is_loggined():
-        return redirect(furl_for('index'))
+        return redirect(url_for('index'))
     return render_template('new_account.html')
 
 @app.route('/account/register', methods=['POST'])
@@ -449,12 +531,12 @@ def register_post():
     flash(f'Аккаунт {username} успешно создан')
     token = db.post_login(username, password)
     session['token'] = token
-    return redirect(furl_for('index'))
+    return redirect(url_for('index'))
 
 @app.get('/account/login')
 def login():
     if is_loggined():
-        return(redirect(furl_for('index')))
+        return(redirect(url_for('index')))
     return(render_template('login.html'))
 
 @app.post('/account/login')
@@ -478,7 +560,7 @@ def api_game(game_link):
         "preview": game.preview,
         "description": game.info.description or "Описание отсутствует",
         "downloads": [
-            {"title": d.title or "Без названия", "file_link": furl_for('download_file', filename=d.file_link)}
+            {"title": d.title or "Без названия", "file_link": url_for('download_file', filename=d.file_link)}
             for d in getattr(game, "downloads", [])
         ],
         "release_date": game.info.release_date or "Дата релиза не указана",
@@ -500,7 +582,49 @@ def logout():
         session.pop('token', None)
         flash("Вы вышли из аккаунта <a href='/account/login'>Вход</a>")
 
-    return redirect(furl_for('index'))
+    return redirect(url_for('index'))
+
+
+
+
+
+@app.get('/graphs')
+def graphs():
+    games = db.get_shares_all()
+
+    apps = []
+    for game in games:
+        size = game.downloads[0].file_size if game.downloads else 0
+        apps.append({
+            'link': game.link,
+            'title': game.title,
+            'size': size,
+                'game_stats': {
+                    'serious_fun': game.stats.serious_fun if game.stats else 50,
+                    'utility_gamified': game.stats.utility_gamified if game.stats else 50,
+                }
+        })
+
+    return render_template(
+        "graphs.html",
+        users=db.get_users_all(),
+        apps=apps,
+        games=games,
+    )
+
+@app.route('/graphs/edit', methods=['GET', 'POST'])
+def graphs_edit():
+    if request.method == 'POST':
+        for key in request.form:
+            if key.startswith('serious_fun_'):
+                game_id = int(key.split('_')[-1])
+                serious_fun = int(request.form.get(f'serious_fun_{game_id}', 50))
+                utility_gamified = int(request.form.get(f'utility_gamified_{game_id}', 50))
+                db.update_game_stats(game_id, serious_fun, utility_gamified)
+        return redirect(url_for('graphs_edit'))
+
+    games = db.get_all_games_with_stats()
+    return render_template('graphs_edit.html', games=games)
 
 
 

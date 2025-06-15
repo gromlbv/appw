@@ -1,8 +1,12 @@
 import os
-from werkzeug.utils import secure_filename
+import uuid
+import shutil
+import zipfile
+
 from flask import current_app
 from dataclasses import dataclass
-import uuid
+# from werkzeug.utils import secure_filename
+
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -56,21 +60,13 @@ def upload_file(file, folder='static/uploads'):
 
 
 
-
-
-import os
-import uuid
-import zipfile
-import shutil
-from flask import current_app
-
 def upload_unity_build(file, game_id, folder='static/uploads/unity_archives'):
     if not file:
         return None
 
     ext = os.path.splitext(file.filename)[1].lower()
     if ext != '.zip':
-        return None  # или кинуть ошибку
+        raise ValueError("Unity сборка должна лежать в архиве (.zip)")
 
     file_name = f"{uuid.uuid4()}{ext}"
     file_path = os.path.join(current_app.root_path, folder, file_name)
@@ -80,10 +76,8 @@ def upload_unity_build(file, game_id, folder='static/uploads/unity_archives'):
 
     file_size = os.path.getsize(file_path)
 
-    # Папка для распаковки
     unpack_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'unity_builds', str(game_id))
 
-    # Очистить, если есть
     if os.path.exists(unpack_dir):
         shutil.rmtree(unpack_dir)
     os.makedirs(unpack_dir, exist_ok=True)

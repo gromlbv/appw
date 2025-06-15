@@ -1,9 +1,12 @@
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.orm import joinedload
+from sqlalchemy import func
+
 from models import User, Game, GameInfo, GameDownload, SharedFile, GameStats
 from models import db
 
 from mysecurity import myhash, verify, encode
-from sqlalchemy.orm import joinedload
-from sqlalchemy import func
+
 
 
 def save_to_db(instance):
@@ -61,7 +64,7 @@ def post_register(username, password):
 # Приложения
 
 def get_shares_all():
-    return Game.query.filter_by(is_archived=False).all()
+    return Game.query.filter_by(is_archived=False).order_by(Game.id.desc()).all()
 
 
 def get_shares_search(query):
@@ -78,12 +81,16 @@ def get_app_one(link):
     return next((game for game in apps if game.link == link), None)
 
 def get_latest(limit):
-    return Game.query\
+    latest_apps = Game.query\
         .join(GameInfo)\
-        .filter(Game.is_archived == False)\
+        .filter(
+            Game.is_archived == False,
+            GameInfo.updated_at.isnot(None)
+        )\
         .order_by(GameInfo.updated_at.desc())\
         .limit(limit)\
         .all()
+    return latest_apps
 
 def get_all_apps():
     return [game for game in get_shares_all() if game.info and game.info.app_type == 'app']
@@ -116,21 +123,22 @@ def post_game_edit(
         description, price, release_date, language, published_by, app_type, category,
     ):
     game = Game.query.get(game_id)
+    
     if not game:
         return f"Игра с ID {game_id} не найдена"
 
     if not title or not link:
         return "Некоторые поля не заполнены"
 
-    if link != game.link and link in [g.link for g in get_shares_all()]:
-        return f"Ссылка {link} уже используется"
+    
+    link = link.lower()
         
-
     game.title = title
     game.link = link
     game.comments_allowed = comments_allowed
     game.is_unity_build = is_unity_build
     game.preview = preview
+
     save_to_db(game)
 
     info = GameInfo.query.filter_by(game_id=game_id).first()
@@ -143,11 +151,23 @@ def post_game_edit(
     info.release_date = release_date
     info.language = language
     info.published_by = published_by
+    info.updated_at = func.now()
     info.app_type = app_type
     info.category = category
+
     save_to_db(info)
 
     return game
+
+
+def delete_game(game_id):
+    game = Game.query.get(game_id)
+    if game:
+        db.session.delete(game)
+        db.session.commit()
+        return True
+    return False
+from datetime import date
 
 
 def post_game(
@@ -157,11 +177,11 @@ def post_game(
         ):
     
     if not title or not link:
-        raise ValueError("Некоторые поля не заполнены")
+        raise ValueError('Некоторые поля не заполнены')
     
     if link in [game.link for game in get_shares_all()]:
-        raise ValueError(f"Ссылка {link} уже используется")
-    
+        raise ValueError(f'Ссылка {link} уже используется')
+        
     game = Game()
     game.title = title
     game.preview = preview
@@ -170,7 +190,11 @@ def post_game(
     game.is_unity_build = is_unity_build
     game.is_archived = False
 
-    save_to_db(game)
+    try:
+        save_to_db(game)
+    except IntegrityError:
+        db.session.rollback()
+        raise ValueError('Ссылка уже используется')
 
     info = GameInfo()
     info.game_id = game.id
@@ -179,6 +203,7 @@ def post_game(
     info.release_date = release_date
     info.language = language
     info.published_by = published_by
+    info.updated_at = func.now()
     info.app_type = app_type
     info.category = category
 

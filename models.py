@@ -54,11 +54,11 @@ class GameInfo(db.Model):
 
     description = db.Column(db.Text)
     price = db.Column(db.Integer)
-    release_date = db.Column(db.Date)
+    release_date = db.Column(db.DateTime)
     language = db.Column(db.Text)
     published_by = db.Column(db.String(20), db.ForeignKey('users.id'))
-    published_at = db.Column(db.Date)
-    updated_at = db.Column(db.Date)
+    published_at = db.Column(db.DateTime)
+    updated_at = db.Column(db.DateTime)
 
     app_type = db.Column(db.String(100))
     category = db.Column(db.String(100))
@@ -110,16 +110,6 @@ class GameStats(db.Model):
     solo = db.Column(db.Integer, default=50)
     coop = db.Column(db.Integer, default=50)
 
-    # __table_args__ = (
-    #     db.CheckConstraint('fun BETWEEN 0 AND 100'),
-    #     db.CheckConstraint('serious BETWEEN 0 AND 100'),
-    #     db.CheckConstraint('gamified BETWEEN 0 AND 100'),
-    #     db.CheckConstraint('utility BETWEEN 0 AND 100'),
-    #     db.CheckConstraint('story BETWEEN 0 AND 100'),
-    #     db.CheckConstraint('gameplay BETWEEN 0 AND 100'),
-    #     db.CheckConstraint('solo BETWEEN 0 AND 100'),
-    #     db.CheckConstraint('coop BETWEEN 0 AND 100'),
-    # )
 
 # class GameComment(db.Model):
 #     __tablename__ = 'game_comments'

@@ -9,20 +9,34 @@
 } */
 
 :root{
-    --button-color: #131316;
-    --border-color: #1F1F25CC;
     --primary-color: #eee;
     --secondary-color: #909090;
-    --background-color: #000000;
-    --third-color: rgba(255, 255, 255, 0.2);
+
+    --button-fill-color: #131316;
+    --button-border-color: #3C3C484D;
+
     --accent-color: #FF613E;
-    --accent-color-05: #7F301F;
-    --system-error-color: #FF5E5E;
-    --system-accent-color-12: #FF613E1F;
-    --system-error-color-05: rgba(255, 94, 94, 0.05);
-    --system-success-color: #22BA40;
-    --system-success-color-12: #22BA401F;
-    /* prev accent rgb(131, 131, 255) */
+    --accent-color-48: #FF613E7A;
+    --accent-color-12: #FF613E1F;
+    --accent-color-06: #FF613E0F;
+
+    --success-color: #22BA40;
+    --success-color-48: #22BA407A;
+    --success-color-12: #22BA401F;
+    --success-color-06: #22BA400F;
+
+    --error-color: #FF5E5E;
+    --error-color-48: #FF5E5E7A;
+    --error-color-12: #FF5E5E1F;
+    --error-color-06: #FF5E5E0F;
+
+    --blue-color: #2A35D4;
+    --blue-color-48: #2A35D47A;
+    --blue-color-12: #2A35D41F;
+    --blue-color-06: #2A35D40F;
+    
+    --background-color: #000000;
+    --focus-color: rgba(255, 255, 255, 0.1);
 }
 
 html, body{
@@ -105,7 +119,7 @@ a, button {
     height: fit-content;
 
     color: white;
-    background-color: var(--border-color);
+    background-color: var(--button-border-color);
     border-radius: 4px;
     text-decoration: none;
 
@@ -119,7 +133,7 @@ a, button {
     }
 }
 a:focus{
-    background-color: var(--third-color) !important;
+    background-color: var(--focus-color) !important;
     border-color:  transparent !important;
     outline: none !important;
 }
@@ -136,7 +150,7 @@ a:focus{
     width: fit-content;
     max-width: 100%;
 
-    background-color: var(--border-color);
+    background-color: var(--button-border-color);
     backdrop-filter: blur(32px);
     border-radius: 32px;
 
@@ -158,7 +172,7 @@ a:focus{
     height: 24px;
     width: 24px;
 
-    background-color: var(--border-color);
+    background-color: var(--button-border-color);
     backdrop-filter: blur(32px);
     border: none;
     border-radius: 16px;
@@ -241,8 +255,8 @@ header.base {
                 margin-top: 2px;
 
                 border-radius: 16px;
-                border: 1px solid var(--border-color);
-                background: var(--button-color);
+                border: 1px solid var(--button-border-color);
+                background: var(--button-fill-color);
                 color: var(--secondary-color);
 
                 transition: background-color 0.1s, padding 0.2s, margin 0.2s, color 0.2s;
@@ -263,7 +277,7 @@ header.base {
             } */
 
             .suggestion-item:hover {
-                background-color: var(--accent-color-05);
+                background-color: var(--accent-color-06);
                 color: var(--primary-color) !important;
                 opacity: 1;
             }
@@ -373,7 +387,7 @@ a, button{
     margin-bottom: 8px;
     width: 100%;
     height: 1px;
-    background-color: #1B1B1F;
+    background-color: var(--button-border-color);
 }
 
 .outline{
@@ -384,7 +398,7 @@ a, button{
     gap: 7px;
 
     border-radius: 81px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--button-border-color);
     background-color: transparent;
     color: var(--secondary-color);
 }
@@ -411,7 +425,7 @@ img{
 
     border-radius: 16px;
     border: 1px solid rgba(31, 31, 37, 0.60);
-    background-color: var(--button-color) !important;
+    background-color: var(--button-fill-color) !important;
     color: var(--secondary-color);
 
     cursor: pointer;
@@ -428,7 +442,7 @@ img{
     border-radius: 32px;
 }
 .fill.danger{
-    color: var(--system-error-color) !important;
+    color: var(--error-color) !important;
 }
 
 .version{
@@ -612,7 +626,7 @@ body{
         padding: 24px;
 
         background-color: transparent;
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--button-border-color);
         border-radius: 24px;
 
         font-size: 18px;
@@ -653,7 +667,7 @@ body{
     }
     a:hover{
         color: var(--primary-color);
-        background-color: var(--border-color);
+        background-color: var(--button-border-color);
         box-shadow: inset 0 0 20px 0px #00000065;
     }
 
@@ -735,7 +749,7 @@ form, .modal {
         height: 64px;
 
         border-radius: 64px;
-        border: 1px solid var(--border-color);
+        border: 1px solid var(--button-border-color);
         background-color: var(--background-color);
 
         cursor: pointer;
@@ -785,7 +799,7 @@ form, .modal {
     padding: 12px;
 
     border-radius: 42px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--button-border-color);
     background: var(--background-color);
 
     .game_playing {
@@ -811,7 +825,7 @@ form, .modal {
             height: 100%;
             max-height: 100%;
             border-radius: 30px;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--button-border-color);
 
             -webkit-user-drag: none;
         }
@@ -899,8 +913,8 @@ form, .modal {
                 bottom: -18px;
                 padding: 4px 12px;
 
-                color: black;
-                background-color: var(--system-success-color);
+                color: white;
+                background-color: var(--success-color);
                 backdrop-filter: blur(12px);
                 border-radius: 24px;
 
@@ -912,23 +926,18 @@ form, .modal {
                 filter: blur(8px);
                 transition: opacity 0.2s, transform 0.2s, filter 0.2s;
             }
-            .with-popup.copy::after{
-                content: "Скопировано";
-            }
-            .with-popup.download::after{
-                content: "Загрузка началась";
-            }
+
 
             .success{
                 opacity: 1 !important;
-                background-color: var(--system-success-color-12) !important;
-                border: 1px solid var(--system-success-color) !important;
+                background-color: var(--success-color-12) !important;
+                border: 1px solid var(--success-color) !important;
             }
             .with-popup svg path{
                 transition: stroke 0.2s;
             }
             .with-popup.success svg path{
-                stroke: var(--system-success-color) !important;
+                stroke: var(--success-color) !important;
             }
             .with-popup.success::after{
                 opacity: 1;
@@ -936,6 +945,26 @@ form, .modal {
                 transform: translateY(0) scale(1);
             }
 
+            /* Кнопка копирования */
+            .with-popup.copy::after{
+                content: "Скопировано";
+            }
+
+
+            /* Кнопка загрузка */
+            .download.with-popup::after{
+                content: "Загрузка началась";
+                background-color: var(--blue-color);
+            }
+            .download.success{
+                background-color: var(--blue-color-12) !important;
+                border: 1px solid var(--blue-color) !important;
+            }
+            .download.with-popup.success svg path{
+                stroke: var(--blue-color) !important;
+            }
+
+            
             p{
                 text-align: right;
             }
@@ -948,7 +977,7 @@ form, .modal {
             padding-top: 2px;
 
             div {
-                border-right: 1px solid var(--border-color);
+                border-right: 1px solid var(--button-border-color);
                 padding-right: 32px;
 
                 font-family: Inter;
@@ -983,7 +1012,7 @@ form, .modal {
     .divider{
         width: 100%;
         height: 1px;
-        background-color: var(--border-color);
+        background-color: var(--button-border-color);
     }
     .divider.height{
         align-self: stretch;
@@ -1011,7 +1040,7 @@ form {
     width: 100%;
 
     border-radius: 48px;
-    border: 1px solid var(--border-color);
+    border: 1px solid var(--button-border-color);
     /* background: radial-gradient(83.8% 78.27% at 76.31% 26.29%, #171717 0%, #141414 100%); */
     /* background: #0A0A0A; */
     background-color: var(--background-color);
@@ -1029,7 +1058,7 @@ form {
         width: 100%;
         height: 64px;
 
-        border-bottom: solid 1px var(--border-color);
+        border-bottom: solid 1px var(--button-border-color);
 
         label{
             opacity: 0.5;
@@ -1081,14 +1110,14 @@ form {
 
                     border: none;
                     border-radius: 32px;
-                    background-color: var(--border-color);
+                    background-color: var(--button-border-color);
                     color: white;
 
                     cursor: pointer;
                 }
                 .remove-btn:hover{
-                    background-color: var(--system-accent-color-12);
-                    color: var(--system-error-color);
+                    background-color: var(--accent-color-12);
+                    color: var(--error-color);
                 }
             }
 
@@ -1102,7 +1131,7 @@ form {
             padding: 12px;
             width: 100%;
 
-            background-color: var(--border-color);
+            background-color: var(--button-border-color);
             border: none;
             color: white;
             font-size: 16px;
@@ -1134,14 +1163,14 @@ form {
             height: fit-content;
 
             border-radius: 12px;
-            border: 2px dashed var(--border-color);
+            border: 2px dashed var(--button-border-color);
             color: #6D6D72;
 
             user-select: none;
             cursor: pointer;
         }
         .file-upload.success{
-            border-color: var(--system-success-color-12);
+            border-color: var(--success-color-12);
         }
 
 
@@ -1183,7 +1212,7 @@ form {
             gap: 8px;
 
             padding: 21px 0;
-            border-bottom: solid 1px var(--border-color);
+            border-bottom: solid 1px var(--button-border-color);
 
             label{
                 font-size: 16px;
@@ -1229,6 +1258,7 @@ form {
 
                 input{
                     width: 100%;
+                    text-transform: lowercase;
                 }
                 .prefix{
                     opacity: 0.2;
@@ -1281,7 +1311,7 @@ form {
             position: absolute;
             cursor: pointer;
             border-radius: 34px;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--button-border-color);
 
             top: 0;
             left: 0;
@@ -1304,8 +1334,8 @@ form {
             height: 22px;
             width: 22px;
 
-            border: 1px solid var(--system-error-color);
-            background-color: var(--system-accent-color-12);
+            border: 1px solid var(--error-color);
+            background-color: var(--accent-color-12);
             background-image: url('/static/icons/slider-off.svg');
             background-position: center;
             background-repeat: no-repeat;
@@ -1315,8 +1345,8 @@ form {
 
         /* Checked state */
         .custom-switch input:checked + .slider::before {
-            border-color: var(--system-success-color);
-            background-color: var(--system-success-color-12);
+            border-color: var(--success-color);
+            background-color: var(--success-color-12);
             background-image: url('/static/icons/slider-on.svg');
         }
 
@@ -1336,7 +1366,7 @@ form {
 
             border: none;
             border-radius: 32px;
-            background: var(--border-color);
+            background: var(--button-border-color);
             font-size: 16px;
             color: rgba(255, 255, 255, 0.2);
 
@@ -1363,14 +1393,14 @@ form {
         }
     }
     .block:not(:last-of-type){
-        border-bottom: 1px solid var(--border-color);
+        border-bottom: 1px solid var(--button-border-color);
     }
 
     .block.inactive{
         border: solid;
         border-width: 0;
         border-bottom-width: 1px;
-        border-color: var(--border-color);
+        border-color: var(--button-border-color);
 
         padding-bottom: initial;
 
@@ -1434,17 +1464,57 @@ form {
         }
     }
 }
-
-.error {
-    color: var(--system-error-color);
-    text-align: left;
-    background-color: var(--system-error-color-05);
-    border-radius: 12px;
+.error-span{
     margin: 12px 0;
-    padding: 12px !important;
+    padding: 12px 18px !important;
+
+    border-radius: 12px;
     border-bottom: none !important;
+
+    background-color: var(--error-color-06);
+    color: var(--error-color);
+    text-align: left;
+
     cursor: not-allowed;
 }
+#error-box{
+    margin: 12px 0;
+    padding: 12px 18px !important;
+
+    border-radius: 12px;
+    border-bottom: none !important;
+
+    background-color: var(--error-color-06);
+    color: var(--error-color);
+    text-align: left;
+
+    cursor: not-allowed;
+    opacity: 0;
+    .response-message{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+    a{
+        border-radius: 32px;
+    }
+}
+#error-box.error {
+    background-color: var(--error-color-06);
+    opacity: 1;
+    a{
+        background-color: var(--error-color-06);
+        color: var(--error-color);
+    }
+}
+#error-box.warning{
+    color: white;
+    background-color: var(--button-fill-color);
+    opacity: 1;
+}
+    
+
 
 
 .game-info-wrapper {
@@ -1526,4 +1596,23 @@ form {
             padding: 0 !important;
         }
     }
+}
+
+
+
+
+
+*::selection {
+  background: var(--accent-color-12);
+  color: var(--accent-color);
+}
+
+*::-moz-selection {
+  background: var(--accent-color-12);
+  color: var(--accent-color);
+}
+
+*::-webkit-selection {
+  background: var(--accent-color-12);
+  color: var(--accent-color);
 }
