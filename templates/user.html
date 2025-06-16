@@ -26,31 +26,7 @@
 <div class="card-wrapper flex gap-8">
     <div class="card">
         {% for app in games %}
-        <a
-        hx-get="/api/a/{{ app.link }}/modal" 
-        hx-target="#gameModal"
-        hx-trigger="click"
-        onclick="document.getElementById('gameModal').style.display='flex'">
-            {{ app.title }}
-
-            {% if app.downloads and app.downloads|length > 0 %}
-                <span class="bottom">
-                    {{ app.downloads[0].file_size|filesize|safe }}
-                </span>
-                
-            {% else %}
-                <span class="bottom">
-                    Нет файлов
-                </span>
-            {% endif %}
-
-            {% if app.info.app_type == 'app' %}
-            <img src="{{ url_for('static', filename='icons/terminal.svg') }}">
-            {% endif %}
-            {% if app.info.app_type == 'game' %}
-            <img src="{{ url_for('static', filename='icons/joystick.svg') }}">
-            {% endif %}
-        </a>
+            {% include 'partials/_game_card.html' %}
         {% endfor %}
     </div>
 </div>

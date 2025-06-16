@@ -1,9 +1,15 @@
 <!-- templates/partials/_game_card.html -->
-<a
+<a class="custom-context"
     hx-get="/api/a/{{ app.link }}/modal" 
     hx-target="#gameModal"
     hx-trigger="click"
-    onclick="document.getElementById('gameModal').style.display='flex'">
+    onclick="document.getElementById('gameModal').style.display='flex'"
+    data-download-url="{{ url_for('download_file', filename=app.downloads[0].file_link) if app.downloads else '' }}"
+    data-play-url="/play/{{ app.link }}"
+    data-share-link="https://{{ app.link }}.appw.su"
+    data-open-url="/a/{{ app.link }}"
+    data-has-play="{{ '1' if app.is_unity_build else '0' }}"
+    >
 
     {{ app.title }}
 

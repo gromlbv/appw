@@ -57,7 +57,6 @@
                 </svg>
             </a>
 
-
             <!-- В БУДУЩЕМ ПОМЕНЯТЬ ЗАДЕРЖКУ -->
             <!-- hx-trigger="keyup delay:300ms, search" -->
 
@@ -135,7 +134,6 @@
 
             </script>
             <div class="right-side">
-
                 <a class="no-fill circle size48 add-btn" href="/add">
                     <img src="{{ url_for('static', filename='icons/plus.svg') }}" alt="+">
                 </a>
@@ -161,6 +159,13 @@
                     </a>
                     {% endif %}
                     <a class="fill">
+                        <img src="{{ url_for('static', filename='icons/graphs-sketch.svg') }}">
+                        Graphs
+                    </a>
+
+                    <div class="divider header"></div>
+
+                    <a class="fill">
                         <img src="{{ url_for('static', filename='icons/question-sketch.svg') }}">
                         FAQ и прочее
                     </a>
@@ -178,7 +183,6 @@
                         Made by lbv_dev<span>lbvo.ru</span>
                     </a>
                 </nav>
-
             </div>
 
         </header>
