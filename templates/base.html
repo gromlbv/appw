@@ -162,6 +162,7 @@
         function closeModal() {
             $('#gameModal').hide();
             window.location.href = 'https://appw.su/';
+            window.location.reload();
         }
 
         $(window).on('click', function (e) {
@@ -183,7 +184,7 @@
     <script>
         function closeModal() {
             $('#gameModal').hide();
-            history.pushState(null, '', '/');
+            history.pushState(null, 'wqe', '/');
         }
 
         $(window).on('click', function (e) {

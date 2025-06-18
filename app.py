@@ -570,7 +570,7 @@ def game_add_to_collection(coll_link):
     game_id = data.get('game_id')
     user_id = get_user_id()
 
-    coll = db.coll_get_one(coll_link)
+    coll = db.coll_get_one(coll_link)   
     if coll is None:
         return 'wtf', 404
     
