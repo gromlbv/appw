@@ -99,7 +99,7 @@
       {% if game.info.release_date %}
       <div>
         <p>Дата выхода</p>
-        <h3>{{ game.info.release_date }}</h3>
+        <h3>{{ game.info.release_date.strftime('%d.%m.%Y') }}</h3>
       </div>
       {% endif %}
 

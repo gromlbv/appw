@@ -88,7 +88,7 @@ class Game(db.Model):
     comments_allowed = db.Column(db.Boolean, default=False)
 
     is_unity_build = db.Column(db.Boolean, default=False)
-    is_archived = db.Column(db.Boolean, default=False)
+    is_archived = db.Column(db.Boolean, default=False, index=True)
 
     info = relationship("GameInfo", uselist=False, back_populates="game")
     downloads = relationship("GameDownload", back_populates="game", order_by="GameDownload.order")
@@ -161,3 +161,51 @@ class SharedFile(db.Model):
 # users = User.query.with_entities(User.username, User.password).all()
 # users = [user.to_dict() for user in User.query.all()]
 # users = User.query.filter(User.username == 'admin').all()
+
+from datetime import datetime
+
+class Collection(db.Model):
+    __tablename__ = 'collections'
+    id = db.Column(db.Integer, primary_key=True)
+
+    title = db.Column(db.String(50), nullable=False)
+    description = db.Column(db.String(500))
+    link = db.Column(db.String(200), unique=True, index=True)
+    is_archived = db.Column(db.Boolean, default=False, index=True)
+
+    owner_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    owner = db.relationship('User', backref='owned_collections')
+    
+    games = db.relationship('CollectionGame', backref=db.backref('parent_collection'), lazy='dynamic',overlaps="game_associations,collection")
+    members = db.relationship('CollectionUser', backref=db.backref('collection'), lazy='dynamic', primaryjoin='Collection.id == CollectionUser.collection_id'
+)
+
+class CollectionGame(db.Model):
+    __tablename__ = 'collection_games'
+    
+    collection_id = db.Column(db.Integer, db.ForeignKey('collections.id'), primary_key=True)
+    game_id = db.Column(db.Integer, db.ForeignKey('games.id'), primary_key=True)
+    
+    order = db.Column(db.Integer, default=0)
+    added_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    added_at = db.Column(db.DateTime, default=datetime.now) 
+    is_featured = db.Column(db.Boolean, default=False)
+    
+    collection = db.relationship('Collection', backref='game_associations', overlaps="games,parent_collection")
+    game = db.relationship('Game', backref='collection_associations')
+    added_user = db.relationship('User')
+
+
+class CollectionUser(db.Model):
+    __tablename__ = 'collection_users'
+    collection_id = db.Column(db.Integer, db.ForeignKey('collections.id'), primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    
+    can_edit = db.Column(db.Boolean, default=False)
+    can_view = db.Column(db.Boolean, default=False)
+    
+    invited_at = db.Column(db.DateTime, default=datetime.now)
+    invited_by = db.Column(db.Integer, db.ForeignKey('users.id'))
+    
+    user = db.relationship('User', foreign_keys=[user_id], backref='collection_permissions')
+    inviter = db.relationship('User', foreign_keys=[invited_by])

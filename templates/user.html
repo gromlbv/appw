@@ -21,7 +21,6 @@
     </a>
 </div>
 
-
 <h2>Игры юзера</h2>
 <div class="card-wrapper flex gap-8">
     <div class="card">
@@ -30,5 +29,33 @@
         {% endfor %}
     </div>
 </div>
+
+{% if edit_coll or owner_coll %}
+<h2>Коллекции, созданные {{ account["username"] }}</h2>
+<div class="flex-cl flex-grow w-100 gap-24">
+    <div class="card-wrapper flex gap-8">
+        <div class="card">
+            {% for coll in owner_coll %}
+            <a style="height: fit-content;" href="/c/{{ coll.link }}">
+                <div>{{ coll.title }}</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% if edit_coll %}
+    <span style="opacity: 0.2; text-align: center;">а также соавтор</span>
+    <div class="card-wrapper flex gap-8">
+        <div class="card">
+            {% for coll in edit_coll %}
+            <a href="/c/{{ coll.link }}" style="width: 100%;">
+                <div>{{ coll.title }}</div>
+                <div>{{ coll.owner_id }}</div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
 
 {% endblock content %}

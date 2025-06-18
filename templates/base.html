@@ -21,27 +21,186 @@
 
     <meta name="theme-color" content="#000000">
     <meta name="apple-mobile-web-app-status-bar-style" content="#000000">
-
 </head>
 
 <body>
+    <div id="context-menu">
+        <button class="menu-item first-child play">
+            <div class="img-wr">
+                <img src="{{ url_for('static', filename='icons/play-context.svg') }}">
+            </div>
+            <span class="main">Играть</span>
+        </button>
+        <button class="menu-item first-child download">
+            <div class="img-wr">
+                <img src="{{ url_for('static', filename='icons/download-context.svg') }}">
+            </div>
+            <span class="main">Скачать игру</span>
+        </button>
+        <button class="menu-item share">
+            <div class="img-wr">
+                <img src="{{ url_for('static', filename='icons/share-context.svg') }}">
+            </div>
+            <span class="main">Поделиться</span>
+        </button>
 
-    <div class="overlay modal" id="gameModal" style="display:none;"></div>
+        <div class="divider"></div>
+
+        <button class="menu-item share">
+            <div class="img-wr">
+                <img src="{{ url_for('static', filename='icons/collection-context.svg') }}">
+            </div>
+            <span class="main">Добавить в коллекцию</span>
+        </button>
+
+        <button class="menu-item new-tab">
+            <div class="img-wr"></div>
+            <span class="main">Открыть в новой вкладке</span>
+        </button>
+    </div>
+
     <script>
-        $(window).on('click', function(e) {
-            if (e.target.id === 'gameModal') {
-                $('#gameModal').hide();
+        let $menu = $('#context-menu');
+        let $currentTarget = null;
+
+        function showContextMenu(x, y) {
+            const $menu = $('#context-menu');
+
+            $menu.css({
+                left: x,
+                top: y,
+                opacity: 1,
+                pointerEvents: 'auto',
+                position: 'fixed'
+            });
+        }
+
+        function hideContextMenu() {
+            $menu.css({ opacity: 0, pointerEvents: 'none' });
+        }
+        function bindContextHandlers() {
+            $(document).on('contextmenu', function (e) {
+                const $target = $(e.target).closest('.custom-context');
+                if ($target.length) {
+                    e.preventDefault();
+                    $currentTarget = $target;
+                    updateContextMenu($target);
+
+                    showContextMenu(e.clientX, e.clientY);
+
+                } else {
+                    hideContextMenu();
+                }
+            });
+
+            $("body").on('scroll', function () {
+                hideContextMenu();
+            });
+
+            $(document).on('click', function (e) {
+                if (!$(e.target).closest('#context-menu').length) hideContextMenu();
+            });
+
+            $menu.on('click', '.play', function () {
+                if (!$currentTarget) return;
+                const url = $currentTarget.data('play-url');
+                if (url) window.location.href = url;
+            });
+
+            $menu.on('click', '.download', function () {
+                if (!$currentTarget) return;
+                const url = $currentTarget.data('download-url');
+                if (url) window.location.href = url;
+            });
+
+            $menu.on('click', '.share', function () {
+                if (!$currentTarget) return;
+                const link = $currentTarget.data('share-link');
+                if (link) {
+                    navigator.clipboard.writeText(link).then(() => {
+                        alert('Ссылка скопирована');
+                    });
+                }
+            });
+
+            $menu.on('click', '.new-tab', function () {
+                if (!$currentTarget) return;
+                const url = $currentTarget.data('open-url');
+                if (url) window.open(url, '_blank');
+            });
+        }
+
+        function updateContextMenu($target) {
+            const hasPlay = $target.data('has-play') === 1 || $target.data('has-play') === '1';
+            $('.menu-item.play').toggle(hasPlay);
+            $('.menu-item.download').toggle(!hasPlay);
+        }
+
+        bindContextHandlers();
+    </script>
+
+
+    {% if linked_app %}
+    <div id="gameModal" class="overlay modal"
+        style="display:none;"
+        {% if linked_app %}
+            data-linked-app="{{ linked_app.link }}"
+            hx-get="/api/a/{{ linked_app.link }}/modal"
+            hx-trigger="load"
+            hx-target="#gameModal"
+        {% endif %}>
+    </div>
+
+    <script>
+        // $(document).ready(function () {
+            const modal = $('#gameModal');
+            if (modal.data('linked-app')) {
+                modal.css('display', 'flex');
             }
+        // });
+
+        function closeModal() {
+            $('#gameModal').hide();
+            window.location.href = 'https://appw.su/';
+        }
+
+        $(window).on('click', function (e) {
+            if (e.target.id === 'gameModal') closeModal();
         });
 
-        $(window).on('keydown', function(e) {
+        $(window).on('keydown', function (e) {
             if (e.key === 'Escape') {
-                    e.preventDefault();
+                e.preventDefault();
                 e.stopPropagation();
-                $('#gameModal').hide();
+                closeModal();
             }
         });
     </script>
+
+    {% else %}
+    <div id="gameModal" class="overlay modal" style="display:none;"></div>
+
+    <script>
+        function closeModal() {
+            $('#gameModal').hide();
+            history.pushState(null, '', '/');
+        }
+
+        $(window).on('click', function (e) {
+            if (e.target.id === 'gameModal') closeModal();
+        });
+
+        $(window).on('keydown', function (e) {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                e.stopPropagation();
+                closeModal();
+            }
+        });
+    </script>
+    {% endif %}
+
+
 
     <div id="nav-bg"></div>
     <div class="absolute-menu">
@@ -143,24 +302,33 @@
                 </button>
 
                 <nav id="nav">
+
+                    {% if not session.get('token') %}
                     <a class="fill orange" href="/add">
                         <img src="{{ url_for('static', filename='icons/plus-black.svg') }}">
                         Добавить...
                     </a>
-                    {% if not session.get('token') %}
                     <a class="fill" href="/account/login">
                         <img src="{{ url_for('static', filename='icons/person-sketch.svg') }}" alt="Человек">
                         Войти в аккаунт
                     </a>
                     {% else %}
+                    <a class="fill orange" href="/add">
+                        <img src="{{ url_for('static', filename='icons/plus-black.svg') }}">
+                        Добавить...
+                    </a>
                     <a class="fill" href="/account/me">
                         <img src="{{ url_for('static', filename='icons/person-sketch.svg') }}" alt="Человек">
                         Аккаунт
                     </a>
                     {% endif %}
-                    <a class="fill">
+
+                    <a class="fill" href="/graphs">
                         <img src="{{ url_for('static', filename='icons/graphs-sketch.svg') }}">
                         Graphs
+                    </a>
+                    <a class="fill" href="/collections">
+                        Коллекции
                     </a>
 
                     <div class="divider header"></div>
@@ -177,7 +345,7 @@
                     <div class="divider header"></div>
 
                     <a class="fill alt version" href="https://github.com/gromlbv/appw">
-                        Alpha<span>v0.04</span>
+                        Alpha<span>v0.10</span>
                     </a>
                     <a class="fill alt version" href="https://lbvo.ru">
                         Made by lbv_dev<span>lbvo.ru</span>

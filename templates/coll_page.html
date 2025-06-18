@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block title %}
+collections /
+{% endblock title %}
+
+{% block content %}
+
+<a class="fill" href="/c/add">Создать коллекцию</a>
+
+<h2>Коллекции</h2>
+<div class="card-wrapper flex gap-8">
+    <div class="card">
+        {% for coll in collections %}
+        <a href="/c/{{ coll.link }}">
+            <div>{{ coll.title }}</div>
+            <div><span style="opacity: 0.4;">от </span>{{ coll.owner_id }}</div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+
+
+
+{% endblock content %}

@@ -2,7 +2,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload
 from sqlalchemy import func
 
-from models import User, Game, GameInfo, GameDownload, SharedFile, GameStats
+from models import User, Game, GameInfo, GameDownload, SharedFile, GameStats, Collection, CollectionUser, CollectionGame
 from models import db
 
 from mysecurity import myhash, verify, encode
@@ -67,6 +67,13 @@ def get_shares_all():
     return Game.query.filter_by(is_archived=False).order_by(Game.id.desc()).all()
 
 
+def get_all_apps():
+    return [game for game in get_shares_all() if game.info and game.info.app_type == 'app']
+
+def get_all_games():
+    return [game for game in get_shares_all() if game.info and game.info.app_type == 'game']
+
+
 def get_shares_search(query):
     results = (
         Game.query.filter_by(is_archived=False)
@@ -92,12 +99,6 @@ def get_latest(limit):
         .all()
     return latest_apps
 
-def get_all_apps():
-    return [game for game in get_shares_all() if game.info and game.info.app_type == 'app']
-
-def get_all_games():
-    return [game for game in get_shares_all() if game.info and game.info.app_type == 'game']
-
 
 def get_app_by_user(username):
     apps = get_shares_all()
@@ -109,14 +110,7 @@ def get_app_by_user(username):
 
 def get_app_by_id(link):
     return Game.query.filter_by(link=link).first()
-# def post_comment(userid, gameid, text):
-#     game_comment = GameComment(
-#         gameid = gameid,
-#         userid = userid,
-        
-#         text = text,
-#     )
-#     save_to_db(game_comment)
+
 
 def post_game_edit(
         game_id, title, link, comments_allowed, is_unity_build, preview,
@@ -160,15 +154,8 @@ def post_game_edit(
     return game
 
 
-def delete_game(game_id):
-    game = Game.query.get(game_id)
-    if game:
-        db.session.delete(game)
-        db.session.commit()
-        return True
-    return False
-from datetime import date
 
+import utils
 
 def post_game(
         title, link, comments_allowed, is_unity_build, preview,
@@ -179,8 +166,7 @@ def post_game(
     if not title or not link:
         raise ValueError('Некоторые поля не заполнены')
     
-    if link in [game.link for game in get_shares_all()]:
-        raise ValueError(f'Ссылка {link} уже используется')
+    utils.validate_link(link)
         
     game = Game()
     game.title = title
@@ -208,6 +194,7 @@ def post_game(
     info.category = category
 
     save_to_db(info)
+
     return game
 
 def get_all_games_with_stats():
@@ -232,7 +219,6 @@ def update_game_stats(game_id, serious_fun, utility_gamified):
 
 def create_sample_games():
     sample_data = [
-        # Игры
         ("Arma 3", "arma3", 15, 94),
         ("Roblox", "roblox", 98, 96),
         ("Minecraft", "minecraft", 91, 100),
@@ -244,7 +230,6 @@ def create_sample_games():
         ("RimWorld", "rimworld", 43, 91),
         ("Kerbal Space Program", "kerbal", 67, 93),
 
-        # Программы
         ("Paint", "paint", 52, 13),
         ("After Effects", "after_effects", 2, 0),
         ("Photoshop", "photoshop", 23, 0),
@@ -294,7 +279,7 @@ def get_download_info(filename):
         download_name = game_name+ extension
     return download_name
 
-def add_game_download(game_id, title, file_link, file_size, order=0):
+def game_add_download(game_id, title, file_link, file_size, order=0):
     game_download = GameDownload()
     game_download.game_id = game_id
     game_download.title = title
@@ -310,6 +295,113 @@ def archive_game(game):
     game.is_archived = True
     print(game.is_archived)
     db.session.commit()
+
+def delete_game(game_id):
+    game = Game.query.get(game_id)
+    if game:
+        db.session.delete(game)
+        db.session.commit()
+        return True
+    return False
+
+
+# Коллекции
+
+import uuid
+
+def coll_get():
+    collections = Collection.query.all()
+    return collections
+
+def coll_get_one(link):
+    collection = Collection.query.filter_by(link=link).first()
+    return collection
+
+def coll_get_by_user(user_id):
+    collections = Collection.query.filter_by(owner_id=user_id).all()
+    return collections
+
+def coll_get_by_user_edit(user_id):
+    edited = Collection.query.join(CollectionUser)\
+        .filter(CollectionUser.user_id == user_id, CollectionUser.can_edit == True)\
+        .all()
+
+    return edited
+
+def coll_get_not_added_users(link):
+    coll = Collection.query.filter_by(link=link).first_or_404()
+    added_ids = [cu.user_id for cu in coll.members]  # <-- members, не users
+
+    if added_ids:
+        users = User.query.filter(~User.id.in_(added_ids)).all()
+    else:
+        users = User.query.all()
+
+    return users
+
+
+def invite_user_to_collection(coll_id, user_id, can_edit=False, can_view=False, invited_by=None):
+    new_member = CollectionUser()
+    new_member.collection_id = coll_id
+    new_member.user_id = user_id
+    new_member.can_edit = can_edit
+    new_member.can_view = can_view
+    new_member.invited_by = invited_by
+    save_to_db(new_member)
+
+
+def coll_post(title, owner_id):
+    collection = Collection()
+    collection.title = title
+    collection.owner_id = owner_id
+    collection.link = uuid.uuid4().hex
+
+    save_to_db(collection)
+
+    return collection.link
+
+def coll_game_add(collection_id, game_id):
+    collection_game = CollectionGame()
+    collection_game.collection_id = collection_id
+    collection_game.game_id = game_id
+
+    save_to_db(collection_game)
+
+    return collection_game
+
+def coll_add_user(collection_id, user_id, can_edit):
+    collection_user = CollectionUser()
+    collection_user.collection_id = collection_id
+    collection_user.user_id = user_id
+    collection_user.can_edit = can_edit
+
+    save_to_db(collection_user)
+
+    return collection_user
+
+def coll_delete(collection_id):
+    collection = Collection.query.get(collection_id)
+    if collection:
+        db.session.delete(collection)
+        db.session.commit()
+        return True
+    return False
+
+def coll_get_not_added_games(link):
+    coll = Collection.query.filter_by(link=link).first_or_404()
+    added_ids = [cg.game_id for cg in coll.games.all()]
+    
+    if added_ids:
+        return Game.query.filter(~Game.id.in_(added_ids)).all()
+    else:
+        return Game.query.all()
+
+def coll_remove_app(collection_id, game_id):
+    CollectionGame.query.filter_by(collection_id=collection_id, game_id=game_id).delete()
+    db.session.commit()
+
+
+
 
 def get_files_all():
     return SharedFile.query.all()
@@ -335,3 +427,11 @@ def post_file(title, preview, file_link, link, uploaded_by):
 
 
 
+# def post_comment(userid, gameid, text):
+#     game_comment = GameComment(
+#         gameid = gameid,
+#         userid = userid,
+        
+#         text = text,
+#     )
+#     save_to_db(game_comment)

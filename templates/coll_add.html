@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}
+add / collections /
+{% endblock title %}
+
+{% block content %}
+
+
+
+<div class="overlay">
+
+    <form method="POST" enctype="multipart/form-data" hx-post="/c/add" hx-target="#error-box" hx-swap="innerHTML"
+        hx-on="htmx:afterOnLoad: handleResponse(event)">
+        <div class="button-absolute-wr">
+            <a id="modalClose" type="reset" class="absolute-btn close" href="/collections">
+                <img src="{{ url_for('static', filename='icons/close.svg') }}" alt="Close">
+            </a>
+        </div>
+
+        <div class="block inactive">
+            <h1>Новая коллекция</h1>
+
+            <div class="inputs">
+                <div class="input-wr">
+                    <label for="title">Название</label>
+                    <input type="text" name="title" id="title" placeholder="Крутые игру 2025">
+                </div>
+                <div class="input-wr">
+                    <input type="submit" id="submit" value="Добавить">
+                </div>
+            </div>
+        </div>
+    </form>
+    <div id="error-box"></div>
+
+</div>
+
+<script>
+    $('.inputs input').on('input', function () {
+        var block = $(this).closest('.block');
+        block.find('.continue').toggleClass('active', block.find('.inputs input[required]').filter(function () { return this.value === ''; }).length === 0);
+    });
+
+    $("form").on("click", ".input-link-wr", function (e) {
+        e.preventDefault();
+        $(this).find("input").select();
+    });
+
+    function addDownload() {
+        const container = document.getElementById('downloads-container');
+        const item = document.createElement('div');
+        item.className = 'download-item';
+        item.innerHTML = `
+            <input name="download_titles[]" placeholder="Название загрузки">
+            <label class="file-upload">
+                <input type="file" name="download_files[]">
+                <span>Загрузите или перетащите файл</span>
+            </label>
+            <button class="remove-btn" onclick="removeDownload(this)">✕</button>
+        `;
+        container.appendChild(item);
+    }
+    function removeDownload(el) {
+        const item = el.closest('.download-item');
+        if (item) item.remove();
+    }
+
+
+    $(function () {
+        let blocks = $(".block");
+        let currentIndex = 0;
+
+        function showBlock(index) {
+            blocks.addClass("inactive");
+            $(blocks[index]).removeClass("inactive");
+
+            $(".step-counter").text(`Шаг ${index + 1} из ${blocks.length}`);
+
+            $(blocks).find("h1").each(function (i) {
+                $(this).attr("data-step", i + 1);
+            });
+        }
+
+        showBlock(currentIndex);
+
+        $("form").on("click", ".continue", function (e) {
+            e.preventDefault();
+            if (currentIndex < blocks.length - 1) {
+                currentIndex++;
+                showBlock(currentIndex);
+            }
+        });
+
+        $(".block").on("click", function () {
+            let i = $(this).index(".block");
+            currentIndex = i;
+            showBlock(currentIndex);
+        });
+    });
+
+    $(function () {
+        function updateApptypeColor() {
+            const val = $('#app_type').val();
+            if (!val) {
+                $('#app_type').addClass('placeholder');
+            } else {
+                $('#app_type').removeClass('placeholder');
+            }
+        }
+
+        $('#app_type').on('change', updateApptypeColor);
+        updateApptypeColor();
+    });
+
+    $(function () {
+        function updateCategoryColor() {
+            const val = $('#category').val();
+            if (!val) {
+                $('#category').addClass('placeholder');
+            } else {
+                $('#category').removeClass('placeholder');
+            }
+        }
+
+        $('#app_type').on('change', updateCategoryColor);
+        updateCategoryColor();
+        $('#category').on('change', updateCategoryColor);
+        updateCategoryColor();
+    });
+
+
+    const fileIcons = {
+        zip: "{{ url_for('static', filename='icons/file/zip.svg') }}",
+
+        // img
+        png: "{{ url_for('static', filename='icons/file/img.svg') }}",
+        jpg: "{{ url_for('static', filename='icons/file/img.svg') }}",
+        jpeg: "{{ url_for('static', filename='icons/file/img.svg') }}",
+        svg: "{{ url_for('static', filename='icons/file/img.svg') }}",
+        webp: "{{ url_for('static', filename='icons/file/img.svg') }}",
+
+        // video
+        mp4: "{{ url_for('static', filename='icons/file/video.svg') }}",
+        gif: "{{ url_for('static', filename='icons/file/video.svg') }}",
+        
+        exe: "{{ url_for('static', filename='icons/file/exe.svg') }}",
+
+        // android
+        apk: "{{ url_for('static', filename='icons/file/android.svg') }}",
+        aab: "{{ url_for('static', filename='icons/file/android.svg') }}",
+        obb: "{{ url_for('static', filename='icons/file/android.svg') }}",
+
+        // apple
+        ipa: "{{ url_for('static', filename='icons/file/apple.svg') }}",
+        app: "{{ url_for('static', filename='icons/file/apple.svg') }}",
+        dmg: "{{ url_for('static', filename='icons/file/apple.svg') }}",
+        pkg: "{{ url_for('static', filename='icons/file/apple.svg') }}",
+        xip: "{{ url_for('static', filename='icons/file/apple.svg') }}",
+
+        default: "{{ url_for('static', filename='icons/file/default.svg') }}"
+    };
+
+    $(document).on('change', '.file-upload input[type="file"]', function () {
+        const file = this.files[0];
+        if (!file) return;
+
+        const ext = file.name.split('.').pop().toLowerCase();
+        const iconPath = fileIcons[ext] || fileIcons.default;
+
+        const $label = $(this).closest('.file-upload');
+        $label.find('.file-icon').attr('src', iconPath).show();
+        $label.find('.filename').text(file.name);
+        $label.find('.replace-btn').show();
+
+        $label.addClass('success');
+    });
+
+    $(document).on('click', '.file-upload .replace-btn', function (e) {
+        e.stopPropagation();
+        $(this).closest('.file-upload').find('input[type="file"]').click();
+    });
+
+    $(document).on('click', '.file-upload', function (e) {
+        if (!$(e.target).is('input[type="file"], .replace-btn')) {
+            e.preventDefault();
+            $(this).find('input[type="file"]').trigger('click');
+        }
+    });
+
+</script>
+
+{% endblock content %}

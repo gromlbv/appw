@@ -1,27 +1,29 @@
 from flask import Flask
-from flask import render_template, session, request, flash, redirect, jsonify, url_for
+from flask import render_template, session, request, flash, redirect, jsonify, url_for, send_from_directory
 
-from models import create_app, create_tables
-from mysecurity import verify, decode
-from upload import upload_image, upload_file, upload_unity_build
-from functools import wraps
-
-import mydb as db
-from datetime import datetime
-from rapidfuzz import process, fuzz
-import re
-
-import redis
-from functools import wraps
+import utils
 from utils import json_response
 
+import mydb as db
+from mysecurity import verify, decode
+from models import create_app, create_tables
+from upload import upload_image, upload_file, upload_unity_build
+
+import redis
+
+from functools import wraps
+
+from datetime import datetime
+
+from filters import init_filters
 
 
 app = Flask(__name__)
 create_app(app)
 
 app.secret_key = 'rulevsecretkey'
-app.config['SERVER_NAME'] = "appw.su"
+
+init_filters(app)
 
 r = redis.Redis()
 
@@ -79,6 +81,7 @@ def rate_limit(timeout=1, max_attempts=5):
         return wrapper
     return decorator
 
+
 def handle_valueerror(template_name):
     def decorator(f):
         @wraps(f)
@@ -91,68 +94,6 @@ def handle_valueerror(template_name):
                 return render_template(template_name, **context)
         return wrapped
     return decorator
-
-from datetime import datetime, timedelta
-import pytz
-from flask import g, request
-
-@app.template_filter('time_ago')
-def time_ago_filter(dt):
-    if not dt:
-        return "никогда"
-    
-    user_tz = getattr(g, 'user_timezone', None) or request.cookies.get('timezone') or 'UTC'
-    
-    try:
-        tz = pytz.timezone(user_tz)
-        now = datetime.now(tz)
-        local_dt = dt.replace(tzinfo=pytz.utc).astimezone(tz)
-        
-        diff = now - local_dt
-    except:
-        now = datetime.now()
-        diff = now - dt
-
-    if diff < timedelta(minutes=1):
-        return "только что"
-    elif diff < timedelta(hours=1):
-        minutes = int(diff.seconds / 60)
-        return f"{minutes} {pluralize(minutes, 'минуту', 'минуты', 'минут')} назад"
-    elif diff < timedelta(days=1):
-        hours = int(diff.seconds / 3600)
-        return f"{hours} {pluralize(hours, 'час', 'часа', 'часов')} назад"
-    elif diff < timedelta(days=2):
-        return "вчера"
-    elif diff < timedelta(days=7):
-        return f"{diff.days} {pluralize(diff.days, 'день', 'дня', 'дней')} назад"
-    elif dt.year == now.year:
-        return dt.strftime("%d %b")
-    else:
-        return dt.strftime("%d %b %Y")
-
-def pluralize(n, form1, form2, form5):
-    n = abs(n) % 100
-    n1 = n % 10
-    if 10 < n < 20:
-        return form5
-    if 1 < n1 < 5:
-        return form2
-    if n1 == 1:
-        return form1
-    return form5
-
-@app.template_filter('filesize')
-def filesize_filter(size):
-    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-        if size < 1024:
-            return f"{size:.1f} <span>{unit}</span>"
-        size /= 1024
-    return f"{size:.1f} PB"
-
-# возвращает "игры" или "приложения" в зависимости от типа
-@app.template_filter('game_or_app')
-def game_or_app(app_type):
-    return 'game' if app_type == 'игры' else 'приложения'
 
 
 
@@ -177,7 +118,7 @@ def get_user_id():
 
 def compare_users(username):
     current_user = get_user_id()
-    if current_user == 'lbv': # обход для меня 
+    if current_user == 'lbv':
         return True
     if not current_user:
         return False
@@ -188,14 +129,20 @@ def form():
     return render_template('form.html')
 
 
-
-@app.get('/')
+@app.route('/')
 def index():
+    host = request.host.split(':')[0]
+    parts = host.split('.')
+    linked_app = None
+    if len(parts) > 2:
+        subdomain_link = parts[0]
+        linked_app = db.get_app_one(subdomain_link)
+
     shares = db.get_shares_all()
     games = db.get_all_games()
     apps = db.get_all_apps()
     latest_shares = db.get_latest(4)
-    
+
     return render_template(
         "index.html",
         users=db.get_users_all(),
@@ -205,10 +152,13 @@ def index():
         latest_shares=latest_shares,
         files=db.get_files_all(),
         is_loggined=is_loggined(),
-        user_id=get_user_id()
+        user_id=get_user_id(),
+        linked_app=linked_app
     )
 
-
+@app.get("/a/<link>")
+def view_game(link):
+    return redirect(f"https://{link}.appw.su")
 
 
 @app.route('/api/get-categories')
@@ -225,11 +175,11 @@ def get_categories():
 
 
 @app.get('/add')
-def add_game():
+def game_add():
     if not is_loggined():
         flash("Чтобы добавить игру необходимо <a href='/account/login'>Войти в аккаунт</a>")
         return redirect(url_for('index'))
-    return render_template('add_game.html')
+    return render_template('game_add.html')
 
 
 @app.post('/add')
@@ -290,7 +240,7 @@ def post_game():
                     'message': "Ошибка загрузки Unity сборки"
                 })
             
-            db.add_game_download(game.id, "unity_build", new_file.path, new_file.size, order=0)
+            db.game_add_download(game.id, "unity_build", new_file.path, new_file.size, order=0)
         except ValueError as e:
             db.delete_game(game.id)
             return json_response({
@@ -306,7 +256,7 @@ def post_game():
             if file:
                 new_file = upload_file(file)
                 if new_file:    
-                    db.add_game_download(game.id, titles[i], new_file.path, new_file.size, order=i)
+                    db.game_add_download(game.id, titles[i], new_file.path, new_file.size, order=i)
                     
     flash(f"Приложение успешно добавлено! <a href='/a/{link}'>Открыть</a>")
     return json_response({
@@ -316,73 +266,18 @@ def post_game():
 
 
 
+
+
 @app.route('/search')
 def search():
     query = request.args.get('q', '').strip()
-    if not query:
-        return ''
-
     all_results = db.get_shares_all()
-
-    direct_matches = [
-        r for r in all_results
-        if query.lower() in r.title.lower()
-    ]
-
-    results = direct_matches
-
-    if len(results) < 10:
-        titles = [r.title for r in all_results]
-        fuzzy_matches = process.extract(query, titles, scorer=fuzz.token_set_ratio, limit=10)
-        fuzzy_titles = {m[0] for m in fuzzy_matches if m[1] > 60}
-
-        fuzz_results = [
-            r for r in all_results
-            if r.title in fuzzy_titles and r not in results
-        ]
-        results += fuzz_results
-
-    if not results:
-        return '<p>Ничего не найдено</p>'
-
-    def highlight(text, query):
-        pattern = re.escape(query)
-        return re.sub(f"({pattern})", r"<mark>\1</mark>", text, flags=re.IGNORECASE)
-
-    html = ''.join(
-        f'<a class="suggestion-item" href="/a/{r.link}">{highlight(r.title, query)}</a>'
-        for r in results
-    )
-
-    return html
+    return utils.search(query, all_results)
 
 
 
-@app.route('/', subdomain="<game_link>")
-def view_game_subdomain(game_link):
-    flash("СУБДОМЕН НА", game_link)
-    game = db.get_app_one(game_link)
-    if game:
-        game_download = getattr(game, "downloads", [])
-        return render_template("view_game.html", game=game, game_download=game_download)
-    else:
-        flash("Приложение не найдено")
-        return redirect(url_for("index"))
-    
 
-@app.get("/a/<link>")
-def view_game(link):
-    game = db.get_app_one(link)
 
-    if game:
-        game_download = game.downloads
-        game_download = getattr(game, "downloads", [])
-        return render_template("view_game.html", game=game, game_download=game_download)
-    else:
-        flash("Приложение не найдено")
-        return redirect(url_for('index'))
-
-from flask import send_from_directory
 
 @app.route('/download/<filename>')
 def download_file(filename):
@@ -406,7 +301,6 @@ def delete_game(game_link):
     db.archive_game(game)
     flash("Игра успешно скрыта")
     return redirect(url_for('index'))
-
 
 
 @app.route('/api/a/<link>/modal')
@@ -499,13 +393,16 @@ def file_share_post():
 def user(username):
     account = db.get_users_one(username)
     games = db.get_app_by_user(username)
+    
+    owner_coll = db.coll_get_by_user(username)
+    edit_coll = db.coll_get_by_user_edit(username)
 
     if account is None:
         return f"Юзер не найден"
     
     is_guest = compare_users(username)
 
-    return render_template('user.html', account=account, games=games, is_guest=is_guest)
+    return render_template('user.html', account=account, games=games, is_guest=is_guest, edit_coll=edit_coll, owner_coll=owner_coll)
 
 
 
@@ -625,6 +522,132 @@ def graphs_edit():
 
     games = db.get_all_games_with_stats()
     return render_template('graphs_edit.html', games=games)
+
+
+
+# Коллекции
+
+
+@app.get('/collections')
+def coll_page():
+    collections = db.coll_get()
+    return render_template('coll_page.html', collections=collections)
+
+@app.get('/c/add')
+def coll_get():
+    collections = db.coll_get()
+    return render_template('coll_add.html', collections=collections)
+
+@app.post('/c/add')
+def coll_post():
+    title = request.form.get('title')
+    owner_id = get_user_id()
+
+    db.coll_post(title, owner_id)
+
+    return redirect(url_for('coll_get'))
+
+@app.get('/c/<coll_link>')
+def coll_view(coll_link):
+    coll = db.coll_get_one(coll_link)
+    if coll is None:
+        return 'wtf',404
+    
+    user_id = get_user_id()
+    is_admin = coll.owner_id == user_id or any(
+        m.user_id == user_id and m.can_edit for m in coll.members
+    )
+    all_apps = db.get_shares_all()
+    not_added_apps = db.coll_get_not_added_games(coll_link)
+    not_added_users = db.coll_get_not_added_users(coll_link)
+
+    return render_template('coll_view.html', coll=coll, is_admin=is_admin, all_apps=not_added_apps, not_added_users=not_added_users)
+
+from models import CollectionGame
+@app.post('/c/<coll_link>/add_app')
+def game_add_to_collection(coll_link):
+    data = request.get_json()
+    game_id = data.get('game_id')
+    user_id = get_user_id()
+
+    coll = db.coll_get_one(coll_link)
+    if coll is None:
+        return 'wtf', 404
+    
+    is_admin = coll.owner_id == user_id or any(
+        m.user_id == user_id and m.can_edit for m in coll.members
+    )
+    if not is_admin:
+        return 'Forbidden', 403
+
+    exists = CollectionGame.query.filter_by(collection_id=coll.id, game_id=game_id).first()
+    if not exists:
+        db.coll_game_add(coll.id, game_id)
+
+    return 'OK', 200
+
+@app.post('/c/<coll_link>/remove_app')
+def coll_remove_app(coll_link):
+    data = request.get_json()
+    game_id = data.get('game_id')
+    user_id = get_user_id()
+
+    coll = db.coll_get_one(coll_link)
+    if coll is None:
+        return 'wtf', 404
+    
+    is_admin = coll.owner_id == user_id or any(
+        m.user_id == user_id and m.can_edit for m in coll.members
+    )
+    if not is_admin:
+        return 'Forbidden', 403
+
+    exists = CollectionGame.query.filter_by(collection_id=coll.id, game_id=game_id).first()
+    if exists:
+        db.coll_remove_app(coll.id, game_id)
+
+    return 'OK', 200
+
+@app.route('/c/<coll_link>/delete')
+def coll_delete(coll_link):
+    user_id = get_user_id()
+    coll = db.coll_get_one(coll_link)
+
+    if coll is None:
+        return 'wtf', 404
+    
+    is_admin = coll.owner_id == user_id or any(
+        m.user_id == user_id and m.can_edit for m in coll.members
+    )
+    if not is_admin:
+        return 'Forbidden', 403
+
+    db.coll_delete(coll.id)
+    
+    flash('Коллекция удалена!')
+    return redirect(url_for('coll_page'))
+
+# @app.post('/c/<coll_link>/invite_user')
+# def invite_user(coll_link):
+#     data = request.json
+#     user = db.get_users_one(data.get('user_id'))
+#     if not user:
+#         return 'user not found', 404
+
+#     coll = db.coll_get_one(coll_link)
+#     if coll == None:
+#         return 404
+
+#     db.invite_user_to_collection(
+#         coll.id,
+#         user.id,
+#         can_edit=data.get('can_edit', False),
+#         can_view=data.get('can_view', False)
+#         invited_by=get_user_id()
+#     )
+
+#     return '', 204
+
 
 
 

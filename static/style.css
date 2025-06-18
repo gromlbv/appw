@@ -72,7 +72,6 @@ body {
 
 .flex-grow {
     flex-grow: 1;
-    width: 100%;
 }
 .flex-center {
     align-items: center;
@@ -90,6 +89,13 @@ body {
     flex-wrap: wrap;
 }
 
+.w-100{
+    width: 100%;
+}
+
+.gap-24{
+    gap: 24px;
+}
 .gap-12{
     gap: 12px;
 }
@@ -354,6 +360,7 @@ nav.visible:not(:hover) :nth-child(6) { transition-delay: 0.35s; }
 nav.visible:not(:hover) :nth-child(7) { transition-delay: 0.4s; }
 nav.visible:not(:hover) :nth-child(8) { transition-delay: 0.45s; }
 nav.visible:not(:hover) :nth-child(9) { transition-delay: 0.5s; }
+nav.visible:not(:hover) :nth-child(10) { transition-delay: 0.55s; }
 
 nav.visible a:hover {
   transform: scale(1.02);
@@ -553,8 +560,11 @@ html, body, * {
 
     width: 100%;
     margin-top: 96px;
+    padding-bottom: 96px;
 
-    h1,h2 {
+    max-width: 1020px;
+
+    h2 {
         font-family: "EB Garamond", serif;
 
         /* width: 100%; */
@@ -713,7 +723,8 @@ html, body, * {
     flex-wrap: wrap;
     gap: 12px;
     width: 100%;
-
+    justify-content: center;
+    
     a{
         position: relative;
         display: flex;
@@ -798,7 +809,8 @@ html, body, * {
 .card.head{
     flex-wrap: nowrap;
     overflow-x: auto;
-    width: fit-content;
+    width: 100%;
+
     a.bigger{
         min-width: 240px;
     }

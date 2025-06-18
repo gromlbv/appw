@@ -29,11 +29,11 @@
         </div>
 
         <div class="flex-end gap-12 flex-grow">
-            <a class="bigger">
+            <a class="bigger" href="/collections">
                 Коллекции
                 <img class="original graphs" src="{{ url_for('static', filename='icons/heart.svg') }}" alt="">
                 <span class="bottom">
-                    В РАЗРАБОТКЕ
+                    Создавайте, делитесь и скачивайте подобрки игр (Нестабильно)
                 </span>
             </a>
             <a class="bigger" href="/graphs">
@@ -48,121 +48,7 @@
 </div>
 
 
-<div id="context-menu">
-    <button class="menu-item first-child play">
-        <div class="img-wr">
-            <img src="{{ url_for('static', filename='icons/play-context.svg') }}">
-        </div>
-        <span class="main">Играть</span>
-    </button>
-    <button class="menu-item first-child download">
-        <div class="img-wr">
-            <img src="{{ url_for('static', filename='icons/download-context.svg') }}">
-        </div>
-        <span class="main">Скачать игру</span>
-    </button>
-    <button class="menu-item share">
-        <div class="img-wr">
-            <img src="{{ url_for('static', filename='icons/share-context.svg') }}">
-        </div>
-        <span class="main">Поделиться</span>
-    </button>
 
-    <div class="divider"></div>
-
-    <button class="menu-item new-tab">
-        <div class="img-wr"></div>
-        <span class="main">Открыть в новой вкладке</span>
-    </button>
-</div>
-
-<script>
-let $menu = $('#context-menu');
-let $currentTarget = null;
-
-
-function showContextMenu(x, y) {
-    const $menu = $('#context-menu');
-    
-    $menu.css({
-        left: x,
-        top: y,
-        opacity: 1,
-        pointerEvents: 'auto',
-        position: 'fixed'
-    });
-
-    console.log('Show menu at:', x, y);
-}
-
-
-function hideContextMenu() {
-    $menu.css({ opacity: 0, pointerEvents: 'none' });
-}
-$(window).on('scroll', function() {
-    hideContextMenu();
-});
-
-function bindContextHandlers() {
-    $(document).on('contextmenu', function(e) {
-        const $target = $(e.target).closest('.custom-context');
-        if ($target.length) {
-            e.preventDefault();
-            $currentTarget = $target;
-            updateContextMenu($target);
-
-            showContextMenu(e.clientX, e.clientY);
-
-        } else {
-            hideContextMenu();
-        }
-    });
-
-    $(window).on('scroll', function() {
-        hideContextMenu();
-    });
-
-    $(document).on('click', function(e) {
-        if (!$(e.target).closest('#context-menu').length) hideContextMenu();
-    });
-
-    $menu.on('click', '.play', function() {
-        if (!$currentTarget) return;
-        const url = $currentTarget.data('play-url');
-        if (url) window.location.href = url;
-    });
-
-    $menu.on('click', '.download', function() {
-        if (!$currentTarget) return;
-        const url = $currentTarget.data('download-url');
-        if (url) window.location.href = url;
-    });
-
-    $menu.on('click', '.share', function() {
-        if (!$currentTarget) return;
-        const link = $currentTarget.data('share-link');
-        if (link) {
-            navigator.clipboard.writeText(link).then(() => {
-                alert('Ссылка скопирована');
-            });
-        }
-    });
-
-    $menu.on('click', '.new-tab', function() {
-        if (!$currentTarget) return;
-        const url = $currentTarget.data('open-url');
-        if (url) window.open(url, '_blank');
-    });
-}
-
-function updateContextMenu($target) {
-    const hasPlay = $target.data('has-play') === 1 || $target.data('has-play') === '1';
-    $('.menu-item.play').toggle(hasPlay);
-    $('.menu-item.download').toggle(!hasPlay);
-}
-
-bindContextHandlers();
-</script>
 <h2>Недавно обновлено</h2>
 <div class="card-wrapper flex gap-8">
     <div class="card">

@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ coll.title }} / collection /
+{% endblock title %}
+
+{% block content %}
+
+
+
+<h1>{{ coll.title }}</h1>
+
+<h2>Добавленные игры</h2>
+<div class="card-wrapper flex gap-8">
+  <div class="card">
+      {% for cg in coll.games.all() %}
+        {% set app = cg.game %}
+        <div class="flex-cl flex-grow">
+            {% include 'partials/_game_card.html' %}
+            <button class="remove-btn fill" data-game-id="{{ app.id }}">Удалить</button>
+        </div>
+      {% endfor %}
+  </div>
+</div>
+
+{% if is_admin %}
+
+<h1>Вы админ</h1>
+
+<a class="fill" href="/c/{{ coll.link }}/delete" method="POST">Удалить коллекцию</a>
+
+<h2>Добавить пользователя</h2>
+<form id="invite-form">
+  <select name="user_id" required>
+    <option value="">Выберите пользователя</option>
+    {% for user in not_added_users %}
+      <option value="{{ user.id }}">{{ user.username }}</option>
+    {% endfor %}
+  </select>
+
+  <label><input type="checkbox" name="can_edit"> Редактирование</label>
+  <label><input type="checkbox" name="can_view">Смотреть</label>
+  <button type="submit" class="fill">Пригласить</button>
+</form>
+
+<h2>Все игры</h2>
+<div class="card-wrapper flex gap-8">
+    <div class="card">
+        {% for app in all_apps %}
+        <div class="flex-cl flex-grow">
+            {% include 'partials/_game_card.html' %}
+            <button class="add-btn fill" data-game-id="{{ app.id }}">Добавить</button>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<script>
+  document.querySelectorAll('.add-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.gameId;
+      addGame(id);
+    });
+  });
+
+  function addGame(gameId) {
+    fetch(`/c/{{ coll.link }}/add_app`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ game_id: gameId })
+    }).then(res => {
+      if (res.ok) {
+        location.reload()
+      }
+    })
+  }
+
+  document.querySelectorAll('.remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const id = btn.dataset.gameId;
+      removeApp(id);
+    });
+  });
+
+  function removeApp(gameId) {
+    fetch(`/c/{{ coll.link }}/remove_app`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ game_id: gameId })
+    }).then(res => {
+      if (res.ok) {
+        location.reload()
+      }
+    })
+  }
+
+  document.getElementById('invite-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const data = {
+      user_id: parseInt(form.user_id.value),
+      can_edit: form.can_edit.checked,
+      can_share: form.can_share.checked,
+      can_delete: form.can_delete.checked
+    };
+
+    fetch(`/c/{{ coll.link }}/invite_user`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    }).then(res => {
+      if (res.ok) {
+        alert('Пользователь добавлен');
+        form.reset();
+      } else {
+        alert('Ошибка');
+      }
+    });
+  });
+</script>
+{% endif %}
+
+
+
+{% endblock content %}
