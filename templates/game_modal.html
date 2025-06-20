@@ -131,12 +131,18 @@
 {% endif %}
 
 <script>
-  document.getElementById('modalClose').addEventListener('click', () => {
-    document.getElementById('gameModal').style.display = 'none';
+  var isLinkedApp = isLinkedApp ?? ($('#gameModal').data('linked-app') !== undefined);
+
+  document.querySelectorAll('#modalClose').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (isLinkedApp) {
+        window.location.href = 'https://appw.su/';
+      } else {
+        $('#gameModal').hide();
+        history.pushState(null, '', '/');
+      }
+    });
   });
-  function closeModal() {
-    document.getElementById('gameModal').style.display = 'none';
-  }
 
   $('#play_game_btn').click(function (e) {
     e.preventDefault();
