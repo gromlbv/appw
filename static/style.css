@@ -1087,6 +1087,10 @@ form, .modal {
                     border-radius: 16px;
                     background-color: var(--button-border-color);
                 }
+                b{
+                    opacity: 0.35;
+                    font-weight: 300;
+                }
             }
             div{
                 border-right: 0 !important;
@@ -1096,7 +1100,7 @@ form, .modal {
                 span{
                     background-color: black;
                 }
-                p{
+                p, b{
                     color: black;
                     opacity: 1;
                 }

@@ -314,7 +314,7 @@ def game_modal(link):
     return render_template('game_modal.html', game=game, is_admin=is_admin)
 
 @app.route('/edit/<game_link>', methods=['GET', 'POST'])
-def game_edit(game_link):
+def edit_game(game_link):
     game = db.get_app_one(game_link)
 
     if not game:
@@ -346,7 +346,7 @@ def game_edit(game_link):
             game.info.app_type, game.info.category
         )
 
-    return render_template('game_edit.html', game=game)
+    return render_template('edit_game.html', game=game)
 
 
 @app.get('/file/create')

@@ -12,6 +12,12 @@ def filesize(size):
         size /= 1024
     return f"{size:.1f} PB"
 
+def filesize_nospan(size):
+    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+        if size < 1024:
+            return f"{size:.1f}{unit}"
+        size /= 1024
+    return f"{size:.1f} PB"
 
 def game_or_app(app_type):
     return 'игры' if app_type == 'игры' else 'приложения'

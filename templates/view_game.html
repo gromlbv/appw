@@ -32,7 +32,7 @@
             {% endfor %}
         </div>
 
-        <a href="{{ url_for('game_edit', game_link=game.link) }}">Редактировать</a>
+        <a href="{{ url_for('edit_game', game_link=game.link) }}">Редактировать</a>
         <a href="{{ url_for('delete_game', game_link=game.link) }}" method="post">Удалить</a>
     
     </div>

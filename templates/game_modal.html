@@ -90,7 +90,7 @@
       {% for d in game.downloads %}
       <a class="with-popup download" href="{{ url_for('download_file', filename=d.file_link) }}">
         <div class="flex-cl">
-          <p>{{ d.title }}</p>
+          <p>{{ d.title }} <b> {{ d.file_size|filesize_nospan }}</b></p>
           <p>{{ d.description }}</p>
         </div>
         <span class="counter">{{ loop.index }}</span>
