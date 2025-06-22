@@ -20,7 +20,7 @@ add /
             <label>Добавление приложения</label>
         </header>
         <div class="block">
-            <h1>Главное о приложении</h1>
+            <h1 class="with-popup download">Главное о приложении</h1>
 
             <div class="two-side">
                 <div class="inputs">
@@ -107,6 +107,7 @@ add /
                         <div id="downloads-container" class="downloads-wr">
                             <div class="download-item">
                                 <input name="download_titles[]" placeholder="Название загрузки">
+                                <input name="download_descriptions[]" placeholder="Описание">
                                 <label class="file-upload">
                                     <input type="file" name="download_files[]" accept=".zip, .torrent">
                                     <img class="file-icon" style="display: none;">
@@ -199,6 +200,7 @@ add /
         item.className = 'download-item';
         item.innerHTML = `
             <input name="download_titles[]" placeholder="Название загрузки">
+            <input name="download_descriptions[]" placeholder="Описание">
             <label class="file-upload">
                 <input type="file" name="download_files[]">
                 <span>Загрузите или перетащите файл</span>

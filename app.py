@@ -240,7 +240,7 @@ def post_game():
                     'message': "Ошибка загрузки Unity сборки"
                 })
             
-            db.game_add_download(game.id, "unity_build", new_file.path, new_file.size, order=0)
+            db.game_add_download(game.id, 'unity_build', '', new_file.path, new_file.size, order=0)
         except ValueError as e:
             db.delete_game(game.id)
             return json_response({
@@ -248,17 +248,18 @@ def post_game():
                 'message': str(e)
             })
     else:
-        titles = request.form.getlist("download_titles[]")
         files = request.files.getlist("download_files[]")
+        titles = request.form.getlist("download_titles[]")
+        descriptions = request.form.getlist("download_descriptions[]")
 
         for i in range(len(titles)):
             file = files[i] if i < len(files) else None
             if file:
                 new_file = upload_file(file)
                 if new_file:    
-                    db.game_add_download(game.id, titles[i], new_file.path, new_file.size, order=i)
+                    db.game_add_download(game.id, titles[i], descriptions[i], new_file.path, new_file.size, order=i)
                     
-    flash(f"Приложение успешно добавлено! <a href='/a/{link}'>Открыть</a>")
+    flash(f"Приложение успешно добавлено! <a href='https://{link}.appw.su'>Открыть</a>")
     return json_response({
         'type': 'success',  
         'redirect_to': url_for('index')
@@ -313,7 +314,7 @@ def game_modal(link):
     return render_template('game_modal.html', game=game, is_admin=is_admin)
 
 @app.route('/edit/<game_link>', methods=['GET', 'POST'])
-def edit_game(game_link):
+def game_edit(game_link):
     game = db.get_app_one(game_link)
 
     if not game:
@@ -345,7 +346,7 @@ def edit_game(game_link):
             game.info.app_type, game.info.category
         )
 
-    return render_template('edit_game.html', game=game)
+    return render_template('game_edit.html', game=game)
 
 
 @app.get('/file/create')

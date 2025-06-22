@@ -71,7 +71,9 @@ class GameDownload(db.Model):
     game_id = db.Column(db.Integer, db.ForeignKey('games.id'))
     game = relationship("Game", back_populates="downloads")
 
-    title = db.Column(db.String(100))
+    title = db.Column(db.String(50))
+    description = db.Column(db.String(100))
+
     file_link = db.Column(db.String(255))
     file_size = db.Column(db.Integer)
     order = db.Column(db.Integer, default=0)

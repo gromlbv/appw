@@ -279,10 +279,11 @@ def get_download_info(filename):
         download_name = game_name+ extension
     return download_name
 
-def game_add_download(game_id, title, file_link, file_size, order=0):
+def game_add_download(game_id, title, description, file_link, file_size, order=0):
     game_download = GameDownload()
     game_download.game_id = game_id
     game_download.title = title
+    game_download.description = description
     game_download.file_link = file_link
     game_download.file_size = file_size
     game_download.order = order

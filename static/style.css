@@ -128,6 +128,7 @@ a, button {
     color: white;
     background-color: var(--button-border-color);
     border-radius: 4px;
+    border: 1px solid transparent;
     text-decoration: none;
 
     transition: opacity 0.2s;
@@ -139,11 +140,11 @@ a, button {
         -webkit-user-drag: none;
     }
 }
-a:focus{
+/* a:focus {
     background-color: var(--focus-color) !important;
-    border-color:  transparent !important;
+    border-color: transparent !important;
     outline: none !important;
-}
+} */
 
 .flash-message{
     position: fixed;
@@ -1010,71 +1011,7 @@ form, .modal {
                 cursor: not-allowed;
             }
 
-            .with-popup{
-                position: relative;
-            }
 
-            .with-popup::after{
-                content: "Успешно";
-                position: absolute;
-
-                display: flex;
-                justify-content: center;
-                align-items: center;
-
-                bottom: -18px;
-                padding: 4px 12px;
-
-                color: white;
-                background-color: var(--success-color);
-                backdrop-filter: blur(12px);
-                border-radius: 24px;
-
-                font-weight: 500;
-                font-size: 16px;
-
-                opacity: 0;
-                transform: translateY(-10px) scale(0.8);
-                filter: blur(8px);
-                transition: opacity 0.2s, transform 0.2s, filter 0.2s;
-            }
-
-
-            .success{
-                opacity: 1 !important;
-                background-color: var(--success-color-12) !important;
-                border: 1px solid var(--success-color) !important;
-            }
-            .with-popup svg path{
-                transition: stroke 0.2s;
-            }
-            .with-popup.success svg path{
-                stroke: var(--success-color) !important;
-            }
-            .with-popup.success::after{
-                opacity: 1;
-                filter: blur(0);
-                transform: translateY(0) scale(1);
-            }
-
-            /* Кнопка копирования */
-            .with-popup.copy::after{
-                content: "Скопировано";
-            }
-
-
-            /* Кнопка загрузка */
-            .download.with-popup::after{
-                content: "Загрузка началась";
-                background-color: var(--blue-color);
-            }
-            .download.success{
-                background-color: var(--blue-color-12) !important;
-                border: 1px solid var(--blue-color) !important;
-            }
-            .download.with-popup.success svg path{
-                stroke: var(--blue-color) !important;
-            }
 
             
             p{
@@ -1119,6 +1056,58 @@ form, .modal {
                 }
             }
         }
+        .game-downloads{
+            display: none;
+            gap: 6px;
+            a{
+                align-items: center;
+                padding: 14px 18px;
+
+                border-radius: 18px;
+                background-color: var(--button-fill-color);
+
+                p{
+                    color: white;
+                    opacity: 1;
+                }
+                p:first-child{
+                    font-weight: 500;
+                }
+                p:nth-child(2){
+                    opacity: 0.35;
+                }
+                span{
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+
+                    height: 32px;
+                    width: 32px;
+
+                    border-radius: 16px;
+                    background-color: var(--button-border-color);
+                }
+            }
+            div{
+                border-right: 0 !important;
+            }
+            a:first-child{
+                background-color: white;
+                span{
+                    background-color: black;
+                }
+                p{
+                    color: black;
+                    opacity: 1;
+                }
+            }
+        }
+        .game-downloads.show{
+            display: flex;
+        }
+    }
+    .game-info.hidden{
+        display: none;
     }
 
     .divider{
@@ -1132,6 +1121,74 @@ form, .modal {
         width: 1px;
     }
 }
+
+.with-popup {
+    position: relative;
+}
+.with-popup::after {
+    content: "Успешно";
+    position: absolute;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    bottom: -18px;
+    padding: 4px 12px;
+
+    color: white;
+    background-color: var(--success-color);
+    backdrop-filter: blur(12px);
+    border-radius: 24px;
+
+    font-weight: 500;
+    font-size: 16px;
+
+    opacity: 0;
+    transform: translateY(-10px) scale(0.8);
+    filter: blur(8px);
+    transition: opacity 0.2s, transform 0.2s, filter 0.2s;
+}
+
+
+.success {
+    opacity: 1 !important;
+    background-color: var(--success-color-12) !important;
+    border: 1px solid var(--success-color) !important;
+}
+
+.with-popup svg path {
+    transition: stroke 0.2s;
+}
+
+.with-popup.success svg path {
+    stroke: var(--success-color) !important;
+}
+
+.with-popup.success::after {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0) scale(1);
+}
+
+/* Кнопка копирования */
+.with-popup.copy::after {
+    content: "Скопировано";
+}
+
+/* Кнопка загрузка */
+.download.with-popup::after {
+    content: "Загрузка началась";
+    background-color: var(--blue-color);
+}
+.download.success {
+    background-color: var(--blue-color-12) !important;
+    border: 1px solid var(--blue-color) !important;
+}
+.download.with-popup.success svg path {
+    stroke: var(--blue-color) !important;
+}
+
 
 .close {
     float: right;

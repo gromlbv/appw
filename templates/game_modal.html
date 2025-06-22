@@ -38,57 +38,71 @@
             setTimeout(() => $el.removeClass('success'), 5000);
           });
           $(document).on('click', '.copy', function (e) {
-              e.preventDefault();
-              const link = $(this).data('link');
-              const $el = $(this);
-              navigator.clipboard.writeText(link).then(function () {
-                  $el.addClass('success');
-                  setTimeout(() => $el.removeClass('success'), 1000);
-              });
+            e.preventDefault();
+            const link = $(this).data('link');
+            const $el = $(this);
+            navigator.clipboard.writeText(link).then(function () {
+              $el.addClass('success');
+              setTimeout(() => $el.removeClass('success'), 1000);
+            });
           });
 
-          $(document).on('keydown', function(e) {
-              if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
-                  if ($('#gameModal').is(':visible')) {
-                      const $copyBtn = $('#gameModal').find('.copy').first();
-                      if ($copyBtn.length) {
-                          e.preventDefault();
-                          const link = $copyBtn.data('link');
-                          navigator.clipboard.writeText(link).then(function () {
-                              $copyBtn.addClass('success');
-                              setTimeout(() => $copyBtn.removeClass('success'), 1500);
-                          });
-                      }
-                  }
+          $(document).on('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c') {
+              if ($('#gameModal').is(':visible')) {
+                const $copyBtn = $('#gameModal').find('.copy').first();
+                if ($copyBtn.length) {
+                  e.preventDefault();
+                  const link = $copyBtn.data('link');
+                  navigator.clipboard.writeText(link).then(function () {
+                    $copyBtn.addClass('success');
+                    setTimeout(() => $copyBtn.removeClass('success'), 1500);
+                  });
+                }
               }
+            }
           });
         </script>
 
         {% if game.downloads %}
-        {% for d in game.downloads %}
-        <!-- {{ loop.index }}. {{ d.title or 'Без названия' }} — -->
-        {% if game.is_unity_build and game.downloads %}
-
-        <button class="game_playing rounded" id="fullscreenBtn">
-          <img src="{{ url_for('static', filename='icons/fullscreen.svg') }}">
-        </button>
-        <a class="game_playing">Закрыть игру</a>
-        <a class="game_not_playing" id="play_ga me_btn">Играть</a>
-
-
+          {% if game.downloads[0].is_unity_build %}
+            <button class="game_playing rounded" id="fullscreenBtn">
+              <img src="{{ url_for('static', filename='icons/fullscreen.svg') }}">
+            </button>
+            <a class="game_playing">Закрыть игру</a>
+            <a class="game_not_playing" id="play_ga me_btn">Играть</a>
+          {% elif game.downloads|length > 1 %}
+            <a id="open-downloads">Загрузки</a>
+          {% else %}
+            <a class="with-popup download" href="{{ url_for('download_file', filename=game.downloads[0].file_link) }}">Скачать</a>
+          {% endif %}
         {% else %}
-        <a class="with-popup download" href="{{ url_for('download_file', filename=d.file_link) }}">Скачать</a>
-        {% endif %}
-        {% endfor %}
-        {% else %}
-        <a class="disabled"> Нет загрузок</a>
+          <a class="disabled"> Нет загрузок</a>
         {% endif %}
       </div>
     </div>
 
     <div class="divider"></div>
 
-    <div class="game-info">
+    {% if game.downloads|length > 1 %}
+    <div class="game-info game-downloads" id="game-downloads">
+      {% if game.downloads %}
+      {% for d in game.downloads %}
+      <a class="with-popup download" href="{{ url_for('download_file', filename=d.file_link) }}">
+        <div class="flex-cl">
+          <p>{{ d.title }}</p>
+          <p>{{ d.description }}</p>
+        </div>
+        <span class="counter">{{ loop.index }}</span>
+      </a>
+      {% endfor %}
+      {% else %}
+      <a class="disabled"> Нет загрузок</a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+    <div class="game-info"id="game-info">
       {% if not game.is_unity_build and game.downloads %}
       <div>
         <p>Вес {{ game.info.app_type | game_or_app }}</p>
@@ -112,12 +126,12 @@
     </div>
 
     {% if is_admin %}
-      <div class="divider"></div>
+    <div class="divider"></div>
 
-      <div class="flex gap-6">
-        <a class="fill" href="/edit/{{ game.link }}" class="edit-link">Редактировать</a>
-        <a class="fill danger" href="/hide/{{ game.link }}" class="edit-link">Скрыть из библиотеки</a>
-      </div>
+    <div class="flex gap-6">
+      <a class="fill" href="/edit/{{ game.link }}" class="edit-link">Редактировать</a>
+      <a class="fill danger" href="/hide/{{ game.link }}" class="edit-link">Скрыть из библиотеки</a>
+    </div>
     {% endif %}
 
   </div>
@@ -128,7 +142,18 @@
     {{ game.info.description }}
   </div>
 </div>
+
+
 {% endif %}
+
+<script>
+  $(document).ready(function() {
+  $('#open-downloads').click(function() {
+    $('#game-info').toggleClass('hidden');
+    $('#game-downloads').toggleClass('show');
+  });
+});
+</script>
 
 <script>
   var isLinkedApp = isLinkedApp ?? ($('#gameModal').data('linked-app') !== undefined);
