@@ -160,7 +160,6 @@ def index():
 def view_game(link):
     return redirect(f"https://{link}.appw.su")
 
-
 @app.route('/api/get-categories')
 def get_categories():
     app_type = request.args.get('type')
@@ -650,6 +649,9 @@ def coll_delete(coll_link):
 #     return '', 204
 
 
+@app.get('/terms')
+def terms():
+    return render_template('terms.html')
 
 
 if __name__ == "__main__":

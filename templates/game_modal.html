@@ -73,6 +73,8 @@
             <a class="game_not_playing" id="play_ga me_btn">Играть</a>
           {% elif game.downloads|length > 1 %}
             <a id="open-downloads">Загрузки</a>
+          {% elif game.info.price > 0 %}
+            <a class="with-popup">Купить {{ game.info.price }}₽</a>
           {% else %}
             <a class="with-popup download" href="{{ url_for('download_file', filename=game.downloads[0].file_link) }}">Скачать</a>
           {% endif %}
@@ -136,14 +138,24 @@
 
   </div>
 </div>
+
 {% if game.info.description %}
 <div class="modal-content">
   <div class="info-wrapper">
     {{ game.info.description }}
   </div>
 </div>
+{% endif %}
 
-
+{% if game.info.price %}
+<div class="modal-content">
+  <div class="info-wrapper">
+    <h3>Прочитайте перед покупкой</h3>
+    <p><b>Пока-что функция покупки отсутсвует, так как мы ищем платежного провайдера!</b></p>
+    <p class="flex flex-center">При нажатии кнопки "Купить" вы соглашетесь с <a href="/terms">Офертой</a></p>
+    <p>После успешной оплаты вы получите ссылку на скачивание игры или доступ к вашему аккаунту с купленной игрой.</p>
+  </div>
+</div>
 {% endif %}
 
 <script>

@@ -15,7 +15,9 @@
     {{ app.title }}
 
     <span class="bottom">
-        {% if app.is_unity_build %}
+        {% if app.info.price != 0 and app.info.price %}
+            {{ app.info.price }}₽
+        {% elif app.is_unity_build %}
             Играть
         {% elif app.downloads and app.downloads|length > 0 %}
             {{ app.downloads[0].file_size|filesize|safe }}

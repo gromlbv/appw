@@ -9,11 +9,6 @@
     <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.png') }}" type="image/png" sizes="32x32">
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon/apple-touch.png') }}" sizes="180x180">
 
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ linked_app.name }} / appw">
-    <meta property="og:description" content="{{ linked_app.description or 'Страница игры на платформе appw' }}">
-    <meta property="og:image" content="{{ linked_app.image_url or '/default-preview.jpg' }}">
-
     {% if linked_app %}
         <title>{{ linked_app.name }} / appw</title>
         <meta property="og:url" content="https://{{ linked_app.link }}.appw.su">
@@ -21,7 +16,7 @@
         {% else %}
         <title>{% block title %}{% endblock title %}appw</title>
     {% endif %}
-    
+    <script src="https://widget.cloudpayments.ru/bundles/cloudpayments"></script>
     {% if not linked_app %}
         {% block meta_description %}
             <meta name="description" content="appw — платформа, где вы можете скачивать, покупать игры и приложения, создавать коллекции и многое другое!">
@@ -362,9 +357,9 @@
 
                     <div class="divider header"></div>
 
-                    <a class="fill">
+                    <a class="fill" href="/terms">
                         <img src="{{ url_for('static', filename='icons/question-sketch.svg') }}">
-                        FAQ и прочее
+                        Оферта и контакты
                     </a>
                     <a class="fill" href="https://lbv_dev.t.me">
                         <img src="{{ url_for('static', filename='icons/bug-sketch.svg') }}">
