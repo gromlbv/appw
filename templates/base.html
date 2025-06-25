@@ -1,10 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}{% endblock title %}appw</title>
+
+    <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.ico') }}" type="image/x-icon">
+    <link rel="icon" href="{{ url_for('static', filename='favicon/favicon.png') }}" type="image/png" sizes="32x32">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon/apple-touch.png') }}" sizes="180x180">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ linked_app.name }} / appw">
+    <meta property="og:description" content="{{ linked_app.description or 'Страница игры на платформе appw' }}">
+    <meta property="og:image" content="{{ linked_app.image_url or '/default-preview.jpg' }}">
+
+    {% if linked_app %}
+        <title>{{ linked_app.name }} / appw</title>
+        <meta property="og:url" content="https://{{ linked_app.link }}.appw.su">
+        <meta property="og:title" content="{{ linked_app.name }} / appw">
+        {% else %}
+        <title>{% block title %}{% endblock title %}appw</title>
+    {% endif %}
+    
+    {% if not linked_app %}
+        {% block meta_description %}
+            <meta name="description" content="appw — платформа, где вы можете скачивать, покупать игры и приложения, создавать коллекции и многое другое!">
+        {% endblock meta_description %}
+
+        {% else %}
+
+        <meta name="description" content="{{ linked_app.description or 'Страница игры ' ~ linked_app.name ~ ' на платформе для игр и приложений appw.' }}">
+        <meta property="og:description" content="{{ linked_app.description or 'Страница игры ' ~ linked_app.name ~ ' на платформе для игр и приложений appw.' }}">
+    {% endif %}
+
     <link rel="stylesheet" href="{{ url_for ('static', filename='style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,6 +44,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.9.10/htmx.min.js"></script>
     <script type="module" src="https://lbvo.ru/utils/init.js"></script>
+
     <script src="{{ url_for('static', filename='js/show.js') }}"></script>
     <script src="{{ url_for('static', filename='js/errorhandler.js') }}"></script>
 
