@@ -64,7 +64,12 @@
           });
         </script>
 
-        {% if game.downloads %}
+        {% if game.external_link %}
+            <a class="with-popup" href="{{ game.external_link }}" target="_blank">
+                Перейти
+                <p>{{ game.external_link }}</p>
+            </a>
+        {% elif game.downloads %}
           {% if game.downloads[0].is_unity_build %}
             <button class="game_playing rounded" id="fullscreenBtn">
               <img src="{{ url_for('static', filename='icons/fullscreen.svg') }}">

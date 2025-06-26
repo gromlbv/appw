@@ -4,7 +4,8 @@
     hx-get="/api/a/{{ app.link }}/modal" 
     hx-target="#gameModal"
     hx-trigger="click"
-    onclick="document.getElementById('gameModal').style.display='flex'; history.pushState(null, '', this.dataset.openUrl);"
+    onclick="document.getElementById('gameModal').style.display='flex'; history.pushState(null, '', this.dataset.openUrl), document.body.classList.add('no-scroll');
+;"
     data-download-url="{{ url_for('download_file', filename=app.downloads[0].file_link) if app.downloads else '' }}"
     data-play-url="/a/{{ app.link }}"
     data-share-link="https://{{ app.link }}.appw.su"

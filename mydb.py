@@ -113,7 +113,7 @@ def get_app_by_id(link):
 
 
 def post_game_edit(
-        game_id, title, link, comments_allowed, is_unity_build, preview,
+        game_id, title, link, comments_allowed, is_unity_build, external_link, preview,
         description, price, release_date, language, published_by, app_type, category,
     ):
     game = Game.query.get(game_id)
@@ -131,6 +131,7 @@ def post_game_edit(
     game.link = link
     game.comments_allowed = comments_allowed
     game.is_unity_build = is_unity_build
+    game.external_link = external_link
     game.preview = preview
 
     save_to_db(game)
@@ -158,7 +159,7 @@ def post_game_edit(
 import utils
 
 def post_game(
-        title, link, comments_allowed, is_unity_build, preview,
+        title, link, comments_allowed, is_unity_build, external_link, preview,
         # GameInfo
         description, price, release_date, language, published_by, app_type, category,
         ):
@@ -174,6 +175,7 @@ def post_game(
     game.link = link
     game.comments_allowed = comments_allowed
     game.is_unity_build = is_unity_build
+    game.external_link = external_link
     game.is_archived = False
 
     try:

@@ -156,6 +156,86 @@ def index():
         linked_app=linked_app
     )
 
+@app.route('/api/apptg/<query>')
+def get_or_search_app(query):
+    query = query.strip()
+
+    filtered_parts = [part for part in query.split() if not part.startswith('@')]
+    query = ' '.join(filtered_parts)
+
+    app = db.get_app_one(query)
+
+    if app:
+        if app.info.app_type:
+            if app.info.app_type == 'game':
+                app.info.app_type = 'Игра'
+            elif app.info.app_type == 'app':
+                app.info.app_type = 'Приложение'
+
+        return jsonify({
+            "exact": True,
+            "title": app.title,
+            "description": app.info.description,
+            "preview": app.preview,
+            "link": app.link,
+            "price": app.info.price,
+            "app_type": app.info.app_type,
+            "category": app.info.category
+        })
+
+    all_results = db.get_shares_all()
+    apps = utils.search_raw(query, all_results, limit=3)
+
+    return jsonify({
+        "exact": False,
+        "results": [
+            {
+                "title": a.title,
+                "description": a.info.description,
+                "preview": a.preview,
+                "link": a.link,
+                "price": a.info.price,
+                "app_type": a.info.app_type,
+                "category": a.info.category
+            }
+            for a in apps
+        ]
+    })
+    
+
+@app.route("/api/getapp/<link>")
+def get_game(link):
+    app = db.get_app_one(link)
+    if not app:
+        return jsonify({"error": "Игра не найдена"}), 404
+    return jsonify({
+        "name": app.title,
+        "description": app.description,
+        "preview": app.preview,
+        "link": app.link,
+        "price": app.price,
+        "app_type": app.info.app_type,
+        "category": app.info.category
+    })
+
+@app.route('/api/searchgame/<query>')
+def api_search_game(query):
+    all_results = db.get_shares_all()
+    apps = utils.search_raw(query.strip(), all_results)
+
+    return jsonify([
+        {
+            "name": app.title,
+            "description": app.description,
+            "preview": app.preview,
+            "link": app.link,
+            "price": app.price,
+            "app_type": app.info.app_type,
+            "category": app.info.category
+        }
+        for app in apps
+    ])
+
 @app.get("/a/<link>")
 def view_game(link):
     return redirect(f"https://{link}.appw.su")
@@ -210,10 +290,12 @@ def post_game():
     comments_allowed = True if request.form.get('comments_allowed') == 'on' else False
 
     is_unity_build = True if request.form.get('is_unity_build') == 'on' else False
+    
+    external_link = request.form.get('external_link')
 
     try:
         game = db.post_game(
-            title, link, comments_allowed, is_unity_build, preview,
+            title, link, comments_allowed, is_unity_build, external_link, preview,
             description, price, release_date, language, published_by, app_type, category,
         )
     except ValueError as e:
@@ -265,16 +347,11 @@ def post_game():
     })
 
 
-
-
-
 @app.route('/search')
 def search():
     query = request.args.get('q', '').strip()
     all_results = db.get_shares_all()
     return utils.search(query, all_results)
-
-
 
 
 
@@ -313,7 +390,7 @@ def game_modal(link):
     return render_template('game_modal.html', game=game, is_admin=is_admin)
 
 @app.route('/edit/<game_link>', methods=['GET', 'POST'])
-def edit_game(game_link):
+def game_edit(game_link):
     game = db.get_app_one(game_link)
 
     if not game:
@@ -325,6 +402,8 @@ def edit_game(game_link):
         description = request.form.get('description')
         price = request.form.get('price')
         link = game_link
+
+        external_link = request.form.get('external_link')
 
         release_date = request.form.get('release_date') or None
         if release_date:
@@ -340,12 +419,12 @@ def edit_game(game_link):
             preview = game.preview
 
         db.post_game_edit(
-            game.id, title, link, comments_allowed, game.is_unity_build, preview,
+            game.id, title, link, comments_allowed, game.is_unity_build, external_link, preview,
             description, price, release_date, language, published_by,
             game.info.app_type, game.info.category
         )
 
-    return render_template('edit_game.html', game=game)
+    return render_template('game_edit.html', game=game)
 
 
 @app.get('/file/create')

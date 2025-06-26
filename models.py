@@ -56,6 +56,7 @@ class GameInfo(db.Model):
     price = db.Column(db.Integer)
     release_date = db.Column(db.Date)
     language = db.Column(db.Text)
+
     published_by = db.Column(db.String(20), db.ForeignKey('users.id'))
     published_at = db.Column(db.DateTime)
     updated_at = db.Column(db.DateTime)
@@ -90,6 +91,7 @@ class Game(db.Model):
     comments_allowed = db.Column(db.Boolean, default=False)
 
     is_unity_build = db.Column(db.Boolean, default=False)
+    external_link = db.Column(db.String(255), default=None)
     is_archived = db.Column(db.Boolean, default=False, index=True)
 
     info = relationship("GameInfo", uselist=False, back_populates="game")

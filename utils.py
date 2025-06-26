@@ -13,6 +13,30 @@ def json_response(type_=None, message=None, icon=None, redirect_to=None):
         'redirect_to': redirect_to
     })
 
+def search_raw(query, all_results, limit=3):
+    if not query:
+        return []
+
+    direct_matches = [
+        r for r in all_results
+        if query.lower() in r.title.lower()
+    ]
+
+    results = direct_matches
+
+    if len(results) < limit:
+        titles = [r.title for r in all_results]
+        fuzzy_matches = process.extract(query, titles, scorer=fuzz.token_set_ratio, limit=10)
+        fuzzy_titles = {m[0] for m in fuzzy_matches if m[1] > 60}
+
+        fuzz_results = [
+            r for r in all_results
+            if r.title in fuzzy_titles and r not in results
+        ]
+        results += fuzz_results
+
+    return results[:limit]
+
 def search(query, all_results):
     if not query:
         return ''
