@@ -9,7 +9,9 @@
   </div>
 
   <div class="img-wrapper">
-    <img class="game_not_playing" id="game_preview" src="{{ request.url_root ~ game.preview if game.preview else '' }}">
+    {% if not game.is_unity_build and game.preview %}
+    <img class="game_not_playing" id="game_preview" src="{{ request.url_root ~ game.preview }}">
+    {% endif %}
 
     {% if game.is_unity_build and game.downloads %}
     <div class="game_playing" style="width: 100%; height: 100%;">
@@ -32,6 +34,11 @@
         </a>
 
         <script>
+          $(document).on('click', '.with-popup', function (e) {
+            const $el = $(this);
+            $el.addClass('success');
+            setTimeout(() => $el.removeClass('success'), 2000);
+          });
           $(document).on('click', '.download', function (e) {
             const $el = $(this);
             $el.addClass('success');
@@ -75,7 +82,7 @@
               <img src="{{ url_for('static', filename='icons/fullscreen.svg') }}">
             </button>
             <a class="game_playing">Закрыть игру</a>
-            <a class="game_not_playing" id="play_ga me_btn">Играть</a>
+            <a class="game_not_playing" id="play_game_btn">Играть</a>
           {% elif game.downloads|length > 1 %}
             <a id="open-downloads">Загрузки</a>
           {% elif game.info.price > 0 %}

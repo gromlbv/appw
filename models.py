@@ -93,7 +93,8 @@ class Game(db.Model):
     is_unity_build = db.Column(db.Boolean, default=False)
     external_link = db.Column(db.String(255), default=None)
     is_archived = db.Column(db.Boolean, default=False, index=True)
-
+    is_accepted = db.Column(db.Boolean, default=False, index=True)
+    
     info = relationship("GameInfo", uselist=False, back_populates="game")
     downloads = relationship("GameDownload", back_populates="game", order_by="GameDownload.order")
     stats = relationship("GameStats", uselist=False, back_populates="game")

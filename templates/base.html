@@ -164,68 +164,19 @@
     </script>
 
 
+<div id="gameModal" class="overlay modal"
+    style="display:none;"
     {% if linked_app %}
-    <div id="gameModal" class="overlay modal"
-        style="display:none;"
-        {% if linked_app %}
-            data-linked-app="{{ linked_app.link }}"
-            hx-get="/api/a/{{ linked_app.link }}/modal"
-            hx-trigger="load"
-            hx-target="#gameModal"
-        {% endif %}>
-    </div>
+        data-linked-app="{{ linked_app.link }}"
+        hx-get="/api/a/{{ linked_app.link }}/modal"
+        hx-trigger="load"
+        hx-target="#gameModal"
+    {% endif %}>
+</div>
 
-    <script>
-        // $(document).ready(function () {
-            const modal = $('#gameModal');
-            if (modal.data('linked-app')) {
-                modal.css('display', 'flex');
-            }
-        // });
+<script>
 
-        function closeModal() {
-            $('#gameModal').hide();
-            document.body.classList.remove('no-scroll');
-            window.location.href = 'https://appw.su/';
-        }
-
-        $(window).on('click', function (e) {
-            if (e.target.id === 'gameModal') closeModal();
-        });
-
-        $(window).on('keydown', function (e) {
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                e.stopPropagation();
-                closeModal();
-            }
-        });
-    </script>
-
-    {% else %}
-    <div id="gameModal" class="overlay modal" style="display:none;"></div>
-
-    <script>
-        function closeModal() {
-            $('#gameModal').hide();
-            document.body.classList.remove('no-scroll');
-            history.pushState(null, 'wqe', '/');
-        }
-
-        $(window).on('click', function (e) {
-            if (e.target.id === 'gameModal') closeModal();
-        });
-
-        $(window).on('keydown', function (e) {
-            if (e.key === 'Escape') {
-                e.preventDefault();
-                e.stopPropagation();
-                closeModal();
-            }
-        });
-    </script>
-    {% endif %}
-
+</script>
 
 
     <div id="nav-bg"></div>
