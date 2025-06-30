@@ -572,14 +572,12 @@ html, body, * {
     h2 {
         font-family: "EB Garamond", serif;
 
-        /* width: 100%; */
-        text-align: center;
-    }
-    h2{
         padding-bottom: 24px;
         padding-top: 48px;
         margin: 0;
+        width: 100%;
 
+        text-align: left;
         font-size: 28px;
         font-weight: 400;
     }
@@ -724,26 +722,24 @@ html, body, * {
 }
 
 .card{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    width: 100%;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 колонки равной ширины */
+    gap: 16px; /* Отступ между элементами */
     
     a{
         position: relative;
         display: flex;
-        flex-direction: column;
-        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
 
-        width: 24%;
+        width: 100%;
         min-width: 176px;
-        height: 176px;
-        padding: 24px;
+        height: calc(48px + 8px + 8px);
+        padding: 8px;
+        margin: -8px;
 
         background-color: transparent;
-        border: 1px solid var(--button-border-color);
-        border-radius: 24px;
+        border-radius: 12px;
 
         font-size: 18px;
         color: var(--secondary-color);
@@ -752,21 +748,30 @@ html, body, * {
 
         overflow: hidden;
 
-        span.bottom{
+        img.preview, div.preview{
+            height: 48px;
+            width: 72px;
+            max-width: initial;
+            max-height: initial;
+
+            object-fit: cover;
+
+            border-radius: 4px;
+            background-color: var(--button-fill-color);
+        }
+
+        .info{
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        span.additional{
             left: 24px;
             bottom: 24px;
 
-            color: #FFF;
+            color: #6D6D72;
             font-size: 14px;
-
-            opacity: 0.2;
-        }
-        img{
-            position: absolute;
-            top: 24px;
-            right: 24px;
-            width: 24px;
-            opacity: 0.4;
         }
         img.original{
             width: initial;
@@ -1852,18 +1857,16 @@ form {
     }
     p{
         text-align: center;
+
         max-width: 520px;
+        width: 510px;
 
-        width: 520px;
-
-    color: #6D6D72;
-    text-align: center;
-    font-family: Inter;
-    font-size: 14px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 160%;
-    letter-spacing: 0.14px;
+        color: #6D6D72;
+        text-align: center;
+        font-family: Inter;
+        font-size: 14px;
+        font-weight: 400;
+        line-height: 160%;
     }
 
     .img-wrapper{

@@ -58,7 +58,11 @@
         </h1>
         <p>Наш сервис абсолютно бесплатен, вы можете поддержать нас донатом, а также выставить свое приложение на продажу, комиссия равна 10%</p>
     </div>
-    <a class="fluffy" href="/account/login">Войти или создать аккаунт</a>
+    {% if not session.get('token') %}
+        <a class="fluffy" href="/account/login">Войти или создать аккаунт</a>
+    {% else %}
+        <a class="fluffy" href="/add">Добавить программу</a>
+    {% endif %}
 </div>
 
 
@@ -72,7 +76,7 @@
     </div>
 </div>
 
-<h2>Библиотека приложений</h2>
+<h2>Библиотека</h2>
 <div class="card-wrapper flex gap-8">
     <div class="card selectable" data-category="shares">
         {% for app in shares %}
@@ -115,7 +119,7 @@
     {% endfor %}
 </div> -->
 
-<h2>Юзеры</h2>
+<h2>Пользователи</h2>
 <div class="card-wrapper flex gap-8">
     <div class="card users">
         {% for user in users %}

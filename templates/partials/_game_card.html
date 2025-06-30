@@ -13,30 +13,30 @@
     data-has-play="{{ '1' if app.is_unity_build else '0' }}"
     >
 
-    {{ app.title }}
-
-    <span class="bottom">
-        {% if app.info.price != 0 and app.info.price %}
-            {{ app.info.price }}₽
-        {% elif app.is_unity_build %}
-            Играть
-        {% elif app.downloads and app.downloads|length > 0 %}
-            {{ app.downloads[0].file_size|filesize|safe }}
-        {% else %}
-            Нет файлов
-        {% endif %}
-        
-        {% if show_update_at %}
-            · {{ app.info.updated_at|time_ago }}
-        {% endif %}
-    </span>
-
-
-    {% if app.info.app_type == 'app' %}
-    <img src="{{ url_for('static', filename='icons/terminal.svg') }}">
+    {% if app.preview %}
+        <img class="preview" src="{{ app.preview }} " alt="Jinja2 Error">
+    {% else %}
+        <div class="preview"></div>
     {% endif %}
-    {% if app.info.app_type == 'game' %}
-    <img src="{{ url_for('static', filename='icons/joystick.svg') }}">
-    {% endif %}
+    
+    <div class="info">
+        {{ app.title }}
+
+        <span class="additional">
+            {% if app.info.price != 0 and app.info.price %}
+                {{ app.info.price }}₽
+            {% elif app.is_unity_build %}
+                Играть
+            {% elif app.downloads and app.downloads|length > 0 %}
+                {{ app.downloads[0].file_size|filesize|safe }}
+            {% else %}
+                Нет файлов
+            {% endif %}
+            
+            {% if show_update_at %}
+                · {{ app.info.updated_at|time_ago }}
+            {% endif %}
+        </span>
+    </div>
 </a>
 
