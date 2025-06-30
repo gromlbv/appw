@@ -773,6 +773,10 @@ html, body, * {
             color: #6D6D72;
             font-size: 14px;
         }
+        img.app-type{
+            width: 24px;
+            opacity: 0.4;
+        }
         img.original{
             width: initial;
             opacity: initial;
@@ -809,8 +813,73 @@ html, body, * {
             position: initial;
         }
     }
-
 }
+.preview-head{
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+    width: 100%;
+    div{
+        width: 100%;
+    }
+    .description{
+        display: none;
+    }
+    .preview-img{
+        display: none;
+    }
+    
+    h3{
+        font-size: 18px;
+        font-weight: 500;
+    }
+}
+@media (max-width: 540px){
+    .card{
+        flex-direction: column;
+        a{
+            width: 100%;
+            height: fit-content;
+            /* max-height: 210px; */
+            padding: 16px;
+            padding-left: 18px;
+        }
+    }
+    .preview-head{
+        display: flex;
+        gap: 12px;
+        width: 100%;
+        height: 100%;
+
+        p{
+            
+        }
+
+        .description{
+            display: initial;
+            max-height: 78px;
+
+            height: 100%;
+            
+            font-size: 14px;
+            line-height: 140%;
+
+            overflow: hidden;
+            background: linear-gradient(to bottom, transparent 50%, black 100%);
+            -webkit-mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 50%, transparent 100%);
+        }
+
+        img{
+            display: initial !important;
+            width: 40%;
+            border-radius: 12px;
+            object-fit: cover;
+            
+        }
+    }
+}
+
 .card.users {
     a {
         height: fit-content;
@@ -1185,7 +1254,7 @@ form, .modal {
 }
 
 
-.success {
+.with-popup.success {
     opacity: 1 !important;
     background-color: var(--success-color-12) !important;
     border: 1px solid var(--success-color) !important;
@@ -1687,8 +1756,7 @@ form {
     border-radius: 12px;
     border-bottom: none !important;
 
-    background-color: var(--error-color-06);
-    color: var(--error-color);
+
     text-align: left;
 
     cursor: not-allowed;
@@ -1701,6 +1769,15 @@ form {
     }
     a{
         border-radius: 32px;
+    }
+}
+#error-box.success{
+    background-color: var(--success-color-06);
+    opacity: 1;
+    
+    a{
+        background-color: var(--success-color-06);
+        color: var(--success-color);
     }
 }
 #error-box.error {

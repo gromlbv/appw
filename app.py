@@ -342,10 +342,10 @@ def post_game():
                     
     flash(f"Приложение успешно добавлено! <a href='https://{link}.appw.su'>Открыть</a>")
     return json_response({
-        'type': 'success',  
-        'redirect_to': url_for('index')
+        'type': 'success',
+        'message': f"Приложение успешно добавлено! <a href='https://{link}.appw.su'>Открыть</a>",
+        'redirect_to': 'https://{link}.appw.su/'
     })
-
 
 @app.route('/search')
 def search():

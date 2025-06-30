@@ -31,14 +31,14 @@
         <div class="flex-end gap-12 flex-grow">
             <a class="bigger" href="/collections">
                 Коллекции
-                <img class="original graphs" src="{{ url_for('static', filename='icons/heart.svg') }}" alt="">
+                <img class="original graphs top-left" src="{{ url_for('static', filename='icons/heart.svg') }}" alt="">
                 <span class="bottom">
                     Создавайте, делитесь и скачивайте подобрки игр (Нестабильно)
                 </span>
             </a>
             <a class="bigger" href="/graphs">
                 Graphs
-                <img class="original graphs" src="{{ url_for('static', filename='icons/graphs.svg') }}" alt="">
+                <img class="original graphs top-left" src="{{ url_for('static', filename='icons/graphs.svg') }}" alt="">
                 <span class="bottom">
                     Просматривайте игры и приложения в виде графиков
                 </span>
@@ -71,6 +71,7 @@
     <div class="card">
         {% for app in latest_shares %}
             {% set show_update_at = true %}
+            {% set show_preview = true %}
             {% include 'partials/_game_card.html' %}
         {% endfor %}
     </div>
