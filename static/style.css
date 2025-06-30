@@ -580,6 +580,8 @@ html, body, * {
         text-align: left;
         font-size: 28px;
         font-weight: 400;
+        font-size: 36px;
+        font-weight: 500;
     }
 }
 .card-wrapper{
@@ -723,8 +725,9 @@ html, body, * {
 
 .card{
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 3 колонки равной ширины */
-    gap: 16px; /* Отступ между элементами */
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: 16px;
+    width: 100%;
     
     a{
         position: relative;
@@ -733,7 +736,6 @@ html, body, * {
         gap: 12px;
 
         width: 100%;
-        min-width: 176px;
         height: calc(48px + 8px + 8px);
         padding: 8px;
         margin: -8px;
@@ -747,10 +749,13 @@ html, body, * {
         transition: 0.2s;
 
         overflow: hidden;
+        white-space: nowrap;
+
 
         img.preview, div.preview{
             height: 48px;
             width: 72px;
+            min-width: 72px;
             max-width: initial;
             max-height: initial;
 
@@ -760,12 +765,29 @@ html, body, * {
             background-color: var(--button-fill-color);
         }
 
+        div.preview{
+            display: flex;
+            justify-content: center;
+            align-items: center;            
+        }
+
         .info{
             display: flex;
             flex-direction: column;
             gap: 6px;
+
+            width: 100%;
+
+            -webkit-mask-image: linear-gradient(to right, black 90%, transparent 100%);
+            mask-image: linear-gradient(to right, black 90%, transparent 100%);
+            overflow: hidden;
         }
 
+        h4{
+            margin: 0;
+            color: var(--primary-color);
+            font-size: 18px;
+        }
         span.additional{
             left: 24px;
             bottom: 24px;

@@ -1,5 +1,5 @@
 <!-- templates/partials/_game_card.html -->
-<a class="custom-context app-object"
+<a class="custom-context"
     href="https://{{ app.link }}.appw.su"
     hx-get="/api/a/{{ app.link }}/modal" 
     hx-target="#gameModal"
@@ -16,17 +16,25 @@
     {% if app.preview %}
         <img class="preview" src="{{ app.preview }} " alt="Jinja2 Error">
     {% else %}
-        <div class="preview"></div>
+        <div class="preview">
+            {% if app.info.app_type == 'app' %}
+            <img class="app-type" src="{{ url_for('static', filename='icons/terminal.svg') }}">
+            {% elif app.info.app_type == 'game' %}
+            <img class="app-type" src="{{ url_for('static', filename='icons/joystick.svg') }}">
+            {% endif %}
+        </div>
     {% endif %}
     
     <div class="info">
-        {{ app.title }}
+        <h4>{{ app.title }}</h4>
 
         <span class="additional">
             {% if app.info.price != 0 and app.info.price %}
                 {{ app.info.price }}₽
             {% elif app.is_unity_build %}
                 Играть
+            {% elif app.external_link %}
+                Ссылка
             {% elif app.downloads and app.downloads|length > 0 %}
                 {{ app.downloads[0].file_size|filesize|safe }}
             {% else %}
