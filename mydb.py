@@ -331,6 +331,9 @@ def coll_get_by_user_edit(user_id):
 
     return edited
 
+def coll_exists(coll_id, game_id):
+    exists = CollectionGame.query.filter_by(collection_id=coll_id, game_id=game_id).first()
+    return exists
 def coll_get_not_added_users(link):
     coll = Collection.query.filter_by(link=link).first_or_404()
     added_ids = [cu.user_id for cu in coll.members]  # <-- members, не users

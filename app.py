@@ -52,19 +52,20 @@ def rate_limit(timeout=1, max_attempts=5):
             counter_key = f"rl_counter:{user_ip}"
 
             attempts = r.incr(counter_key)
+            attempts_int = int(str(attempts)) # пофикси дура
             if attempts == 1:
                 r.expire(counter_key, timeout)
-            if attempts > max_attempts:
+            if attempts_int > max_attempts:
                 return json_response({
                     'type': 'warning',
                     'message': 'Слишком быстро кликаешь!'
                 })
-            if attempts > 20:
+            if attempts_int > 20:
                 return json_response({
                     'type': 'warning',
                     'message': 'Чего?'
                 })
-            if attempts > 100:
+            if attempts_int > 100:
                 return json_response({
                     'type': 'warning',
                     'message': 'Окей на этом моменте виноват точно я'
@@ -659,7 +660,7 @@ def game_add_to_collection(coll_link):
     if not is_admin:
         return 'Forbidden', 403
 
-    exists = CollectionGame.query.filter_by(collection_id=coll.id, game_id=game_id).first()
+    exists = db.coll_exists(coll.id, game_id)
     if not exists:
         db.coll_game_add(coll.id, game_id)
 
