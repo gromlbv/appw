@@ -10,9 +10,9 @@
     <link rel="apple-touch-icon" href="{{ url_for('static', filename='favicon/apple-touch.png') }}" sizes="180x180">
 
     {% if linked_app %}
-        <title>{{ linked_app.name }} / appw</title>
+        <title>{{ linked_app.title }} / appw</title>
         <meta property="og:url" content="https://{{ linked_app.link }}.appw.su">
-        <meta property="og:title" content="{{ linked_app.name }} / appw">
+        <meta property="og:title" content="{{ linked_app.title }} / appw">
         {% else %}
         <title>{% block title %}{% endblock title %}appw</title>
     {% endif %}
@@ -24,8 +24,8 @@
 
         {% else %}
 
-        <meta name="description" content="{{ linked_app.description or 'Страница игры ' ~ linked_app.name ~ ' на платформе для игр и приложений appw.' }}">
-        <meta property="og:description" content="{{ linked_app.description or 'Страница игры ' ~ linked_app.name ~ ' на платформе для игр и приложений appw.' }}">
+        <meta name="description" content="{{ linked_app.description or 'Страница игры ' ~ linked_app.title ~ ' на платформе для игр и приложений appw.' }}">
+        <meta property="og:description" content="{{ linked_app.description or 'Страница игры ' ~ linked_app.title ~ ' на платформе для игр и приложений appw.' }}">
     {% endif %}
 
     <link rel="stylesheet" href="{{ url_for ('static', filename='style.css') }}">
@@ -322,7 +322,7 @@
                     <div class="divider header"></div>
 
                     <a class="fill alt version" href="https://github.com/gromlbv/appw">
-                        Alpha<span>v0.16</span>
+                        Alpha<span>v0.17</span>
                     </a>
                     <a class="fill alt version" href="https://lbvo.ru">
                         Made by lbv_dev<span>lbvo.ru</span>

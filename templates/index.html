@@ -1,8 +1,5 @@
 {% extends 'base.html' %}
 
-{% block title %}
-{% endblock title %}
-
 
 
 {% block content %}
@@ -64,7 +61,19 @@
         <a class="fluffy" href="/add">Добавить программу</a>
     {% endif %}
 </div>
-
+{% if linked_app %}
+ДОЛЖНА ОТКРЫТЬСЯ ИГРА
+{% endif %}
+<h2>Только на appw</h2>
+<div class="card-wrapper flex gap-8">
+    <div class="card">
+        {% for app in latest_shares %}
+            {% set show_update_at = true %}
+            {% set show_preview = true %}
+            {% include 'partials/_game_card.html' %}
+        {% endfor %}
+    </div>
+</div>
 
 <h2>Недавно обновлено</h2>
 <div class="card-wrapper flex gap-8">
@@ -152,6 +161,7 @@
 
         showCategory('shares');
     });
+    
 </script>
 
 
