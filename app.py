@@ -142,7 +142,10 @@ def index():
     shares = db.get_shares_all()
     games = db.get_all_games()
     apps = db.get_all_apps()
-    latest_shares = db.get_latest(4)
+    latest_shares = db.get_latest(6)
+    exclusive_apps = db.get_exclusive()
+    for exclusive_app in exclusive_apps:
+        print(exclusive_app.info.is_exclusive)
 
     return render_template(
         "index.html",
@@ -151,11 +154,22 @@ def index():
         games=games,
         apps=apps,
         latest_shares=latest_shares,
+        exclusive_apps=exclusive_apps,
         files=db.get_files_all(),
         is_loggined=is_loggined(),
         user_id=get_user_id(),
         linked_app=linked_app
     )
+
+@app.post('/<link>/toggle_exclusive')
+def toggle_exclusive(link):
+    db.toggle_exclusive(link)
+    return 'OK', 200
+
+@app.get('/admin')
+def admin_panel():
+    shares = db.get_shares_all()
+    return render_template('admin.html', shares=shares)
 
 @app.route('/api/apptg/<query>')
 def get_or_search_app(query):

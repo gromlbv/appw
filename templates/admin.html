@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+
+
+{% block content %}
+
+
+<h2>Все приложения</h2>
+<div class="card-wrapper flex gap-8">
+    <div class="card">
+        {% for app in shares %}
+            <div class="flex">
+                {% set show_admin = true %}
+                {% include 'partials/_game_card.html' %}
+
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<h2>Пользователи</h2>
+<div class="card-wrapper flex gap-8">
+    <div class="card users">
+        {% for user in users %}
+        <a href="/user/{{ user["username"] }}">{{user["username"]}}</a>
+        {% endfor %}
+    </div>
+</div>
+
+
+{% endblock content %}

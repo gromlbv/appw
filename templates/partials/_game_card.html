@@ -1,4 +1,13 @@
 <!-- templates/partials/_game_card.html -->
+{% if show_admin %}
+<div class="flex">
+   <button 
+       hx-post="/{{ app.link }}/toggle_exclusive"
+       hx-target="#exclusive-status"
+       class="fill">  
+       {% if app.info.is_exclusive %}-EXC{% else %}EXC{% endif %}
+   </button>
+{% endif %}
 <a class="custom-context"
     href="https://{{ app.link }}.appw.su"
     hx-get="/api/a/{{ app.link }}/modal" 
@@ -12,6 +21,7 @@
     data-open-url="/a/{{ app.link }}"
     data-has-play="{{ '1' if app.is_unity_build else '0' }}"
     >
+
 
     {% if app.preview %}
         <img class="preview" src="{{ app.preview }} " alt="Jinja2 Error">
@@ -48,3 +58,6 @@
     </div>
 </a>
 
+{% if show_admin %}
+</div>
+{% endif %}

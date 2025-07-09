@@ -5,46 +5,6 @@
 {% block content %}
 
 
-<!-- <div class="card-wrapper flex gap-8">
-    <div class="card head">
-        <div class="flex-cl gap-12">
-            <a href="/add" class="orange height-fill">
-                <img class="original icons" src="{{ url_for('static', filename='icons/plus-black.svg') }}" alt="">
-                Добавить...
-            </a>
-            {% if not session.get('token') %}
-            <a href="/account/login" class="height-fill">
-                <img class="original icons" src="{{ url_for('static', filename='icons/person-sketch.svg') }}" alt="">
-                Войти в аккаунт
-            </a>
-            {% else %}
-            <a href="/account/me" class="height-fill">
-                <img class="original icons" src="{{ url_for('static', filename='icons/person-sketch.svg') }}" alt="">
-                Открыть профиль
-            </a>
-            {% endif %}
-        </div>
-
-        <div class="flex-end gap-12 flex-grow">
-            <a class="bigger" href="/collections">
-                Коллекции
-                <img class="original graphs top-left" src="{{ url_for('static', filename='icons/heart.svg') }}" alt="">
-                <span class="bottom">
-                    Создавайте, делитесь и скачивайте подобрки игр (Нестабильно)
-                </span>
-            </a>
-            <a class="bigger" href="/graphs">
-                Graphs
-                <img class="original graphs top-left" src="{{ url_for('static', filename='icons/graphs.svg') }}" alt="">
-                <span class="bottom">
-                    Просматривайте игры и приложения в виде графиков
-                </span>
-            </a>
-        </div>
-    </div>
-</div>
- -->
-
 <div class="hello-block">
     <div class="img-wrapper">
         <img src="{{ url_for('static', filename='hero.svg') }}" alt="appw - это про обмен вашими играми и приложениями">
@@ -67,9 +27,7 @@
 <h2>Только на appw</h2>
 <div class="card-wrapper flex gap-8">
     <div class="card">
-        {% for app in latest_shares %}
-            {% set show_update_at = true %}
-            {% set show_preview = true %}
+        {% for app in exclusive_apps %}
             {% include 'partials/_game_card.html' %}
         {% endfor %}
     </div>

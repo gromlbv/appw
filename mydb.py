@@ -66,7 +66,6 @@ def post_register(username, password):
 def get_shares_all():
     return Game.query.filter_by(is_archived=False).order_by(Game.id.desc()).all()
 
-
 def get_all_apps():
     return [game for game in get_shares_all() if game.info and game.info.app_type == 'app']
 
@@ -99,6 +98,10 @@ def get_latest(limit):
         .all()
     return latest_apps
 
+def get_exclusive():
+    apps = get_all_apps()
+    exclusive_apps = [app for app in apps if app.info.exclusive]
+    return exclusive_apps
 
 def get_app_by_user(username):
     apps = get_shares_all()
@@ -198,6 +201,19 @@ def post_game(
     save_to_db(info)
 
     return game
+
+def toggle_exclusive(link):
+    app = get_app_one(link)
+    if not app:
+        return False
+    if not app.info.is_exclusive:
+        app.info_is_exclusive = True
+    if app.info.is_exclusive == True:
+        app.info.is_exclusive = False
+    else:
+        app.info.is_exclusive = True
+    db.session.commit()
+    return True
 
 def get_all_games_with_stats():
     games = get_shares_all()

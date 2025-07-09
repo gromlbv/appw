@@ -64,6 +64,8 @@ class GameInfo(db.Model):
     app_type = db.Column(db.String(100))
     category = db.Column(db.String(100))
 
+    is_exclusive = db.Column(db.Boolean, default=False)
+
 
 class GameDownload(db.Model):
     __tablename__ = 'downloads'
@@ -95,7 +97,7 @@ class Game(db.Model):
     is_archived = db.Column(db.Boolean, default=False, index=True)
     is_accepted = db.Column(db.Boolean, default=False, index=True)
     
-    info = relationship("GameInfo", uselist=False, back_populates="game")
+    info = relationship("GameInfo", uselist=False, back_populates="game", cascade="all, delete-orphan")
     downloads = relationship("GameDownload", back_populates="game", order_by="GameDownload.order")
     stats = relationship("GameStats", uselist=False, back_populates="game")
 
