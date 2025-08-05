@@ -16,3 +16,4 @@
 instance/database.db
 /__pycache__
 /migrations
+ngrok.exe
